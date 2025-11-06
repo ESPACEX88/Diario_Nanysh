@@ -36,7 +36,7 @@ const greeting = computed(() => {
         return 'Buenas tardes';
     } else {
         return 'Buenas noches';
-    });
+    }
 });
 
 const submit = () => {
