@@ -14,14 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            \App\Http\Middleware\ForceHttps::class,
         ]);
-        
-        // Force HTTPS in production
-        if (config('app.env') === 'production') {
-            $middleware->web(append: [
-                \App\Http\Middleware\ForceHttps::class,
-            ]);
-        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
