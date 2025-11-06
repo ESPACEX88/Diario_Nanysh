@@ -24,9 +24,20 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         
         // Force HTTPS in production
-        if (config('app.env') === 'production') {
+        if (env('APP_ENV') === 'production' || config('app.env') === 'production') {
             URL::forceScheme('https');
-            URL::forceRootUrl(config('app.url'));
+            $appUrl = config('app.url');
+            if ($appUrl) {
+                URL::forceRootUrl($appUrl);
+            }
+            
+            // Force HTTPS for Vite assets
+            if (!env('ASSET_URL')) {
+                $assetUrl = str_replace('http://', 'https://', config('app.url', ''));
+                if ($assetUrl) {
+                    config(['app.asset_url' => $assetUrl]);
+                }
+            }
         }
     }
 }
