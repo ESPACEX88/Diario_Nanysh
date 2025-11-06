@@ -28,7 +28,7 @@ COPY package.json package-lock.json ./
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Instalar dependencias de Node
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copiar el resto de los archivos (incluyendo artisan)
 COPY . .
