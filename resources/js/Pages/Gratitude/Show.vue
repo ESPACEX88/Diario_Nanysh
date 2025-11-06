@@ -1,0 +1,69 @@
+<script setup lang="ts">
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, Link } from '@inertiajs/vue3';
+
+interface Props {
+    gratitude: any;
+}
+
+defineProps<Props>();
+</script>
+
+<template>
+    <Head title="Gratitud" />
+
+    <AuthenticatedLayout>
+        <template #header>
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                    Gratitud del {{ new Date(gratitude.date).toLocaleDateString('es-ES') }}
+                </h2>
+                <Link
+                    :href="route('gratitude.edit', gratitude.id)"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                >
+                    Editar
+                </Link>
+            </div>
+        </template>
+
+        <div class="py-12">
+            <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🙏</span>
+                            <p class="text-lg text-gray-700 dark:text-gray-300">
+                                {{ gratitude.item_one }}
+                            </p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🙏</span>
+                            <p class="text-lg text-gray-700 dark:text-gray-300">
+                                {{ gratitude.item_two }}
+                            </p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🙏</span>
+                            <p class="text-lg text-gray-700 dark:text-gray-300">
+                                {{ gratitude.item_three }}
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        v-if="gratitude.reflection"
+                        class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700"
+                    >
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">
+                            Reflexión
+                        </h3>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            {{ gratitude.reflection }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>
+
