@@ -1,9 +1,9 @@
 services:
   - type: web
     name: diario-nahysh
-    env: php
-    buildCommand: composer install --no-dev --optimize-autoloader && npm ci && npm run build
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ENV
         value: production
@@ -19,6 +19,8 @@ services:
         value: database
       - key: FILESYSTEM_DISK
         value: public
+      - key: PHP_VERSION
+        value: 8.3
 
 databases:
   - name: diario-nahysh-db

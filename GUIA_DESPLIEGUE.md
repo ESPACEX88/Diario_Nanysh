@@ -153,16 +153,103 @@ Tu aplicación estará disponible en: `https://tu-app.up.railway.app`
 
 ### 📝 Pasos para Desplegar en Render
 
-1. **Crear cuenta:** https://render.com (gratis, sin tarjeta)
-2. **Nuevo Web Service** → Conecta tu repositorio de GitHub
-3. **Configuración:**
-   - Build Command: `composer install --no-dev --optimize-autoloader && npm ci && npm run build`
-   - Start Command: `php artisan serve --host=0.0.0.0 --port=$PORT`
-4. **Agregar PostgreSQL Database** (gratis, sin límite de tiempo)
-5. **Variables de entorno:** Similar a Railway
-6. **Deploy automático**
+#### 1. Crear Cuenta
+1. Ve a: https://render.com
+2. Crea una cuenta (gratis, sin tarjeta de crédito)
+3. Inicia sesión con GitHub
 
-**Nota:** El plan gratuito puede "dormir" después de 15 minutos de inactividad, pero se despierta automáticamente cuando alguien accede.
+#### 2. Crear Base de Datos PostgreSQL
+1. En el dashboard, haz clic en "New +"
+2. Selecciona "PostgreSQL"
+3. Configuración:
+   - **Name:** `diario-nahysh-db`
+   - **Database:** `diario_nahysh`
+   - **User:** `diario_user`
+   - **Plan:** Free
+4. Haz clic en "Create Database"
+5. **IMPORTANTE:** Copia las credenciales de conexión (las necesitarás después)
+
+#### 3. Crear Web Service
+1. Haz clic en "New +" → "Web Service"
+2. Conecta tu repositorio de GitHub (`ESPACEX88/Diario_Nanysh`)
+3. **Configuración IMPORTANTE:**
+   - **Name:** `diario-nahysh`
+   - **Environment:** `Docker` ⚠️ (Si no aparece "PHP", usa "Docker" - ya creé el Dockerfile)
+   - **Region:** Elige la más cercana
+   - **Branch:** `main`
+   - **Root Directory:** (déjalo vacío)
+   - **Plan:** Free
+
+**Nota:** Si Render no muestra "PHP" en el menú, usa **"Docker"**. Ya creé un `Dockerfile` que Render usará automáticamente.
+
+#### 4. Configurar Build y Start Commands
+En la sección "Build & Deploy":
+
+**Build Command:**
+```bash
+composer install --no-dev --optimize-autoloader && npm ci && npm run build && php artisan migrate --force && php artisan storage:link
+```
+
+**Start Command:**
+```bash
+php artisan serve --host=0.0.0.0 --port=$PORT
+```
+
+#### 5. Configurar Variables de Entorno
+En "Environment Variables", agrega:
+
+```env
+APP_NAME="Diario de Nahysh"
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:TU-KEY-AQUI
+APP_URL=https://diario-nahysh.onrender.com
+
+# Base de datos (usa las credenciales de la base de datos que creaste)
+DB_CONNECTION=pgsql
+DB_HOST=tu-host-de-render
+DB_PORT=5432
+DB_DATABASE=diario_nahysh
+DB_USERNAME=diario_user
+DB_PASSWORD=tu-password-de-render
+
+# Storage
+FILESYSTEM_DISK=public
+
+# Session
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+
+# Cache
+CACHE_DRIVER=database
+QUEUE_CONNECTION=database
+
+# PHP
+PHP_VERSION=8.3
+```
+
+**Para generar APP_KEY:**
+```bash
+php artisan key:generate --show
+```
+Copia el resultado y pégalo en `APP_KEY`
+
+**Para obtener credenciales de la base de datos:**
+- Ve a tu base de datos PostgreSQL en Render
+- En "Connections", verás:
+  - **Host:** `dpg-xxxxx-a.oregon-postgres.render.com`
+  - **Port:** `5432`
+  - **Database:** `diario_nahysh`
+  - **User:** `diario_user`
+  - **Password:** (haz clic en "Show" para verla)
+
+#### 6. Desplegar
+1. Haz clic en "Create Web Service"
+2. Render comenzará a construir y desplegar tu aplicación
+3. Esto puede tardar 5-10 minutos la primera vez
+4. Una vez terminado, tu app estará en: `https://diario-nahysh.onrender.com`
+
+**Nota:** El plan gratuito puede "dormir" después de 15 minutos de inactividad, pero se despierta automáticamente cuando alguien accede (tarda ~30 segundos).
 
 ---
 
