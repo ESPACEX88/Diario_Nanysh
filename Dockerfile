@@ -60,6 +60,10 @@ set -e\n\
 # Esperar un momento para que las variables de entorno estén disponibles\n\
 sleep 2\n\
 \n\
+# Limpiar cache de configuración\n\
+php artisan config:clear\n\
+php artisan cache:clear\n\
+\n\
 # Crear enlace simbólico de storage si no existe\n\
 if [ ! -L public/storage ]; then\n\
     php artisan storage:link\n\

@@ -29,6 +29,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        // Force HTTPS in production
+        if (config('app.env') === 'production') {
+            $request->server->set('HTTPS', 'on');
+        }
+        
         return [
             ...parent::share($request),
             'auth' => [
