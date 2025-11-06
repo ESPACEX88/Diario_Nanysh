@@ -243,7 +243,7 @@ const toggleTodo = (id: number) => {
                         </h3>
                     </div>
                     <div class="p-6">
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
                             <Link
                                 :href="route('diary.create')"
                                 class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl hover:from-rose-100 hover:to-pink-100 transition-all border-2 border-transparent hover:border-pink-300 hover:shadow-lg transform hover:-translate-y-1"
@@ -251,6 +251,42 @@ const toggleTodo = (id: number) => {
                                 <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">✨</span>
                                 <span class="text-sm font-semibold text-gray-700 text-center">
                                     Nueva Entrada
+                                </span>
+                            </Link>
+                            <Link
+                                :href="route('todos.create')"
+                                class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl hover:from-amber-100 hover:to-orange-100 transition-all border-2 border-transparent hover:border-amber-300 hover:shadow-lg transform hover:-translate-y-1"
+                            >
+                                <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">✅</span>
+                                <span class="text-sm font-semibold text-gray-700 text-center">
+                                    Nueva Tarea
+                                </span>
+                            </Link>
+                            <Link
+                                :href="route('events.create')"
+                                class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl hover:from-purple-100 hover:to-indigo-100 transition-all border-2 border-transparent hover:border-purple-300 hover:shadow-lg transform hover:-translate-y-1"
+                            >
+                                <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">📅</span>
+                                <span class="text-sm font-semibold text-gray-700 text-center">
+                                    Nuevo Evento
+                                </span>
+                            </Link>
+                            <Link
+                                :href="route('wishlist.create')"
+                                class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl hover:from-pink-100 hover:to-rose-100 transition-all border-2 border-transparent hover:border-pink-300 hover:shadow-lg transform hover:-translate-y-1"
+                            >
+                                <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">💝</span>
+                                <span class="text-sm font-semibold text-gray-700 text-center">
+                                    Agregar Deseo
+                                </span>
+                            </Link>
+                            <Link
+                                :href="route('dreams.create')"
+                                class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl hover:from-indigo-100 hover:to-purple-100 transition-all border-2 border-transparent hover:border-indigo-300 hover:shadow-lg transform hover:-translate-y-1"
+                            >
+                                <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">🌙</span>
+                                <span class="text-sm font-semibold text-gray-700 text-center">
+                                    Registrar Sueño
                                 </span>
                             </Link>
                             <Link
@@ -262,24 +298,41 @@ const toggleTodo = (id: number) => {
                                     Nueva Nota
                                 </span>
                             </Link>
-                            <Link
-                                :href="route('goals.create')"
-                                class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-fuchsia-50 to-purple-50 rounded-xl hover:from-fuchsia-100 hover:to-purple-100 transition-all border-2 border-transparent hover:border-fuchsia-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">🎀</span>
-                                <span class="text-sm font-semibold text-gray-700 text-center">
-                                    Nueva Meta
-                                </span>
-                            </Link>
-                            <Link
-                                :href="route('gratitude.create')"
-                                class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl hover:from-pink-100 hover:to-rose-100 transition-all border-2 border-transparent hover:border-pink-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">🌺</span>
-                                <span class="text-sm font-semibold text-gray-700 text-center">
-                                    Gratitud
-                                </span>
-                            </Link>
+                        </div>
+                        
+                        <!-- Más Acciones -->
+                        <div class="mt-4 pt-4 border-t border-pink-200">
+                            <h4 class="text-sm font-semibold text-gray-600 mb-3 text-center">Más opciones</h4>
+                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                <Link
+                                    :href="route('counters.create')"
+                                    class="group flex flex-col items-center justify-center p-4 bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg hover:from-pink-100 hover:to-rose-100 transition-all border border-pink-200 hover:border-pink-300"
+                                >
+                                    <span class="text-2xl mb-2">📅</span>
+                                    <span class="text-xs font-semibold text-gray-700 text-center">Contador</span>
+                                </Link>
+                                <Link
+                                    :href="route('media.create')"
+                                    class="group flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all border border-blue-200 hover:border-blue-300"
+                                >
+                                    <span class="text-2xl mb-2">📚</span>
+                                    <span class="text-xs font-semibold text-gray-700 text-center">Libro/Película</span>
+                                </Link>
+                                <Link
+                                    :href="route('meals.create')"
+                                    class="group flex flex-col items-center justify-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all border border-green-200 hover:border-green-300"
+                                >
+                                    <span class="text-2xl mb-2">🍽️</span>
+                                    <span class="text-xs font-semibold text-gray-700 text-center">Comida</span>
+                                </Link>
+                                <Link
+                                    :href="route('cycle.create')"
+                                    class="group flex flex-col items-center justify-center p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg hover:from-pink-100 hover:to-purple-100 transition-all border border-pink-200 hover:border-pink-300"
+                                >
+                                    <span class="text-2xl mb-2">🌸</span>
+                                    <span class="text-xs font-semibold text-gray-700 text-center">Ciclo</span>
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

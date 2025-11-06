@@ -31,20 +31,101 @@ const showingNavigationDropdown = ref(false);
 
                             <!-- Navigation Links -->
                             <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                                class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex items-center"
                             >
                                 <NavLink
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold"
                                 >
-                                    Dashboard
+                                    🏠 Dashboard
+                                </NavLink>
+                                <NavLink
+                                    :href="route('diary.index')"
+                                    :active="route().current('diary.*')"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                >
+                                    📖 Diario
+                                </NavLink>
+                                <NavLink
+                                    :href="route('todos.index')"
+                                    :active="route().current('todos.*')"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                >
+                                    ✅ Tareas
+                                </NavLink>
+                                <NavLink
+                                    :href="route('events.index')"
+                                    :active="route().current('events.*')"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                >
+                                    📅 Eventos
                                 </NavLink>
                                 <NavLink
                                     :href="route('pet.index')"
-                                    :active="route().current('pet.index')"
+                                    :active="route().current('pet.*')"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold"
                                 >
-                                    🐕 Mi Snoopy
+                                    🐕 Snoopy
                                 </NavLink>
+                                
+                                <!-- Dropdown Menu -->
+                                <div class="relative group">
+                                    <button
+                                        class="text-pink-700 hover:text-pink-900 font-semibold flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-pink-100 transition-all"
+                                    >
+                                        Más
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border-2 border-pink-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                        <div class="p-2 space-y-1">
+                                            <Link
+                                                :href="route('wishlist.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                💝 Lista de Deseos
+                                            </Link>
+                                            <Link
+                                                :href="route('achievements.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                🏆 Logros
+                                            </Link>
+                                            <Link
+                                                :href="route('counters.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                📅 Contadores
+                                            </Link>
+                                            <Link
+                                                :href="route('dreams.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                🌙 Sueños
+                                            </Link>
+                                            <Link
+                                                :href="route('media.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                📚 Libros/Películas
+                                            </Link>
+                                            <Link
+                                                :href="route('meals.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                🍽️ Comidas
+                                            </Link>
+                                            <Link
+                                                :href="route('cycle.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                            >
+                                                🌸 Ciclo
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -150,7 +231,73 @@ const showingNavigationDropdown = ref(false);
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
                         >
-                            Dashboard
+                            🏠 Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('diary.index')"
+                            :active="route().current('diary.*')"
+                        >
+                            📖 Diario
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('todos.index')"
+                            :active="route().current('todos.*')"
+                        >
+                            ✅ Tareas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('events.index')"
+                            :active="route().current('events.*')"
+                        >
+                            📅 Eventos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('pet.index')"
+                            :active="route().current('pet.*')"
+                        >
+                            🐕 Snoopy
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('wishlist.index')"
+                            :active="route().current('wishlist.*')"
+                        >
+                            💝 Lista de Deseos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('achievements.index')"
+                            :active="route().current('achievements.*')"
+                        >
+                            🏆 Logros
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('counters.index')"
+                            :active="route().current('counters.*')"
+                        >
+                            📅 Contadores
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('dreams.index')"
+                            :active="route().current('dreams.*')"
+                        >
+                            🌙 Sueños
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('media.index')"
+                            :active="route().current('media.*')"
+                        >
+                            📚 Libros/Películas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('meals.index')"
+                            :active="route().current('meals.*')"
+                        >
+                            🍽️ Comidas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('cycle.index')"
+                            :active="route().current('cycle.*')"
+                        >
+                            🌸 Ciclo
                         </ResponsiveNavLink>
                     </div>
 
