@@ -73,6 +73,11 @@ fi\n\
 if php artisan db:show 2>/dev/null || [ -n "$DATABASE_URL" ] || [ -n "$DB_HOST" ]; then\n\
     echo "Running migrations..."\n\
     php artisan migrate --force\n\
+    \n\
+    # Ejecutar seeders si no se han ejecutado antes\n\
+    echo "Running seeders..."\n\
+    php artisan db:seed --class=AchievementSeeder --force || echo "AchievementSeeder already run or failed"\n\
+    php artisan db:seed --class=MotivationalQuoteSeeder --force || echo "MotivationalQuoteSeeder already run or failed"\n\
 else\n\
     echo "Warning: Database not configured, skipping migrations"\n\
 fi\n\
