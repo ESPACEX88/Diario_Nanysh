@@ -99,7 +99,8 @@ const submit = () => {
                                         id="prep_time"
                                         type="number"
                                         class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
-                                        v-model="form.prep_time"
+                                        :value="form.prep_time?.toString() || ''"
+                                        @input="form.prep_time = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
                                 </div>
                                 <div>
@@ -108,7 +109,8 @@ const submit = () => {
                                         id="cook_time"
                                         type="number"
                                         class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
-                                        v-model="form.cook_time"
+                                        :value="form.cook_time?.toString() || ''"
+                                        @input="form.cook_time = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
                                 </div>
                                 <div>
@@ -117,7 +119,8 @@ const submit = () => {
                                         id="servings"
                                         type="number"
                                         class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
-                                        v-model="form.servings"
+                                        :value="form.servings?.toString() || ''"
+                                        @input="form.servings = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
                                 </div>
                             </div>

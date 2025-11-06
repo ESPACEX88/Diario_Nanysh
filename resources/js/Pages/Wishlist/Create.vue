@@ -102,7 +102,8 @@ const submit = () => {
                                         type="number"
                                         step="0.01"
                                         class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
-                                        v-model="form.price"
+                                        :value="form.price?.toString() || ''"
+                                        @input="form.price = ($event.target as HTMLInputElement).value ? parseFloat(($event.target as HTMLInputElement).value) : null"
                                         placeholder="0.00"
                                     />
                                 </div>

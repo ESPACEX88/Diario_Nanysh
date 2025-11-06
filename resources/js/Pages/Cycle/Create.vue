@@ -73,7 +73,8 @@ const submit = () => {
                                         min="1"
                                         max="35"
                                         class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
-                                        v-model="form.cycle_day"
+                                        :value="form.cycle_day?.toString() || ''"
+                                        @input="form.cycle_day = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
                                 </div>
                             </div>
@@ -134,7 +135,8 @@ const submit = () => {
                                         min="1"
                                         max="5"
                                         class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
-                                        v-model="form.flow_level"
+                                        :value="form.flow_level?.toString() || ''"
+                                        @input="form.flow_level = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
                                 </div>
                             </div>
