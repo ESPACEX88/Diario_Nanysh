@@ -40,9 +40,10 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $pin = $this->string('pin');
+        $pin = trim((string) $this->input('pin', ''));
         $correctPin = '51124';
 
+        // Comparación más robusta
         if ($pin !== $correctPin) {
             RateLimiter::hit($this->throttleKey());
 
