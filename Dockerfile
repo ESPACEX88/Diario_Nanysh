@@ -20,16 +20,21 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Establecer directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar archivos de dependencias
+# Copiar archivos de dependencias primero (para cache de Docker)
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Copiar package.json y package-lock.json
 COPY package.json package-lock.json ./
+
+# Instalar dependencias de PHP (sin scripts que requieren artisan)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+# Instalar dependencias de Node
 RUN npm ci
 
-# Copiar el resto de los archivos
+# Copiar el resto de los archivos (incluyendo artisan)
 COPY . .
+
+# Ejecutar scripts de Composer ahora que artisan existe
+RUN composer dump-autoload --optimize --no-interaction
 
 # Compilar assets
 RUN npm run build
