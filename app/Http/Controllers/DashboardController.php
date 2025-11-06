@@ -8,6 +8,9 @@ use App\Models\Goal;
 use App\Models\Habit;
 use App\Models\Gratitude;
 use App\Models\Pet;
+use App\Models\Todo;
+use App\Models\Event;
+use App\Models\MotivationalQuote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -57,6 +60,25 @@ class DashboardController extends Controller
             ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->count();
 
+        // Pending todos
+        $pendingTodos = Todo::where('user_id', $user->id)
+            ->where('is_completed', false)
+            ->orderBy('due_date')
+            ->orderBy('priority', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Upcoming events (next 7 days)
+        $upcomingEvents = Event::where('user_id', $user->id)
+            ->where('start_date', '>=', Carbon::now())
+            ->where('start_date', '<=', Carbon::now()->addDays(7))
+            ->orderBy('start_date')
+            ->limit(5)
+            ->get();
+
+        // Daily motivational quote
+        $dailyQuote = MotivationalQuote::getDailyQuote();
+
         // Get or create pet
         $pet = Pet::firstOrCreate(
             ['user_id' => $user->id],
@@ -96,6 +118,9 @@ class DashboardController extends Controller
                 'activeHabits' => $activeHabits,
                 'thisWeekGratitudes' => $thisWeekGratitudes,
             ],
+            'pendingTodos' => $pendingTodos,
+            'upcomingEvents' => $upcomingEvents,
+            'dailyQuote' => $dailyQuote,
         ]);
     }
 }

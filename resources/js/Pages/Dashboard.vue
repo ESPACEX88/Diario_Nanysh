@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface Props {
@@ -25,6 +25,12 @@ interface Props {
         activeHabits: number;
         thisWeekGratitudes: number;
     };
+    pendingTodos?: any[];
+    upcomingEvents?: any[];
+    dailyQuote?: {
+        quote: string;
+        author?: string;
+    } | null;
 }
 
 const props = defineProps<Props>();
@@ -79,6 +85,12 @@ const statCards = computed(() => [
         link: route('gratitude.index'),
     },
 ]);
+
+const toggleTodo = (id: number) => {
+    router.post(route('todos.toggle', id), {}, {
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -267,6 +279,128 @@ const statCards = computed(() => [
                                 <span class="text-sm font-semibold text-gray-700 text-center">
                                     Gratitud
                                 </span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Motivational Quote -->
+                <div
+                    v-if="dailyQuote"
+                    class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-200 via-rose-200 to-purple-200 shadow-xl mb-8 border-2 border-pink-300"
+                >
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-pink-300/30 to-purple-300/30 rounded-full -mr-20 -mt-20"></div>
+                    <div class="relative p-8 text-center">
+                        <div class="text-5xl mb-4">💝</div>
+                        <p class="text-2xl font-semibold text-gray-800 mb-3 italic leading-relaxed">
+                            "{{ dailyQuote.quote }}"
+                        </p>
+                        <p
+                            v-if="dailyQuote.author"
+                            class="text-sm text-gray-600 font-medium"
+                        >
+                            — {{ dailyQuote.author }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pending Todos -->
+                <div
+                    v-if="pendingTodos && pendingTodos.length > 0"
+                    class="bg-white rounded-2xl shadow-lg mb-8 border border-gray-100 overflow-hidden"
+                >
+                    <div class="p-6 bg-gradient-to-r from-amber-500 to-orange-500">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span>✅</span>
+                                Tareas Pendientes
+                            </h3>
+                            <Link
+                                :href="route('todos.index')"
+                                class="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-semibold hover:bg-white/30 transition-all"
+                            >
+                                Ver todas →
+                            </Link>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <div
+                                v-for="todo in pendingTodos"
+                                :key="todo.id"
+                                class="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border-2 border-amber-100 hover:border-amber-300 transition-all"
+                            >
+                                <input
+                                    type="checkbox"
+                                    :checked="todo.is_completed"
+                                    @change="toggleTodo(todo.id)"
+                                    class="w-5 h-5 text-pink-500 rounded focus:ring-pink-500"
+                                />
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-900">{{ todo.title }}</h4>
+                                    <p
+                                        v-if="todo.due_date"
+                                        class="text-xs text-gray-600 mt-1"
+                                    >
+                                        📅 {{ new Date(todo.due_date).toLocaleDateString('es-ES') }}
+                                    </p>
+                                </div>
+                                <span
+                                    v-if="todo.priority === 'high'"
+                                    class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold"
+                                >
+                                    Alta
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div
+                    v-if="upcomingEvents && upcomingEvents.length > 0"
+                    class="bg-white rounded-2xl shadow-lg mb-8 border border-gray-100 overflow-hidden"
+                >
+                    <div class="p-6 bg-gradient-to-r from-purple-500 to-pink-500">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span>📅</span>
+                                Próximos Eventos
+                            </h3>
+                            <Link
+                                :href="route('events.index')"
+                                class="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-semibold hover:bg-white/30 transition-all"
+                            >
+                                Ver calendario →
+                            </Link>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <Link
+                                v-for="event in upcomingEvents"
+                                :key="event.id"
+                                :href="route('events.show', event.id)"
+                                class="block p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-3 h-3 rounded-full"
+                                        :style="{ backgroundColor: event.color || '#EC4899' }"
+                                    ></div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900">{{ event.title }}</h4>
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            📅 {{ new Date(event.start_date).toLocaleDateString('es-ES', {
+                                                weekday: 'long',
+                                                day: 'numeric',
+                                                month: 'long',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) }}
+                                        </p>
+                                    </div>
+                                </div>
                             </Link>
                         </div>
                     </div>

@@ -25,6 +25,15 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Keep-alive endpoint público (sin autenticación)
+Route::get('/keep-alive', function () {
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Servicio activo',
+        'timestamp' => now()->toDateTimeString(),
+    ]);
+})->name('keep-alive');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -74,6 +83,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/pet/play', [PetController::class, 'play'])->name('pet.play');
     Route::post('/pet/care', [PetController::class, 'care'])->name('pet.care');
     Route::post('/pet/rename', [PetController::class, 'rename'])->name('pet.rename');
+
+    // Todos (Tareas)
+    Route::resource('todos', \App\Http\Controllers\TodoController::class);
+    Route::post('todos/{todo}/toggle', [\App\Http\Controllers\TodoController::class, 'toggleComplete'])->name('todos.toggle');
+
+    // Events (Eventos)
+    Route::resource('events', \App\Http\Controllers\EventController::class);
+
+    // Wishlist (Lista de deseos)
+    Route::resource('wishlist', \App\Http\Controllers\WishlistItemController::class);
+
+    // Achievements (Logros)
+    Route::get('achievements', [\App\Http\Controllers\AchievementController::class, 'index'])->name('achievements.index');
+
+    // Day Counters (Contadores de días)
+    Route::resource('counters', \App\Http\Controllers\DayCounterController::class);
+
+    // Dreams (Sueños)
+    Route::resource('dreams', \App\Http\Controllers\DreamController::class);
+
+    // Media Items (Libros/Películas)
+    Route::resource('media', \App\Http\Controllers\MediaItemController::class);
+
+    // Cycle Tracking (Seguimiento de ciclo)
+    Route::resource('cycle', \App\Http\Controllers\CycleTrackingController::class);
+
+    // Favorite Meals (Comidas favoritas)
+    Route::resource('meals', \App\Http\Controllers\FavoriteMealController::class);
+
+    // Motivational Quotes (Frases motivacionales)
+    Route::get('quote/daily', [\App\Http\Controllers\MotivationalQuoteController::class, 'daily'])->name('quote.daily');
 });
 
 require __DIR__.'/auth.php';
