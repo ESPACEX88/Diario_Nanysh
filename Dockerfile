@@ -54,13 +54,21 @@ ENV PORT=8000
 RUN echo '#!/bin/sh\n\
 set -e\n\
 \n\
+# Esperar un momento para que las variables de entorno estén disponibles\n\
+sleep 2\n\
+\n\
 # Crear enlace simbólico de storage si no existe\n\
 if [ ! -L public/storage ]; then\n\
     php artisan storage:link\n\
 fi\n\
 \n\
-# Ejecutar migraciones\n\
-php artisan migrate --force\n\
+# Verificar que la base de datos esté configurada antes de migrar\n\
+if php artisan db:show 2>/dev/null || [ -n "$DATABASE_URL" ] || [ -n "$DB_HOST" ]; then\n\
+    echo "Running migrations..."\n\
+    php artisan migrate --force\n\
+else\n\
+    echo "Warning: Database not configured, skipping migrations"\n\
+fi\n\
 \n\
 # Iniciar servidor\n\
 exec php artisan serve --host=0.0.0.0 --port=${PORT}\n\

@@ -195,23 +195,43 @@ composer install --no-dev --optimize-autoloader && npm ci && npm run build && ph
 php artisan serve --host=0.0.0.0 --port=$PORT
 ```
 
-#### 5. Configurar Variables de Entorno
-En "Environment Variables", agrega:
+#### 5. Conectar la Base de Datos al Web Service
+
+**IMPORTANTE:** Primero debes conectar la base de datos al servicio web.
+
+1. **Ve a tu servicio web "Diario Nanysh-1"**
+2. **Haz clic en "Environment"** (menú lateral)
+3. **Haz clic en "Add Environment Variable"**
+
+**Opción A: Usar Internal Database URL (MÁS FÁCIL) ⭐**
+
+1. Ve a tu base de datos "diario"
+2. En la pestaña "Info" o "Connections", copia la **Internal Database URL**
+3. En tu web service, agrega:
+   - **Key:** `DATABASE_URL`
+   - **Value:** (pega la URL completa que copiaste)
+
+**Opción B: Variables Individuales**
+
+Si prefieres usar variables individuales, agrega:
+
+- `DB_CONNECTION=pgsql`
+- `DB_HOST=` (el host de tu base de datos)
+- `DB_PORT=5432`
+- `DB_DATABASE=` (nombre de tu base de datos)
+- `DB_USERNAME=` (usuario de tu base de datos)
+- `DB_PASSWORD=` (contraseña de tu base de datos)
+
+#### 6. Configurar Otras Variables de Entorno
+
+Agrega estas variables adicionales:
 
 ```env
 APP_NAME="Diario de Nahysh"
 APP_ENV=production
 APP_DEBUG=false
 APP_KEY=base64:TU-KEY-AQUI
-APP_URL=https://diario-nahysh.onrender.com
-
-# Base de datos (usa las credenciales de la base de datos que creaste)
-DB_CONNECTION=pgsql
-DB_HOST=tu-host-de-render
-DB_PORT=5432
-DB_DATABASE=diario_nahysh
-DB_USERNAME=diario_user
-DB_PASSWORD=tu-password-de-render
+APP_URL=https://diario-nanysh-1.onrender.com
 
 # Storage
 FILESYSTEM_DISK=public
@@ -223,9 +243,6 @@ SESSION_LIFETIME=120
 # Cache
 CACHE_DRIVER=database
 QUEUE_CONNECTION=database
-
-# PHP
-PHP_VERSION=8.3
 ```
 
 **Para generar APP_KEY:**
@@ -236,12 +253,9 @@ Copia el resultado y pégalo en `APP_KEY`
 
 **Para obtener credenciales de la base de datos:**
 - Ve a tu base de datos PostgreSQL en Render
-- En "Connections", verás:
-  - **Host:** `dpg-xxxxx-a.oregon-postgres.render.com`
-  - **Port:** `5432`
-  - **Database:** `diario_nahysh`
-  - **User:** `diario_user`
-  - **Password:** (haz clic en "Show" para verla)
+- En "Info" o "Connections", verás:
+  - **Internal Database URL:** (úsala directamente como `DATABASE_URL`)
+  - O las credenciales individuales si prefieres usarlas
 
 #### 6. Desplegar
 1. Haz clic en "Create Web Service"
