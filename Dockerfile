@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.3-cli
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \
     zip \
     unzip \
     nodejs \
@@ -47,6 +48,9 @@ RUN chown -R www-data:www-data /var/www/html \
 # Exponer puerto
 EXPOSE 8000
 
+# Variables de entorno (se pueden sobrescribir)
+ENV PORT=8000
+
 # Comando para iniciar
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan serve --host=0.0.0.0 --port=${PORT}
 
