@@ -67,15 +67,16 @@ const submit = () => {
 
                                 <div>
                                     <InputLabel for="cycle_day" value="Día del ciclo" class="text-pink-700 font-semibold" />
-                                    <TextInput
+                                    <input
                                         id="cycle_day"
                                         type="number"
                                         min="1"
                                         max="35"
-                                        class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
+                                        class="mt-2 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                         :value="form.cycle_day?.toString() || ''"
                                         @input="form.cycle_day = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
+                                    <InputError class="mt-2" :message="form.errors.cycle_day" />
                                 </div>
                             </div>
 
@@ -129,15 +130,16 @@ const submit = () => {
 
                                 <div>
                                     <InputLabel for="flow_level" value="Nivel de flujo (1-5)" class="text-pink-700 font-semibold" />
-                                    <TextInput
+                                    <input
                                         id="flow_level"
                                         type="number"
                                         min="1"
                                         max="5"
-                                        class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
+                                        class="mt-2 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                         :value="form.flow_level?.toString() || ''"
                                         @input="form.flow_level = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
+                                    <InputError class="mt-2" :message="form.errors.flow_level" />
                                 </div>
                             </div>
 

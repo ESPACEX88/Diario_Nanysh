@@ -97,15 +97,16 @@ const submit = () => {
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div>
                                     <InputLabel for="price" value="Precio (opcional)" class="text-pink-700 font-semibold" />
-                                    <TextInput
+                                    <input
                                         id="price"
                                         type="number"
                                         step="0.01"
-                                        class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
+                                        class="mt-2 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                         :value="form.price?.toString() || ''"
                                         @input="form.price = ($event.target as HTMLInputElement).value ? parseFloat(($event.target as HTMLInputElement).value) : null"
                                         placeholder="0.00"
                                     />
+                                    <InputError class="mt-2" :message="form.errors.price" />
                                 </div>
 
                                 <div>

@@ -95,33 +95,36 @@ const submit = () => {
                             <div class="grid grid-cols-3 gap-4 mb-6">
                                 <div>
                                     <InputLabel for="prep_time" value="Tiempo prep (min)" class="text-pink-700 font-semibold" />
-                                    <TextInput
+                                    <input
                                         id="prep_time"
                                         type="number"
-                                        class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
+                                        class="mt-2 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                         :value="form.prep_time?.toString() || ''"
                                         @input="form.prep_time = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
+                                    <InputError class="mt-2" :message="form.errors.prep_time" />
                                 </div>
                                 <div>
                                     <InputLabel for="cook_time" value="Tiempo cocción (min)" class="text-pink-700 font-semibold" />
-                                    <TextInput
+                                    <input
                                         id="cook_time"
                                         type="number"
-                                        class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
+                                        class="mt-2 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                         :value="form.cook_time?.toString() || ''"
                                         @input="form.cook_time = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
+                                    <InputError class="mt-2" :message="form.errors.cook_time" />
                                 </div>
                                 <div>
                                     <InputLabel for="servings" value="Porciones" class="text-pink-700 font-semibold" />
-                                    <TextInput
+                                    <input
                                         id="servings"
                                         type="number"
-                                        class="mt-2 block w-full border-pink-300 focus:border-pink-500 focus:ring-pink-500 rounded-xl"
+                                        class="mt-2 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                         :value="form.servings?.toString() || ''"
                                         @input="form.servings = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                     />
+                                    <InputError class="mt-2" :message="form.errors.servings" />
                                 </div>
                             </div>
 
