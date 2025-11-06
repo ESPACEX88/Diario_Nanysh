@@ -39,12 +39,6 @@ RUN composer dump-autoload --optimize --no-interaction
 # Compilar assets
 RUN npm run build
 
-# Ejecutar migraciones
-RUN php artisan migrate --force
-
-# Crear enlace simbólico de storage
-RUN php artisan storage:link
-
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
@@ -56,6 +50,22 @@ EXPOSE 8000
 # Variables de entorno (se pueden sobrescribir)
 ENV PORT=8000
 
+# Crear script de inicio
+RUN echo '#!/bin/sh\n\
+set -e\n\
+\n\
+# Crear enlace simbólico de storage si no existe\n\
+if [ ! -L public/storage ]; then\n\
+    php artisan storage:link\n\
+fi\n\
+\n\
+# Ejecutar migraciones\n\
+php artisan migrate --force\n\
+\n\
+# Iniciar servidor\n\
+exec php artisan serve --host=0.0.0.0 --port=${PORT}\n\
+' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+
 # Comando para iniciar
-CMD php artisan serve --host=0.0.0.0 --port=${PORT}
+CMD ["/usr/local/bin/start.sh"]
 
