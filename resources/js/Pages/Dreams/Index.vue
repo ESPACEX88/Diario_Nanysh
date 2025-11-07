@@ -64,21 +64,21 @@ const deleteDream = (id: number) => {
             </div>
         </template>
 
-        <div class="py-8">
+        <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="dreams.length > 0" class="space-y-6">
+                <div v-if="dreams.length > 0" class="max-h-96 overflow-y-auto space-y-3 pr-2">
                     <div
                         v-for="dream in dreams"
                         :key="dream.id"
-                        class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-lg hover:shadow-xl"
+                        class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-sm hover:shadow-md"
                     >
-                        <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-full -mr-20 -mt-20"></div>
-                        <div class="relative p-6">
-                            <div class="flex items-start justify-between mb-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-4xl">{{ getTypeIcon(dream.type) }}</span>
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-full -mr-12 -mt-12"></div>
+                        <div class="relative p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">{{ getTypeIcon(dream.type) }}</span>
                                     <div>
-                                        <h3 class="text-xl font-bold text-gray-900">{{ dream.title }}</h3>
+                                        <h3 class="text-base font-bold text-gray-900">{{ dream.title }}</h3>
                                         <span
                                             :class="['px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r', getTypeColor(dream.type)]"
                                         >
@@ -90,13 +90,13 @@ const deleteDream = (id: number) => {
                                     {{ new Date(dream.date).toLocaleDateString('es-ES') }}
                                 </span>
                             </div>
-                            <p class="text-gray-700 mb-4 line-clamp-3 leading-relaxed">
+                            <p class="text-gray-700 mb-2 text-sm line-clamp-2">
                                 {{ dream.content }}
                             </p>
-                            <div v-if="dream.mood" class="mb-4">
-                                <span class="text-2xl">{{ dream.mood }}</span>
+                            <div v-if="dream.mood" class="mb-2">
+                                <span class="text-xl">{{ dream.mood }}</span>
                             </div>
-                            <div v-if="dream.tags && dream.tags.length > 0" class="flex flex-wrap gap-2 mb-4">
+                            <div v-if="dream.tags && dream.tags.length > 0" class="flex flex-wrap gap-1 mb-2">
                                 <span
                                     v-for="tag in dream.tags"
                                     :key="tag"
@@ -108,19 +108,19 @@ const deleteDream = (id: number) => {
                             <div class="flex gap-2">
                                 <Link
                                     :href="route('dreams.show', dream.id)"
-                                    class="px-4 py-2 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-full text-sm font-semibold hover:from-pink-500 hover:to-rose-500 transition-all"
+                                    class="px-3 py-1 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-lg text-xs font-semibold hover:from-pink-500 hover:to-rose-500 transition-all"
                                 >
                                     Ver más
                                 </Link>
                                 <Link
                                     :href="route('dreams.edit', dream.id)"
-                                    class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold hover:bg-blue-200 transition-all"
+                                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-200 transition-all"
                                 >
                                     Editar
                                 </Link>
                                 <button
                                     @click="deleteDream(dream.id)"
-                                    class="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-semibold hover:bg-red-200 transition-all"
+                                    class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-200 transition-all"
                                 >
                                     Eliminar
                                 </button>

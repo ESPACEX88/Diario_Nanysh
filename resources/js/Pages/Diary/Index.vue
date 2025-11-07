@@ -66,23 +66,23 @@ const search = () => {
                 </div>
 
                 <!-- Entries List -->
-                <div v-if="entries.data.length > 0" class="space-y-4">
+                <div v-if="entries.data.length > 0" class="max-h-96 overflow-y-auto space-y-2 pr-2">
                     <div
                         v-for="entry in entries.data"
                         :key="entry.id"
-                        class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-50 to-rose-50 shadow-lg hover:shadow-xl border-2 border-pink-100 hover:border-pink-300 transition-all transform hover:-translate-y-1"
+                        class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 to-rose-50 shadow-sm hover:shadow-md border-2 border-pink-100 hover:border-pink-300 transition-all"
                     >
                         <Link
                             :href="route('diary.show', entry.id)"
-                            class="block p-6"
+                            class="block p-3"
                         >
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="text-base font-bold text-gray-900 dark:text-white">
                                             {{ entry.title }}
                                         </h3>
-                                        <span class="text-2xl">{{ entry.mood }}</span>
+                                        <span class="text-xl">{{ entry.mood }}</span>
                                         <span
                                             v-if="entry.is_favorite"
                                             class="text-yellow-500"
@@ -91,10 +91,10 @@ const search = () => {
                                             ⭐
                                         </span>
                                     </div>
-                                    <p class="text-gray-600 dark:text-gray-300 line-clamp-3 mb-3">
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-1 mb-1">
                                         {{ entry.content }}
                                     </p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
                                         {{ new Date(entry.date).toLocaleDateString('es-ES', {
                                             weekday: 'long',
                                             year: 'numeric',

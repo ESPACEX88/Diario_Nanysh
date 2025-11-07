@@ -67,19 +67,19 @@ const getPriorityColor = (priority: string) => {
             </div>
         </template>
 
-        <div class="py-8">
+        <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
                 <!-- Pending Todos -->
-                <div v-if="pendingTodos.length > 0" class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <div v-if="pendingTodos.length > 0" class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
                         <span>⏳</span>
                         Pendientes ({{ pendingTodos.length }})
                     </h3>
-                    <div class="space-y-3">
+                    <div class="max-h-96 overflow-y-auto space-y-2 pr-2">
                         <div
                             v-for="todo in pendingTodos"
                             :key="todo.id"
-                            class="bg-white rounded-xl shadow-md border-2 border-pink-100 hover:border-pink-300 transition-all p-5"
+                            class="bg-white rounded-lg shadow-sm border-2 border-pink-100 hover:border-pink-300 transition-all p-3"
                         >
                             <div class="flex items-start gap-4">
                                 <input
@@ -89,8 +89,8 @@ const getPriorityColor = (priority: string) => {
                                     class="mt-1 w-5 h-5 text-pink-500 rounded focus:ring-pink-500"
                                 />
                                 <div class="flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <h4 class="font-semibold text-gray-900 text-lg">{{ todo.title }}</h4>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h4 class="font-semibold text-gray-900 text-base">{{ todo.title }}</h4>
                                         <span
                                             v-if="todo.priority"
                                             :class="['px-2 py-1 rounded-full text-xs font-semibold', getPriorityColor(todo.priority)]"
@@ -98,8 +98,8 @@ const getPriorityColor = (priority: string) => {
                                             {{ todo.priority === 'high' ? 'Alta' : todo.priority === 'medium' ? 'Media' : 'Baja' }}
                                         </span>
                                     </div>
-                                    <p v-if="todo.description" class="text-gray-600 mb-2">{{ todo.description }}</p>
-                                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                                    <p v-if="todo.description" class="text-gray-600 text-sm mb-1 line-clamp-1">{{ todo.description }}</p>
+                                    <div class="flex items-center gap-3 text-xs text-gray-500">
                                         <span v-if="todo.due_date">
                                             📅 {{ new Date(todo.due_date).toLocaleDateString('es-ES') }}
                                         </span>
@@ -126,16 +126,16 @@ const getPriorityColor = (priority: string) => {
                 </div>
 
                 <!-- Completed Todos -->
-                <div v-if="completedTodos.length > 0" class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <div v-if="completedTodos.length > 0" class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
                         <span>✅</span>
                         Completadas ({{ completedTodos.length }})
                     </h3>
-                    <div class="space-y-3">
+                    <div class="max-h-64 overflow-y-auto space-y-2 pr-2">
                         <div
                             v-for="todo in completedTodos"
                             :key="todo.id"
-                            class="bg-gray-50 rounded-xl border-2 border-gray-200 p-5 opacity-75"
+                            class="bg-gray-50 rounded-lg border-2 border-gray-200 p-3 opacity-75"
                         >
                             <div class="flex items-start gap-4">
                                 <input
@@ -145,8 +145,8 @@ const getPriorityColor = (priority: string) => {
                                     class="mt-1 w-5 h-5 text-pink-500 rounded focus:ring-pink-500"
                                 />
                                 <div class="flex-1">
-                                    <h4 class="font-semibold text-gray-600 text-lg line-through">{{ todo.title }}</h4>
-                                    <p v-if="todo.description" class="text-gray-500 text-sm mt-1">{{ todo.description }}</p>
+                                    <h4 class="font-semibold text-gray-600 text-sm line-through">{{ todo.title }}</h4>
+                                    <p v-if="todo.description" class="text-gray-500 text-xs mt-1 line-clamp-1">{{ todo.description }}</p>
                                 </div>
                                 <button
                                     @click="deleteTodo(todo.id)"

@@ -37,20 +37,20 @@ defineProps<Props>();
             </div>
         </template>
 
-        <div class="py-8">
+        <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="events.length > 0" class="space-y-4">
+                <div v-if="events.length > 0" class="max-h-96 overflow-y-auto space-y-2 pr-2">
                     <div
                         v-for="event in events"
                         :key="event.id"
-                        class="bg-white rounded-xl shadow-md border-l-4 p-5 hover:shadow-lg transition-all"
+                        class="bg-white rounded-lg shadow-sm border-l-4 p-3 hover:shadow-md transition-all"
                         :style="{ borderLeftColor: event.color || '#EC4899' }"
                     >
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ event.title }}</h3>
-                                <p v-if="event.description" class="text-gray-600 mb-3">{{ event.description }}</p>
-                                <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base font-bold text-gray-900 mb-1">{{ event.title }}</h3>
+                                <p v-if="event.description" class="text-gray-600 text-sm mb-2 line-clamp-1">{{ event.description }}</p>
+                                <div class="flex flex-wrap gap-2 text-xs text-gray-500">
                                     <span>
                                         📅 {{ new Date(event.start_date).toLocaleDateString('es-ES', {
                                             weekday: 'long',

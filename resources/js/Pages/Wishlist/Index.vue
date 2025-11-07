@@ -75,35 +75,36 @@ const deleteItem = (id: number) => {
             </div>
         </template>
 
-        <div class="py-8">
+        <div class="py-4">
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
                 <!-- Pending Items -->
-                <div v-if="pendingItems.length > 0" class="mb-10">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                        <span class="text-3xl">✨</span>
+                <div v-if="pendingItems.length > 0" class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span class="text-2xl">✨</span>
                         Deseos Pendientes ({{ pendingItems.length }})
                     </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="max-h-96 overflow-y-auto pr-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         <div
                             v-for="item in pendingItems"
                             :key="item.id"
-                            class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-2"
+                            class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-sm hover:shadow-md"
                         >
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full -mr-16 -mt-16"></div>
-                            <div class="relative p-6">
-                                <div class="flex items-start justify-between mb-4">
-                                    <div class="text-5xl">{{ getCategoryIcon(item.category) }}</div>
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full -mr-10 -mt-10"></div>
+                            <div class="relative p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="text-3xl">{{ getCategoryIcon(item.category) }}</div>
                                     <span
                                         :class="['px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r', getPriorityColor(item.priority)]"
                                     >
                                         {{ item.priority === 'high' ? 'Alta' : item.priority === 'medium' ? 'Media' : 'Baja' }}
                                     </span>
                                 </div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-2">{{ item.name }}</h4>
-                                <p v-if="item.description" class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                <h4 class="text-base font-bold text-gray-900 mb-1">{{ item.name }}</h4>
+                                <p v-if="item.description" class="text-gray-600 text-xs mb-2 line-clamp-1">
                                     {{ item.description }}
                                 </p>
-                                <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center justify-between mb-2">
                                     <span v-if="item.price" class="text-lg font-bold text-pink-600">
                                         💰 ${{ item.price.toLocaleString() }}
                                     </span>
@@ -139,25 +140,27 @@ const deleteItem = (id: number) => {
                 </div>
 
                 <!-- Obtained Items -->
-                <div v-if="obtainedItems.length > 0" class="mb-10">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                        <span class="text-3xl">🎉</span>
+                <div v-if="obtainedItems.length > 0" class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🎉</span>
                         Deseos Cumplidos ({{ obtainedItems.length }})
                     </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="max-h-64 overflow-y-auto pr-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         <div
                             v-for="item in obtainedItems"
                             :key="item.id"
-                            class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 opacity-75"
+                            class="relative overflow-hidden rounded-lg bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 opacity-75"
                         >
-                            <div class="absolute top-4 right-4 text-3xl">✅</div>
-                            <div class="p-6">
-                                <div class="text-5xl mb-4 opacity-50">{{ getCategoryIcon(item.category) }}</div>
-                                <h4 class="text-xl font-bold text-gray-700 mb-2 line-through">{{ item.name }}</h4>
+                            <div class="absolute top-2 right-2 text-xl">✅</div>
+                            <div class="p-4">
+                                <div class="text-3xl mb-2 opacity-50">{{ getCategoryIcon(item.category) }}</div>
+                                <h4 class="text-sm font-bold text-gray-700 mb-1 line-through">{{ item.name }}</h4>
                                 <p v-if="item.obtained_date" class="text-xs text-gray-500">
                                     Obtenido: {{ new Date(item.obtained_date).toLocaleDateString('es-ES') }}
                                 </p>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
