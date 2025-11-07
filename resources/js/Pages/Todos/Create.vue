@@ -30,87 +30,99 @@ const submit = () => {
         </template>
 
         <div class="py-8">
-            <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white rounded-2xl shadow-lg border border-pink-100 p-8">
-                    <form @submit.prevent="submit">
-                        <div class="mb-6">
-                            <InputLabel for="title" value="Título *" />
-                            <TextInput
-                                id="title"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.title"
-                                required
-                                autofocus
-                            />
-                            <InputError class="mt-2" :message="form.errors.title" />
-                        </div>
-
-                        <div class="mb-6">
-                            <InputLabel for="description" value="Descripción" />
-                            <textarea
-                                id="description"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                                v-model="form.description"
-                                rows="4"
-                            ></textarea>
-                            <InputError class="mt-2" :message="form.errors.description" />
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <InputLabel for="due_date" value="Fecha límite" />
+            <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+                <div class="relative overflow-hidden rounded-2xl bg-white border-2 border-pink-200 shadow-xl">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full -mr-20 -mt-20"></div>
+                    <div class="relative p-8">
+                        <form @submit.prevent="submit">
+                            <!-- Primera fila: Título -->
+                            <div class="mb-6">
+                                <InputLabel for="title" value="Título *" class="text-pink-800 font-semibold mb-2" />
                                 <TextInput
-                                    id="due_date"
-                                    type="date"
-                                    class="mt-1 block w-full"
-                                    v-model="form.due_date"
+                                    id="title"
+                                    type="text"
+                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                    v-model="form.title"
+                                    required
+                                    autofocus
+                                    placeholder="¿Qué necesitas hacer?"
                                 />
-                                <InputError class="mt-2" :message="form.errors.due_date" />
+                                <InputError class="mt-2" :message="form.errors.title" />
                             </div>
 
-                            <div>
-                                <InputLabel for="priority" value="Prioridad" />
-                                <select
-                                    id="priority"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                                    v-model="form.priority"
+                            <!-- Segunda fila: Descripción -->
+                            <div class="mb-6">
+                                <InputLabel for="description" value="Descripción" class="text-pink-800 font-semibold mb-2" />
+                                <textarea
+                                    id="description"
+                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 resize-none"
+                                    v-model="form.description"
+                                    rows="4"
+                                    placeholder="Detalles adicionales sobre la tarea..."
+                                ></textarea>
+                                <InputError class="mt-2" :message="form.errors.description" />
+                            </div>
+
+                            <!-- Tercera fila: Fecha límite y Prioridad -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <InputLabel for="due_date" value="Fecha límite" class="text-pink-800 font-semibold mb-2" />
+                                    <TextInput
+                                        id="due_date"
+                                        type="date"
+                                        class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                        v-model="form.due_date"
+                                    />
+                                    <InputError class="mt-2" :message="form.errors.due_date" />
+                                </div>
+
+                                <div>
+                                    <InputLabel for="priority" value="Prioridad" class="text-pink-800 font-semibold mb-2" />
+                                    <select
+                                        id="priority"
+                                        class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                        v-model="form.priority"
+                                    >
+                                        <option value="low">🟢 Baja</option>
+                                        <option value="medium">🟡 Media</option>
+                                        <option value="high">🔴 Alta</option>
+                                    </select>
+                                    <InputError class="mt-2" :message="form.errors.priority" />
+                                </div>
+                            </div>
+
+                            <!-- Cuarta fila: Categoría -->
+                            <div class="mb-6">
+                                <InputLabel for="category" value="Categoría" class="text-pink-800 font-semibold mb-2" />
+                                <TextInput
+                                    id="category"
+                                    type="text"
+                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                    v-model="form.category"
+                                    placeholder="Ej: Trabajo, Personal, Salud..."
+                                />
+                                <InputError class="mt-2" :message="form.errors.category" />
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="flex items-center justify-end gap-4 pt-4 border-t-2 border-pink-100">
+                                <Link
+                                    :href="route('todos.index')"
+                                    class="px-6 py-2.5 text-gray-700 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
                                 >
-                                    <option value="low">Baja</option>
-                                    <option value="medium">Media</option>
-                                    <option value="high">Alta</option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.priority" />
+                                    Cancelar
+                                </Link>
+                                <PrimaryButton
+                                    class="px-8 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 rounded-lg font-bold shadow-lg"
+                                    :class="{ 'opacity-25': form.processing }"
+                                    :disabled="form.processing"
+                                >
+                                    <span v-if="form.processing">Creando...</span>
+                                    <span v-else>✨ Crear Tarea</span>
+                                </PrimaryButton>
                             </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <InputLabel for="category" value="Categoría" />
-                            <TextInput
-                                id="category"
-                                type="text"
-                                class="mt-1 block w-full"
-                                v-model="form.category"
-                                placeholder="Ej: Trabajo, Personal, Salud..."
-                            />
-                            <InputError class="mt-2" :message="form.errors.category" />
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <PrimaryButton
-                                :class="{ 'opacity-25': form.processing }"
-                                :disabled="form.processing"
-                            >
-                                Crear Tarea
-                            </PrimaryButton>
-                            <Link
-                                :href="route('todos.index')"
-                                class="text-gray-600 hover:text-gray-900 font-semibold"
-                            >
-                                Cancelar
-                            </Link>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

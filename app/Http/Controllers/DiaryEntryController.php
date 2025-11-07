@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DiaryEntry;
 use App\Models\Pet;
+use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -96,9 +97,18 @@ class DiaryEntryController extends Controller
             $pet->save();
         }
 
+        // Verificar logros
+        $achievementService = new AchievementService();
+        $unlockedAchievements = $achievementService->checkDiaryAchievements(Auth::user());
+        
         $message = 'Entrada del diario creada exitosamente.';
         if ($coinsEarned > 0) {
             $message .= " ¡Ganaste {$coinsEarned} fichitas! 💰";
+        }
+        
+        if (!empty($unlockedAchievements)) {
+            $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
+            $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
         }
 
         return redirect()->route('diary.show', $entry->id)

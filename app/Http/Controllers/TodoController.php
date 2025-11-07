@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Todo;
 use App\Models\Pet;
+use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -92,7 +93,7 @@ class TodoController extends Controller
         $wasCompleted = $todo->is_completed;
         $todo->update($validated);
 
-        // Si se completó la tarea, dar fichitas a Snoopy
+        // Si se completó la tarea, dar fichitas a Snoopy y verificar logros
         if (!$wasCompleted && $todo->is_completed) {
             $pet = Pet::firstOrCreate(['user_id' => Auth::id()], [
                 'name' => 'Snoopy',
@@ -106,9 +107,19 @@ class TodoController extends Controller
             $coins = 5; // 5 fichitas por completar una tarea
             $pet->increment('coins', $coins);
             $pet->increment('happiness', 2);
+            
+            // Verificar logros
+            $achievementService = new AchievementService();
+            $unlockedAchievements = $achievementService->checkTodoAchievements(Auth::user());
+            
+            $message = "¡Tarea completada! Snoopy ganó {$coins} fichitas 🎉";
+            if (!empty($unlockedAchievements)) {
+                $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
+                $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
+            }
 
             return redirect()->route('todos.index')
-                ->with('success', "¡Tarea completada! Snoopy ganó {$coins} fichitas 🎉");
+                ->with('success', $message);
         }
 
         return redirect()->route('todos.index')
@@ -134,7 +145,7 @@ class TodoController extends Controller
         $todo->is_completed = !$todo->is_completed;
         $todo->save();
 
-        // Si se completó, dar fichitas
+        // Si se completó, dar fichitas y verificar logros
         if ($todo->is_completed) {
             $pet = Pet::firstOrCreate(['user_id' => Auth::id()], [
                 'name' => 'Snoopy',
@@ -148,10 +159,20 @@ class TodoController extends Controller
             $coins = 5;
             $pet->increment('coins', $coins);
             $pet->increment('happiness', 2);
+            
+            // Verificar logros
+            $achievementService = new AchievementService();
+            $unlockedAchievements = $achievementService->checkTodoAchievements(Auth::user());
+            
+            $message = "¡Tarea completada! Snoopy ganó 5 fichitas 🎉";
+            if (!empty($unlockedAchievements)) {
+                $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
+                $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
+            }
+            
+            return back()->with('success', $message);
         }
 
-        return back()->with('success', $todo->is_completed 
-            ? "¡Tarea completada! Snoopy ganó 5 fichitas 🎉" 
-            : 'Tarea marcada como pendiente');
+        return back()->with('success', 'Tarea marcada como pendiente');
     }
 }

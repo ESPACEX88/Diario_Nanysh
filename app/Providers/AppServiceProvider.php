@@ -23,6 +23,30 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         
+        // Limpiar y corregir DATABASE_URL si es necesario
+        $dbUrl = env('DATABASE_URL') ?: env('DB_URL');
+        if ($dbUrl) {
+            // Limpiar formato JDBC si está presente
+            $dbUrl = preg_replace('/^jdbc:postgresql:\/\//', 'postgresql://', $dbUrl);
+            $dbUrl = preg_replace('/^jdbc:postgres:\/\//', 'postgresql://', $dbUrl);
+            
+            // Asegurar que no haya doble postgresql://
+            $dbUrl = preg_replace('/postgresql:\/\/postgresql:\/\//', 'postgresql://', $dbUrl);
+            
+            // Si la URL no tiene puerto explícito, agregarlo
+            // Formato esperado: postgresql://user:pass@host:port/db
+            if (preg_match('/^postgresql:\/\/[^@]+@([^:]+)\/(.+)$/', $dbUrl, $matches)) {
+                // No tiene puerto, agregarlo
+                $host = $matches[1];
+                $db = $matches[2];
+                $dbUrl = str_replace('@' . $host . '/' . $db, '@' . $host . ':5432/' . $db, $dbUrl);
+            }
+            
+            // Actualizar la variable de entorno
+            $_ENV['DATABASE_URL'] = $dbUrl;
+            putenv("DATABASE_URL={$dbUrl}");
+        }
+        
         // Force HTTPS in production
         if (env('APP_ENV') === 'production' || config('app.env') === 'production') {
             URL::forceScheme('https');
