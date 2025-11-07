@@ -22,9 +22,17 @@ interface Result {
 interface Props {
     pet: Pet;
     result?: Result;
+    canPlay?: boolean;
+    nextPlayAt?: string | null;
+    hoursRemaining?: number;
+    minutesRemaining?: number;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    canPlay: true,
+    hoursRemaining: 0,
+    minutesRemaining: 0,
+});
 
 const selectedDoor = ref<number | null>(null);
 const gameResult = ref<Result | null>(props.result || null);
@@ -34,16 +42,16 @@ const form = useForm({
     door: null as number | null,
 });
 
-const canPlay = computed(() => !form.processing && selectedDoor.value !== null);
+const canPlayGame = computed(() => props.canPlay && !form.processing && selectedDoor.value !== null);
 
 const selectDoor = (doorNumber: number) => {
-    if (form.processing) return;
+    if (form.processing || !props.canPlay) return;
     selectedDoor.value = doorNumber;
     form.door = doorNumber;
 };
 
 const playGame = () => {
-    if (!selectedDoor.value || form.processing) return;
+    if (!selectedDoor.value || form.processing || !props.canPlay) return;
 
     form.door = selectedDoor.value;
     form.post(route('minigame.doors.play'), {
@@ -153,13 +161,30 @@ const getDoorClass = (doorNumber: number) => {
                     </div>
                 </div>
 
+                <!-- Mensaje de cooldown -->
+                <div v-if="!props.canPlay" class="mb-8 bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 rounded-2xl p-6">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">⏰</div>
+                        <h3 class="text-2xl font-bold text-orange-900 mb-2">¡Espera un momento!</h3>
+                        <p class="text-orange-800 text-lg mb-4">
+                            Ya jugaste recientemente. Debes esperar <strong>{{ props.hoursRemaining }} horas y {{ props.minutesRemaining }} minutos</strong> para jugar de nuevo.
+                        </p>
+                        <p class="text-orange-700 text-sm">
+                            Puedes jugar una vez cada 12 horas para mantener el juego emocionante. 🎮
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Puertas -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div
                         v-for="door in [1, 2, 3]"
                         :key="door"
                         @click="selectDoor(door)"
-                        :class="getDoorClass(door)"
+                        :class="[
+                            getDoorClass(door),
+                            !props.canPlay ? 'opacity-50 cursor-not-allowed' : ''
+                        ]"
                     >
                         <div class="text-center">
                             <div class="text-8xl mb-4">
@@ -176,10 +201,10 @@ const getDoorClass = (doorNumber: number) => {
                 </div>
 
                 <!-- Botón de jugar -->
-                <div v-if="!gameResult" class="text-center mb-8">
+                <div v-if="!gameResult && props.canPlay" class="text-center mb-8">
                     <PrimaryButton
                         @click="playGame"
-                        :disabled="!selectedDoor || form.processing"
+                        :disabled="!selectedDoor || form.processing || !props.canPlay"
                         class="px-12 py-4 text-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full font-bold shadow-2xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <span v-if="form.processing" class="flex items-center gap-2">

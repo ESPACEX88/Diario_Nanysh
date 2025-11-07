@@ -20,6 +20,7 @@ class Pet extends Model
         'last_fed_at',
         'last_played_at',
         'last_cared_at',
+        'last_minigame_at',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Pet extends Model
             'last_fed_at' => 'datetime',
             'last_played_at' => 'datetime',
             'last_cared_at' => 'datetime',
+            'last_minigame_at' => 'datetime',
         ];
     }
 
