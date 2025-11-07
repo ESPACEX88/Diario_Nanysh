@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WishlistItem;
+use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -80,7 +81,33 @@ class WishlistItemController extends Controller
             'obtained_date' => 'nullable|date',
         ]);
 
+        $wasObtained = $item->is_obtained;
         $item->update($validated);
+
+        // Si se marcó como obtenido, dar fichitas
+        if (!$wasObtained && $item->is_obtained) {
+            $pet = Pet::firstOrCreate(
+                ['user_id' => Auth::id()],
+                [
+                    'name' => 'Snoopy',
+                    'level' => 1,
+                    'experience' => 0,
+                    'happiness' => 100,
+                    'hunger' => 100,
+                    'energy' => 100,
+                    'health' => 100,
+                    'coins' => 0,
+                ]
+            );
+            
+            $coinsEarned = rand(10, 25); // 10-25 fichitas por obtener un deseo
+            $pet->coins += $coinsEarned;
+            $pet->happiness = min(100, $pet->happiness + 5);
+            $pet->save();
+
+            return redirect()->route('wishlist.index')
+                ->with('success', "¡Felicidades por obtener tu deseo! 🎉 Ganaste {$coinsEarned} fichitas! 💰");
+        }
 
         return redirect()->route('wishlist.index')
             ->with('success', 'Artículo actualizado');

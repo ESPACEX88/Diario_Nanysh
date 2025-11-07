@@ -114,6 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Motivational Quotes (Frases motivacionales)
     Route::get('quote/daily', [\App\Http\Controllers\MotivationalQuoteController::class, 'daily'])->name('quote.daily');
+
+    // Mini Games (Minijuegos)
+    Route::get('minigame/doors', [\App\Http\Controllers\MiniGameController::class, 'index'])->name('minigame.doors');
+    Route::post('minigame/doors/play', [\App\Http\Controllers\MiniGameController::class, 'play'])->name('minigame.doors.play');
 });
 
 require __DIR__.'/auth.php';

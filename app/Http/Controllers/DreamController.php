@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dream;
+use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -45,8 +46,33 @@ class DreamController extends Controller
         $validated['user_id'] = Auth::id();
         Dream::create($validated);
 
+        // Dar fichitas por registrar un sueño
+        $pet = Pet::firstOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'name' => 'Snoopy',
+                'level' => 1,
+                'experience' => 0,
+                'happiness' => 100,
+                'hunger' => 100,
+                'energy' => 100,
+                'health' => 100,
+                'coins' => 0,
+            ]
+        );
+        
+        $coinsEarned = rand(3, 8); // 3-8 fichitas por registrar un sueño
+        $pet->coins += $coinsEarned;
+        $pet->happiness = min(100, $pet->happiness + 2);
+        $pet->save();
+
+        $message = 'Sueño registrado exitosamente.';
+        if ($coinsEarned > 0) {
+            $message .= " ¡Ganaste {$coinsEarned} fichitas! 💰";
+        }
+
         return redirect()->route('dreams.index')
-            ->with('success', 'Sueño registrado exitosamente');
+            ->with('success', $message);
     }
 
     public function show($id)

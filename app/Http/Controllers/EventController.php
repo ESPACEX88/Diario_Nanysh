@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -57,8 +58,33 @@ class EventController extends Controller
 
         Event::create($validated);
 
+        // Dar fichitas por crear un evento
+        $pet = Pet::firstOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'name' => 'Snoopy',
+                'level' => 1,
+                'experience' => 0,
+                'happiness' => 100,
+                'hunger' => 100,
+                'energy' => 100,
+                'health' => 100,
+                'coins' => 0,
+            ]
+        );
+        
+        $coinsEarned = rand(2, 6); // 2-6 fichitas por crear un evento
+        $pet->coins += $coinsEarned;
+        $pet->happiness = min(100, $pet->happiness + 1);
+        $pet->save();
+
+        $message = 'Evento creado exitosamente.';
+        if ($coinsEarned > 0) {
+            $message .= " ¡Ganaste {$coinsEarned} fichitas! 💰";
+        }
+
         return redirect()->route('events.index')
-            ->with('success', 'Evento creado exitosamente');
+            ->with('success', $message);
     }
 
     public function show($id)

@@ -68,6 +68,13 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     🐕 Snoopy
                                 </NavLink>
+                                <NavLink
+                                    :href="route('minigame.doors')"
+                                    :active="route().current('minigame.*')"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                >
+                                    🎰 Minijuegos
+                                </NavLink>
                                 
                                 <!-- Dropdown Menu -->
                                 <div class="relative group">
@@ -256,6 +263,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('pet.*')"
                         >
                             🐕 Snoopy
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('minigame.doors')"
+                            :active="route().current('minigame.*')"
+                        >
+                            🎰 Minijuegos
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('wishlist.index')"
