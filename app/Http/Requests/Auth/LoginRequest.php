@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pin' => ['required', 'string', 'size:5'],
+            'pin' => ['required', 'string', 'size:5', 'regex:/^[0-9]{5}$/'],
         ];
     }
 
@@ -40,10 +40,12 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $pin = trim((string) $this->input('pin', ''));
+        // Limpiar y normalizar el PIN
+        $pin = preg_replace('/[^0-9]/', '', (string) $this->input('pin', ''));
+        $pin = str_pad($pin, 5, '0', STR_PAD_LEFT); // Asegurar que tenga 5 dígitos
         $correctPin = '51124';
 
-        // Comparación más robusta
+        // Comparación estricta
         if ($pin !== $correctPin) {
             RateLimiter::hit($this->throttleKey());
 
