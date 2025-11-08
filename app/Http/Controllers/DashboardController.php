@@ -60,6 +60,35 @@ class DashboardController extends Controller
             ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->count();
 
+        // Calculate writing streak
+        $streak = 0;
+        $currentDate = Carbon::today();
+        $checkDate = $currentDate->copy();
+        
+        while (true) {
+            $entry = DiaryEntry::where('user_id', $user->id)
+                ->whereDate('date', $checkDate)
+                ->first();
+            
+            if ($entry) {
+                $streak++;
+                $checkDate->subDay();
+            } else {
+                break;
+            }
+        }
+
+        // This week's entries
+        $thisWeekEntries = DiaryEntry::where('user_id', $user->id)
+            ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->count();
+
+        // Completed todos this week
+        $completedTodosThisWeek = Todo::where('user_id', $user->id)
+            ->where('is_completed', true)
+            ->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->count();
+
         // Pending todos
         $pendingTodos = Todo::where('user_id', $user->id)
             ->where('is_completed', false)
@@ -117,6 +146,9 @@ class DashboardController extends Controller
                 'activeGoals' => $activeGoals,
                 'activeHabits' => $activeHabits,
                 'thisWeekGratitudes' => $thisWeekGratitudes,
+                'streak' => $streak,
+                'thisWeekEntries' => $thisWeekEntries,
+                'completedTodosThisWeek' => $completedTodosThisWeek,
             ],
             'pendingTodos' => $pendingTodos,
             'upcomingEvents' => $upcomingEvents,

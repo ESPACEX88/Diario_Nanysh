@@ -14,7 +14,7 @@ const showingNavigationDropdown = ref(false);
     <div>
         <div class="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
             <nav
-                class="border-b border-pink-100 bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 shadow-sm"
+                class="border-b-2 border-pink-200 bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -36,42 +36,48 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    :class="{ 'bg-pink-100 shadow-sm': route().current('dashboard') }"
                                 >
                                     🏠 Dashboard
                                 </NavLink>
                                 <NavLink
                                     :href="route('diary.index')"
                                     :active="route().current('diary.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    :class="{ 'bg-pink-100 shadow-sm': route().current('diary.*') }"
                                 >
                                     📖 Diario
                                 </NavLink>
                                 <NavLink
                                     :href="route('todos.index')"
                                     :active="route().current('todos.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    :class="{ 'bg-pink-100 shadow-sm': route().current('todos.*') }"
                                 >
                                     ✅ Tareas
                                 </NavLink>
                                 <NavLink
                                     :href="route('events.index')"
                                     :active="route().current('events.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    :class="{ 'bg-pink-100 shadow-sm': route().current('events.*') }"
                                 >
                                     📅 Eventos
                                 </NavLink>
                                 <NavLink
                                     :href="route('pet.index')"
                                     :active="route().current('pet.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    :class="{ 'bg-pink-100 shadow-sm': route().current('pet.*') }"
                                 >
                                     🐕 Snoopy
                                 </NavLink>
                                 <NavLink
                                     :href="route('minigame.doors')"
                                     :active="route().current('minigame.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    :class="{ 'bg-pink-100 shadow-sm': route().current('minigame.*') }"
                                 >
                                     🎰 Minijuegos
                                 </NavLink>
