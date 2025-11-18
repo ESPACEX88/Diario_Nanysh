@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 interface Props {
     entry: {
@@ -15,10 +16,28 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Estado local para el favorito
+const isFavorite = ref(props.entry.is_favorite);
+
 const deleteEntry = () => {
     if (confirm('¿Estás seguro de que quieres eliminar esta entrada?')) {
         router.delete(route('diary.destroy', props.entry.id));
     }
+};
+
+const toggleFavorite = () => {
+    // Actualizar el estado local inmediatamente para feedback visual
+    const previousValue = isFavorite.value;
+    isFavorite.value = !isFavorite.value;
+    
+    router.post(route('diary.favorite', props.entry.id), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onError: () => {
+            // Si hay error, revertir el estado
+            isFavorite.value = previousValue;
+        }
+    });
 };
 </script>
 
@@ -35,6 +54,17 @@ const deleteEntry = () => {
                     </h2>
                 </div>
                 <div class="flex gap-3">
+                    <button
+                        @click="toggleFavorite"
+                        :class="[
+                            'px-5 py-2.5 rounded-full font-semibold shadow-md hover:shadow-lg transition-all',
+                            isFavorite
+                                ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600'
+                                : 'bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-gray-500 hover:to-gray-600'
+                        ]"
+                    >
+                        {{ isFavorite ? '⭐ Favorito' : '☆ Marcar Favorito' }}
+                    </button>
                     <Link
                         :href="route('diary.edit', entry.id)"
                         class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-semibold hover:from-purple-600 hover:to-pink-600 shadow-md hover:shadow-lg transition-all"
@@ -68,7 +98,7 @@ const deleteEntry = () => {
                                     }) }}
                                 </p>
                                 <span
-                                    v-if="entry.is_favorite"
+                                    v-if="isFavorite"
                                     class="inline-flex items-center gap-1 text-pink-600 font-semibold text-sm mt-1"
                                 >
                                     💖 Favorito

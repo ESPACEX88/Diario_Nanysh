@@ -62,7 +62,13 @@ class DiaryEntryController extends Controller
         ]);
 
         // Asegurar que la fecha se guarde correctamente (sin problemas de zona horaria)
-        $date = Carbon::parse($validated['date'])->format('Y-m-d');
+        // Usar la fecha directamente sin parsear para evitar conversiones de zona horaria
+        $date = $validated['date'];
+        
+        // Validar que sea una fecha válida en formato Y-m-d
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $date = Carbon::createFromFormat('Y-m-d', $validated['date'])->format('Y-m-d');
+        }
         
         $entry = DiaryEntry::create([
             'user_id' => Auth::id(),
@@ -162,6 +168,13 @@ class DiaryEntryController extends Controller
             'date' => 'required|date',
         ]);
 
+        // Asegurar que la fecha se guarde correctamente (sin problemas de zona horaria)
+        $date = $validated['date'];
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $date = Carbon::createFromFormat('Y-m-d', $validated['date'])->format('Y-m-d');
+        }
+        $validated['date'] = $date;
+
         $entry->update($validated);
 
         return redirect()->route('diary.show', $entry->id)
@@ -187,14 +200,30 @@ class DiaryEntryController extends Controller
      */
     public function toggleFavorite(string $id)
     {
-        $entry = DiaryEntry::where('user_id', Auth::id())
-            ->findOrFail($id);
+        try {
+            $entry = DiaryEntry::where('user_id', Auth::id())
+                ->findOrFail($id);
 
-        $entry->is_favorite = !$entry->is_favorite;
-        $entry->save();
+            $entry->is_favorite = !$entry->is_favorite;
+            $entry->save();
 
-        return back()->with('success', $entry->is_favorite 
-            ? 'Marcado como favorito.' 
-            : 'Eliminado de favoritos.');
+            $message = $entry->is_favorite 
+                ? 'Marcado como favorito.' 
+                : 'Eliminado de favoritos.';
+
+            // Si es una petición AJAX/Inertia, devolver JSON
+            if (request()->wantsJson() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'is_favorite' => $entry->is_favorite
+                ]);
+            }
+
+            return back()->with('success', $message);
+        } catch (\Exception $e) {
+            \Log::error('Error en toggleFavorite: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar el favorito. Por favor, intenta de nuevo.');
+        }
     }
 }

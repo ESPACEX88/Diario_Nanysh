@@ -19,6 +19,13 @@ const form = useForm({
 });
 
 const submit = () => {
+    // Asegurar que la fecha se envíe en formato YYYY-MM-DD sin conversión de zona horaria
+    if (form.date) {
+        const dateParts = form.date.split('T')[0].split('-');
+        if (dateParts.length === 3) {
+            form.date = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
+        }
+    }
     form.post(route('diary.store'));
 };
 

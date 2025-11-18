@@ -128,13 +128,48 @@ class TodoController extends Controller
 
     public function destroy($id)
     {
-        $todo = Todo::where('user_id', Auth::id())->findOrFail($id);
-        $this->authorize('delete', $todo);
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para realizar esta acción.');
+        }
 
-        $todo->delete();
+        // Buscar la tarea solo del usuario autenticado
+        $todo = Todo::where('user_id', $user->id)->find($id);
+        
+        if (!$todo) {
+            return redirect()->route('todos.index')
+                ->with('error', 'La tarea no existe o no tienes permiso para eliminarla.');
+        }
 
-        return redirect()->route('todos.index')
-            ->with('success', 'Tarea eliminada exitosamente');
+        // Verificar autorización explícitamente
+        if ($todo->user_id !== $user->id) {
+            return redirect()->route('todos.index')
+                ->with('error', 'No tienes permiso para eliminar esta tarea.');
+        }
+
+        try {
+            // Intentar eliminar la tarea
+            $deleted = $todo->delete();
+            
+            if (!$deleted) {
+                return redirect()->route('todos.index')
+                    ->with('error', 'No se pudo eliminar la tarea. Por favor, intenta de nuevo.');
+            }
+
+            return redirect()->route('todos.index')
+                ->with('success', 'Tarea eliminada exitosamente.');
+                
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error de base de datos
+            return redirect()->route('todos.index')
+                ->with('error', 'Error de base de datos al eliminar la tarea. Por favor, intenta de nuevo.');
+        } catch (\Exception $e) {
+            // Cualquier otro error
+            return redirect()->route('todos.index')
+                ->with('error', 'Ocurrió un error inesperado. Por favor, intenta de nuevo.');
+        }
     }
 
     public function toggleComplete($id)
