@@ -6,42 +6,49 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
-// Función para obtener la fecha local
-const getLocalDate = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
+interface Dream {
+    id: number;
+    title: string;
+    content: string;
+    date: string;
+    type: string;
+    mood?: string;
+    tags?: string[];
+}
+
+interface Props {
+    dream: Dream;
+}
+
+const props = defineProps<Props>();
+
+const form = useForm({
+    title: props.dream.title,
+    content: props.dream.content,
+    date: props.dream.date,
+    type: props.dream.type,
+    mood: props.dream.mood || '',
+    tags: props.dream.tags || [] as string[],
+});
 
 const moods = [
     '😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋', '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗', '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤', '💯', '🔥', '⭐', '🌟', '💫', '✨', '☀️', '🌙',
     '😢', '😡', '😰', '😨', '😭', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '😤', '😠', '😦', '😧', '😱', '😳', '😵', '😶', '😐', '😑', '😯', '🤔', '😴'
 ];
 
-const form = useForm({
-    title: '',
-    content: '',
-    date: getLocalDate(),
-    type: 'normal',
-    mood: '',
-    tags: [] as string[],
-});
-
 const submit = () => {
-    form.post(route('dreams.store'));
+    form.put(route('dreams.update', props.dream.id));
 };
 </script>
 
 <template>
-    <Head title="Registrar Sueño" />
+    <Head title="Editar Sueño" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-2">
                 <span>🌙</span>
-                Registrar Mi Sueño
+                Editar Sueño
             </h2>
         </template>
 
@@ -108,7 +115,7 @@ const submit = () => {
 
                             <div class="mb-6">
                                 <InputLabel value="Estado de ánimo (emoji)" class="text-pink-700 font-semibold mb-3" />
-                                <div class="flex gap-2 flex-wrap bg-white p-4 rounded-xl border-2 border-pink-100 mb-3">
+                                <div class="flex gap-2 flex-wrap bg-white p-4 rounded-xl border-2 border-pink-100">
                                     <button
                                         v-for="mood in moods"
                                         :key="mood"
@@ -127,7 +134,7 @@ const submit = () => {
                                 <input
                                     type="text"
                                     v-model="form.mood"
-                                    class="block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 text-center text-2xl"
+                                    class="mt-3 block w-full rounded-xl border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 text-center text-2xl"
                                     placeholder="O escribe un emoji"
                                     maxlength="2"
                                 />
@@ -139,11 +146,11 @@ const submit = () => {
                                     :class="{ 'opacity-25': form.processing }"
                                     :disabled="form.processing"
                                 >
-                                    <span class="mr-2">🌙</span>
-                                    Guardar Sueño
+                                    <span class="mr-2">💾</span>
+                                    Guardar Cambios
                                 </PrimaryButton>
                                 <Link
-                                    :href="route('dreams.index')"
+                                    :href="route('dreams.show', props.dream.id)"
                                     class="text-gray-600 hover:text-pink-600 font-semibold transition-colors"
                                 >
                                     Cancelar

@@ -8,6 +8,7 @@ use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class DiaryEntryController extends Controller
 {
@@ -60,12 +61,15 @@ class DiaryEntryController extends Controller
             'date' => 'required|date',
         ]);
 
+        // Asegurar que la fecha se guarde correctamente (sin problemas de zona horaria)
+        $date = Carbon::parse($validated['date'])->format('Y-m-d');
+        
         $entry = DiaryEntry::create([
             'user_id' => Auth::id(),
             'title' => $validated['title'],
             'content' => $validated['content'],
             'mood' => $validated['mood'] ?? '😊',
-            'date' => $validated['date'],
+            'date' => $date,
         ]);
 
         // Reward coins for happy moods

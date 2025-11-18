@@ -139,40 +139,50 @@ class TodoController extends Controller
 
     public function toggleComplete($id)
     {
-        $todo = Todo::where('user_id', Auth::id())->findOrFail($id);
-        $this->authorize('update', $todo);
-
-        $todo->is_completed = !$todo->is_completed;
-        $todo->save();
-
-        // Si se completó, dar fichitas y verificar logros
-        if ($todo->is_completed) {
-            $pet = Pet::firstOrCreate(['user_id' => Auth::id()], [
-                'name' => 'Snoopy',
-                'happiness' => 50,
-                'hunger' => 50,
-                'energy' => 50,
-                'health' => 100,
-                'coins' => 0,
-            ]);
-
-            $coins = 5;
-            $pet->increment('coins', $coins);
-            $pet->increment('happiness', 2);
+        try {
+            $todo = Todo::where('user_id', Auth::id())->findOrFail($id);
             
-            // Verificar logros
-            $achievementService = new AchievementService();
-            $unlockedAchievements = $achievementService->checkTodoAchievements(Auth::user());
-            
-            $message = "¡Tarea completada! Snoopy ganó 5 fichitas 🎉";
-            if (!empty($unlockedAchievements)) {
-                $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
-                $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
+            // Verificar autorización manualmente si es necesario
+            if ($todo->user_id !== Auth::id()) {
+                abort(403, 'No autorizado');
             }
-            
-            return back()->with('success', $message);
-        }
 
-        return back()->with('success', 'Tarea marcada como pendiente');
+            $wasCompleted = $todo->is_completed;
+            $todo->is_completed = !$todo->is_completed;
+            $todo->save();
+
+            // Si se completó, dar fichitas y verificar logros
+            if ($todo->is_completed) {
+                $pet = Pet::firstOrCreate(['user_id' => Auth::id()], [
+                    'name' => 'Snoopy',
+                    'happiness' => 50,
+                    'hunger' => 50,
+                    'energy' => 50,
+                    'health' => 100,
+                    'coins' => 0,
+                ]);
+
+                $coins = 5;
+                $pet->increment('coins', $coins);
+                $pet->increment('happiness', 2);
+                
+                // Verificar logros
+                $achievementService = new AchievementService();
+                $unlockedAchievements = $achievementService->checkTodoAchievements(Auth::user());
+                
+                $message = "¡Tarea completada! Snoopy ganó 5 fichitas 🎉";
+                if (!empty($unlockedAchievements)) {
+                    $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
+                    $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
+                }
+                
+                return back()->with('success', $message);
+            }
+
+            return back()->with('success', 'Tarea marcada como pendiente');
+        } catch (\Exception $e) {
+            \Log::error('Error en toggleComplete: ' . $e->getMessage());
+            return back()->with('error', 'Error al actualizar la tarea. Por favor, intenta de nuevo.');
+        }
     }
 }

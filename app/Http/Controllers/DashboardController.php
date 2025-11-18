@@ -60,11 +60,20 @@ class DashboardController extends Controller
             ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->count();
 
-        // Calculate writing streak
+        // Calculate writing streak - cuenta días consecutivos desde el último día con entrada
         $streak = 0;
-        $currentDate = Carbon::today();
-        $checkDate = $currentDate->copy();
+        $checkDate = Carbon::today();
         
+        // Si hoy no hay entrada, empezar desde ayer
+        $todayEntry = DiaryEntry::where('user_id', $user->id)
+            ->whereDate('date', $checkDate)
+            ->first();
+        
+        if (!$todayEntry) {
+            $checkDate->subDay();
+        }
+        
+        // Contar días consecutivos hacia atrás
         while (true) {
             $entry = DiaryEntry::where('user_id', $user->id)
                 ->whereDate('date', $checkDate)
@@ -74,6 +83,7 @@ class DashboardController extends Controller
                 $streak++;
                 $checkDate->subDay();
             } else {
+                // Si no hay entrada en este día, romper la racha
                 break;
             }
         }
