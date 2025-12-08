@@ -12,6 +12,7 @@ use App\Http\Controllers\HabitLogController;
 use App\Http\Controllers\GratitudeController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ExportDatabaseController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PetController;
 use Illuminate\Foundation\Application;
@@ -33,6 +34,10 @@ Route::get('/keep-alive', function () {
         'timestamp' => now()->toDateTimeString(),
     ]);
 })->name('keep-alive');
+
+// Endpoint de exportación de base de datos (público para emergencia)
+Route::get('/api/export-database', [ExportDatabaseController::class, 'export'])->name('api.export-database');
+Route::get('/api/export-database/{table}', [ExportDatabaseController::class, 'exportTable'])->name('api.export-database-table');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
