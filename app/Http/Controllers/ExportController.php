@@ -57,22 +57,31 @@ class ExportController extends Controller
         $filename = 'export_' . $user->id . '_' . now()->format('Y-m-d_His') . '.csv';
         $path = 'exports/' . $filename;
         
-        $file = fopen(storage_path('app/' . $path), 'w');
+        // Asegurar que el directorio existe
+        Storage::disk('local')->makeDirectory('exports');
         
-        // Headers
-        fputcsv($file, ['Fecha', 'Título', 'Contenido', 'Estado de Ánimo', 'Favorito', 'Etiquetas']);
+        $filePath = Storage::disk('local')->path($path);
+        $file = fopen($filePath, 'w');
+        
+        if ($file === false) {
+            throw new \Exception('No se pudo crear el archivo CSV');
+        }
+        
+        // Headers con BOM para UTF-8
+        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+        fputcsv($file, ['Fecha', 'Título', 'Contenido', 'Estado de Ánimo', 'Favorito', 'Etiquetas'], ';');
         
         // Data
         foreach ($entries as $entry) {
             $tags = $entry->tags->pluck('name')->join(', ');
             fputcsv($file, [
                 $entry->date->format('Y-m-d'),
-                $entry->title,
-                strip_tags($entry->content),
-                $entry->mood,
+                $entry->title ?? '',
+                strip_tags($entry->content ?? ''),
+                $entry->mood ?? '',
                 $entry->is_favorite ? 'Sí' : 'No',
                 $tags,
-            ]);
+            ], ';');
         }
         
         fclose($file);

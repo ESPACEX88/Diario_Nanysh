@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 interface MediaItem {
     id: number;
@@ -47,10 +48,25 @@ const wantItems = computed(() => props.items.filter(item => item.status === 'wan
 const inProgressItems = computed(() => props.items.filter(item => item.status === 'in_progress'));
 const completedItems = computed(() => props.items.filter(item => item.status === 'completed'));
 
+const showDeleteModal = ref(false);
+const itemToDelete = ref<number | null>(null);
+
 const deleteItem = (id: number) => {
-    if (confirm('¿Estás segura de que quieres eliminar este artículo?')) {
-        router.delete(route('media.destroy', id));
+    itemToDelete.value = id;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (itemToDelete.value) {
+        router.delete(route('media.destroy', itemToDelete.value));
     }
+    showDeleteModal.value = false;
+    itemToDelete.value = null;
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    itemToDelete.value = null;
 };
 </script>
 
@@ -198,6 +214,17 @@ const deleteItem = (id: number) => {
                 </div>
             </div>
         </div>
+
+        <ConfirmModal
+            :show="showDeleteModal"
+            title="Eliminar Artículo"
+            message="¿Estás segura de que quieres eliminar este artículo? Esta acción no se puede deshacer."
+            confirm-text="Eliminar"
+            cancel-text="Cancelar"
+            type="danger"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AuthenticatedLayout>
 </template>
 

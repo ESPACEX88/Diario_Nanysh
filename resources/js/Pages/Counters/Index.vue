@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 interface Counter {
     id: number;
@@ -18,10 +20,25 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const showDeleteModal = ref(false);
+const counterToDelete = ref<number | null>(null);
+
 const deleteCounter = (id: number) => {
-    if (confirm('¿Estás segura de que quieres eliminar este contador?')) {
-        router.delete(route('counters.destroy', id));
+    counterToDelete.value = id;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (counterToDelete.value) {
+        router.delete(route('counters.destroy', counterToDelete.value));
     }
+    showDeleteModal.value = false;
+    counterToDelete.value = null;
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    counterToDelete.value = null;
 };
 </script>
 
@@ -85,6 +102,21 @@ const deleteCounter = (id: number) => {
                                 >
                                     Eliminar
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ConfirmModal
+                    :show="showDeleteModal"
+                    title="Eliminar Contador"
+                    message="¿Estás segura de que quieres eliminar este contador? Esta acción no se puede deshacer."
+                    confirm-text="Eliminar"
+                    cancel-text="Cancelar"
+                    type="danger"
+                    @confirm="confirmDelete"
+                    @cancel="cancelDelete"
+                />
                             </div>
                         </div>
                     </div>

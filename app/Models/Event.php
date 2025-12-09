@@ -20,6 +20,7 @@ class Event extends Model
         'recurrence_end_date',
         'send_reminder',
         'reminder_minutes',
+        'reminder_email',
     ];
 
     protected function casts(): array

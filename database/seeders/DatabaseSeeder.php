@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AchievementSeeder::class,
             MotivationalQuoteSeeder::class,
+            RecipeCatalogSeeder::class,
         ]);
     }
 }

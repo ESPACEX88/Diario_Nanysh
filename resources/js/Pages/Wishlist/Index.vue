@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 interface WishlistItem {
     id: number;
@@ -49,10 +50,25 @@ const getPriorityColor = (priority: string) => {
     }
 };
 
+const showDeleteModal = ref(false);
+const itemToDelete = ref<number | null>(null);
+
 const deleteItem = (id: number) => {
-    if (confirm('¿Estás segura de que quieres eliminar este artículo?')) {
-        router.delete(route('wishlist.destroy', id));
+    itemToDelete.value = id;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (itemToDelete.value) {
+        router.delete(route('wishlist.destroy', itemToDelete.value));
     }
+    showDeleteModal.value = false;
+    itemToDelete.value = null;
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    itemToDelete.value = null;
 };
 </script>
 
@@ -189,6 +205,17 @@ const deleteItem = (id: number) => {
                 </div>
             </div>
         </div>
+
+        <ConfirmModal
+            :show="showDeleteModal"
+            title="Eliminar Deseo"
+            message="¿Estás segura de que quieres eliminar este artículo de tu lista de deseos? Esta acción no se puede deshacer."
+            confirm-text="Eliminar"
+            cancel-text="Cancelar"
+            type="danger"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AuthenticatedLayout>
 </template>
 

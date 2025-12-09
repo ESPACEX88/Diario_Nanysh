@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 interface Meal {
     id: number;
@@ -55,10 +56,25 @@ const mealsByType = computed(() => {
     return grouped;
 });
 
+const showDeleteModal = ref(false);
+const mealToDelete = ref<number | null>(null);
+
 const deleteMeal = (id: number) => {
-    if (confirm('¿Estás segura de que quieres eliminar esta comida favorita?')) {
-        router.delete(route('meals.destroy', id));
+    mealToDelete.value = id;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (mealToDelete.value) {
+        router.delete(route('meals.destroy', mealToDelete.value));
     }
+    showDeleteModal.value = false;
+    mealToDelete.value = null;
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    mealToDelete.value = null;
 };
 </script>
 
@@ -156,6 +172,17 @@ const deleteMeal = (id: number) => {
                 </div>
             </div>
         </div>
+
+        <ConfirmModal
+            :show="showDeleteModal"
+            title="Eliminar Comida Favorita"
+            message="¿Estás segura de que quieres eliminar esta comida favorita? Esta acción no se puede deshacer."
+            confirm-text="Eliminar"
+            cancel-text="Cancelar"
+            type="danger"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AuthenticatedLayout>
 </template>
 

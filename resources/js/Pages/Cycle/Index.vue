@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import ConfirmModal from '@/Components/ConfirmModal.vue';
 
 interface CycleTracking {
     id: number;
@@ -13,8 +15,28 @@ interface CycleTracking {
     notes?: string;
 }
 
+interface Stats {
+    average_cycle_length?: number;
+    next_period_predicted?: string | null;
+    current_phase?: string | null;
+    cycle_day?: number | null;
+    advice?: {
+        title: string;
+        tips: string[];
+        wellness: string[];
+    };
+    symptoms_summary?: Record<string, number>;
+    mood_trend?: Array<{
+        date: string;
+        mood: string;
+        phase?: string;
+    }>;
+    total_cycles?: number;
+}
+
 interface Props {
     trackings: CycleTracking[];
+    stats?: Stats;
 }
 
 const props = defineProps<Props>();
@@ -39,11 +61,46 @@ const getPhaseName = (phase?: string) => {
     return names[phase || ''] || 'No especificado';
 };
 
+const showDeleteModal = ref(false);
+const trackingToDelete = ref<number | null>(null);
+
 const deleteTracking = (id: number) => {
-    if (confirm('¿Estás segura de que quieres eliminar este registro?')) {
-        router.delete(route('cycle.destroy', id));
-    }
+    trackingToDelete.value = id;
+    showDeleteModal.value = true;
 };
+
+const confirmDelete = () => {
+    if (trackingToDelete.value) {
+        router.delete(route('cycle.destroy', trackingToDelete.value));
+    }
+    showDeleteModal.value = false;
+    trackingToDelete.value = null;
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    trackingToDelete.value = null;
+};
+
+const getSymptomName = (symptom: string) => {
+    const names: Record<string, string> = {
+        cramps: 'Cólicos',
+        bloating: 'Hinchazón',
+        mood_swings: 'Cambios de humor',
+        headache: 'Dolor de cabeza',
+        fatigue: 'Fatiga',
+        acne: 'Acné',
+    };
+    return names[symptom] || symptom;
+};
+
+const daysUntilPeriod = computed(() => {
+    if (!props.stats?.next_period_predicted) return null;
+    const today = new Date();
+    const nextPeriod = new Date(props.stats.next_period_predicted);
+    const diff = Math.ceil((nextPeriod.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+});
 </script>
 
 <template>
@@ -66,7 +123,90 @@ const deleteTracking = (id: number) => {
         </template>
 
         <div class="py-8">
-            <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+                <!-- Estadísticas y Consejos -->
+                <div v-if="stats" class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Estado Actual -->
+                    <div class="lg:col-span-2 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-2xl border-2 border-pink-200 dark:border-gray-700 p-6 shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span>📊</span>
+                            Tu Ciclo Actual
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white dark:bg-gray-700 rounded-xl p-4">
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Fase Actual</div>
+                                <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                                    {{ stats.current_phase ? getPhaseName(stats.current_phase) : 'N/A' }}
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-gray-700 rounded-xl p-4">
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Día del Ciclo</div>
+                                <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                                    {{ stats.cycle_day || 'N/A' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="stats.next_period_predicted && daysUntilPeriod !== null" class="bg-white dark:bg-gray-700 rounded-xl p-4">
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Próximo Período</div>
+                            <div class="text-lg font-bold text-pink-600 dark:text-pink-400">
+                                {{ daysUntilPeriod > 0 ? `En ${daysUntilPeriod} días` : daysUntilPeriod === 0 ? 'Hoy' : 'Ya pasó' }}
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {{ new Date(stats.next_period_predicted).toLocaleDateString('es-ES') }}
+                            </div>
+                        </div>
+                        <div v-if="stats.average_cycle_length" class="mt-4 bg-white dark:bg-gray-700 rounded-xl p-4">
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Ciclo Promedio</div>
+                            <div class="text-lg font-bold text-pink-600 dark:text-pink-400">
+                                {{ stats.average_cycle_length }} días
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consejos Personalizados -->
+                    <div v-if="stats.advice" class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-2xl border-2 border-blue-200 dark:border-gray-700 p-6 shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span>💡</span>
+                            Consejos para Ti
+                        </h3>
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-blue-900 dark:text-blue-300 mb-2">{{ stats.advice.title }}</h4>
+                            <ul class="space-y-2">
+                                <li v-for="(tip, index) in stats.advice.tips.slice(0, 3)" :key="index" class="text-sm text-gray-700 dark:text-gray-300">
+                                    {{ tip }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div v-if="stats.advice.wellness.length > 0" class="mt-4 pt-4 border-t border-blue-200 dark:border-gray-600">
+                            <h5 class="font-semibold text-blue-800 dark:text-blue-400 text-xs mb-2">Bienestar:</h5>
+                            <ul class="space-y-1">
+                                <li v-for="(wellness, index) in stats.advice.wellness" :key="index" class="text-xs text-gray-600 dark:text-gray-400">
+                                    • {{ wellness }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Síntomas -->
+                <div v-if="stats?.symptoms_summary && Object.keys(stats.symptoms_summary).length > 0" class="mb-8 bg-white dark:bg-gray-800 rounded-2xl border-2 border-pink-200 dark:border-gray-700 p-6 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span>📈</span>
+                        Síntomas Más Frecuentes
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                        <div
+                            v-for="(count, symptom) in stats.symptoms_summary"
+                            :key="symptom"
+                            class="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-gray-700 dark:to-gray-700 rounded-xl px-4 py-2"
+                        >
+                            <span class="font-semibold text-pink-700 dark:text-pink-400">{{ getSymptomName(symptom) }}</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">({{ count }}x)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registros -->
                 <div v-if="trackings.length > 0" class="space-y-4">
                     <div
                         v-for="tracking in trackings"
@@ -156,6 +296,17 @@ const deleteTracking = (id: number) => {
                 </div>
             </div>
         </div>
+
+        <ConfirmModal
+            :show="showDeleteModal"
+            title="Eliminar Registro"
+            message="¿Estás segura de que quieres eliminar este registro de ciclo? Esta acción no se puede deshacer."
+            confirm-text="Eliminar"
+            cancel-text="Cancelar"
+            type="danger"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AuthenticatedLayout>
 </template>
 

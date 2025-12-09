@@ -1,43 +1,66 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
+interface Event {
+    id: number;
+    title: string;
+    description?: string;
+    start_date: string;
+    end_date?: string;
+    location?: string;
+    color: string;
+    is_recurring: boolean;
+    recurrence_pattern?: string;
+    recurrence_end_date?: string;
+    send_reminder: boolean;
+    reminder_minutes?: number;
+    reminder_email?: string;
+}
+
+interface Props {
+    event: Event;
+}
+
+const props = defineProps<Props>();
+
 const form = useForm({
-    title: '',
-    description: '',
-    start_date: '',
-    end_date: '',
-    location: '',
-    color: '#EC4899',
-    is_recurring: false,
-    recurrence_pattern: '',
-    send_reminder: false,
-    reminder_minutes: null,
-    reminder_email: '',
+    title: props.event.title,
+    description: props.event.description || '',
+    start_date: props.event.start_date ? new Date(props.event.start_date).toISOString().slice(0, 16) : '',
+    end_date: props.event.end_date ? new Date(props.event.end_date).toISOString().slice(0, 16) : '',
+    location: props.event.location || '',
+    color: props.event.color || '#EC4899',
+    is_recurring: props.event.is_recurring || false,
+    recurrence_pattern: props.event.recurrence_pattern || '',
+    recurrence_end_date: props.event.recurrence_end_date || '',
+    send_reminder: props.event.send_reminder || false,
+    reminder_minutes: props.event.reminder_minutes || null,
+    reminder_email: props.event.reminder_email || '',
 });
 
 const submit = () => {
-    form.post(route('events.store'));
+    form.put(route('events.update', props.event.id));
 };
 </script>
 
 <template>
-    <Head title="Nuevo Evento" />
+    <Head title="Editar Evento" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
-                ✨ Nuevo Evento
+                ✏️ Editar Evento
             </h2>
         </template>
 
         <div class="py-8">
             <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white rounded-2xl shadow-lg border border-pink-100 p-8">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-pink-100 dark:border-gray-700 p-8">
                     <form @submit.prevent="submit">
                         <div class="mb-6">
                             <InputLabel for="title" value="Título *" />
@@ -56,7 +79,7 @@ const submit = () => {
                             <InputLabel for="description" value="Descripción" />
                             <textarea
                                 id="description"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
                                 v-model="form.description"
                                 rows="4"
                             ></textarea>
@@ -103,9 +126,9 @@ const submit = () => {
                                     id="color"
                                     type="color"
                                     v-model="form.color"
-                                    class="w-16 h-10 rounded border-gray-300"
+                                    class="w-16 h-10 rounded border-gray-300 dark:border-gray-600"
                                 />
-                                <span class="text-sm text-gray-600">Selecciona un color para el evento</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Selecciona un color para el evento</span>
                             </div>
                         </div>
 
@@ -152,11 +175,11 @@ const submit = () => {
                                 :class="{ 'opacity-25': form.processing }"
                                 :disabled="form.processing"
                             >
-                                Crear Evento
+                                Actualizar Evento
                             </PrimaryButton>
                             <Link
                                 :href="route('events.index')"
-                                class="text-gray-600 hover:text-gray-900 font-semibold"
+                                class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold"
                             >
                                 Cancelar
                             </Link>

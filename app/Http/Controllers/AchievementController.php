@@ -14,11 +14,16 @@ class AchievementController extends Controller
     {
         $user = Auth::user();
         
-        $allAchievements = Achievement::all();
+        // Obtener todos los logros únicos (por código para evitar duplicados)
+        $allAchievements = Achievement::orderBy('type')->orderBy('points')->get()->unique('code')->values();
+        
+        // Obtener logros desbloqueados del usuario
         $userAchievements = UserAchievement::where('user_id', $user->id)
             ->with('achievement')
             ->get()
             ->pluck('achievement_id')
+            ->unique()
+            ->values()
             ->toArray();
 
         return Inertia::render('Achievements/Index', [

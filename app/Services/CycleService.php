@@ -116,6 +116,9 @@ class CycleService
                 'next_period_predicted' => null,
                 'current_phase' => null,
                 'cycle_day' => null,
+                'advice' => $this->getAdvice('menstrual', 1),
+                'symptoms_summary' => [],
+                'mood_trend' => [],
             ];
         }
         
@@ -140,12 +143,143 @@ class CycleService
         $today = now();
         $cycleInfo = $this->calculateCycleInfo($user, $today);
         
+        // Resumen de síntomas más comunes
+        $symptomsSummary = $this->getSymptomsSummary($trackings);
+        
+        // Tendencia de estado de ánimo
+        $moodTrend = $this->getMoodTrend($trackings);
+        
         return [
             'average_cycle_length' => $averageCycleLength,
             'next_period_predicted' => $this->predictNextPeriod($user)?->format('Y-m-d'),
             'current_phase' => $cycleInfo['phase'],
             'cycle_day' => $cycleInfo['cycle_day'],
+            'advice' => $this->getAdvice($cycleInfo['phase'], $cycleInfo['cycle_day']),
+            'symptoms_summary' => $symptomsSummary,
+            'mood_trend' => $moodTrend,
+            'total_cycles' => count($cycleLengths) + 1,
         ];
+    }
+    
+    /**
+     * Obtener consejos según la fase del ciclo
+     */
+    private function getAdvice(string $phase, int $cycleDay): array
+    {
+        $advice = [
+            'title' => '',
+            'tips' => [],
+            'wellness' => [],
+        ];
+        
+        switch ($phase) {
+            case 'menstrual':
+                $advice['title'] = 'Fase Menstrual - Días de Descanso';
+                $advice['tips'] = [
+                    '💆 Descansa y escucha a tu cuerpo',
+                    '🔥 Usa una bolsa de agua caliente para aliviar cólicos',
+                    '💧 Mantente hidratada, bebe mucha agua',
+                    '🥗 Come alimentos ricos en hierro (espinacas, lentejas)',
+                    '🧘 Practica yoga suave o estiramientos',
+                    '😴 Duerme lo suficiente (8-9 horas)',
+                ];
+                $advice['wellness'] = [
+                    'Evita el ejercicio intenso',
+                    'Reduce la cafeína si tienes cólicos',
+                    'Date un baño caliente relajante',
+                ];
+                break;
+                
+            case 'follicular':
+                $advice['title'] = 'Fase Folicular - Energía Renovada';
+                $advice['tips'] = [
+                    '💪 Es un buen momento para ejercicio intenso',
+                    '🎯 Aprovecha tu energía para proyectos nuevos',
+                    '🥗 Come alimentos ricos en proteínas',
+                    '🧠 Tu concentración está en su punto máximo',
+                    '💃 Es un buen momento para actividades sociales',
+                    '📚 Aprovecha para aprender algo nuevo',
+                ];
+                $advice['wellness'] = [
+                    'Aumenta tu actividad física gradualmente',
+                    'Mantén una dieta balanceada',
+                    'Aprovecha tu energía mental',
+                ];
+                break;
+                
+            case 'ovulation':
+                $advice['title'] = 'Fase de Ovulación - Pico de Energía';
+                $advice['tips'] = [
+                    '🌟 Estás en tu mejor momento de energía',
+                    '💪 Ideal para entrenamientos desafiantes',
+                    '💬 Tu comunicación está en su mejor momento',
+                    '🎨 Aprovecha para actividades creativas',
+                    '💑 Es un buen momento para conexión social',
+                    '🏃 Puedes hacer ejercicio de alta intensidad',
+                ];
+                $advice['wellness'] = [
+                    'Aprovecha tu energía al máximo',
+                    'Mantén una buena hidratación',
+                    'Come alimentos nutritivos',
+                ];
+                break;
+                
+            case 'luteal':
+                $advice['title'] = 'Fase Lútea - Preparación';
+                $advice['tips'] = [
+                    '🍫 Puedes tener antojos, elige opciones saludables',
+                    '🧘 Practica técnicas de relajación',
+                    '💤 Asegúrate de dormir bien',
+                    '🥑 Come alimentos ricos en magnesio (aguacate, nueces)',
+                    '📝 Lleva un diario de síntomas si es necesario',
+                    '💧 Reduce la retención de líquidos bebiendo agua',
+                ];
+                $advice['wellness'] = [
+                    'Evita el exceso de sal',
+                    'Haz ejercicio moderado',
+                    'Practica autocuidado',
+                ];
+                break;
+        }
+        
+        return $advice;
+    }
+    
+    /**
+     * Resumen de síntomas más comunes
+     */
+    private function getSymptomsSummary($trackings): array
+    {
+        $symptomsCount = [];
+        foreach ($trackings as $tracking) {
+            if ($tracking->symptoms && is_array($tracking->symptoms)) {
+                foreach ($tracking->symptoms as $symptom) {
+                    $symptomsCount[$symptom] = ($symptomsCount[$symptom] ?? 0) + 1;
+                }
+            }
+        }
+        
+        arsort($symptomsCount);
+        return array_slice($symptomsCount, 0, 5, true);
+    }
+    
+    /**
+     * Tendencia de estado de ánimo
+     */
+    private function getMoodTrend($trackings): array
+    {
+        $moods = [];
+        foreach ($trackings as $tracking) {
+            if ($tracking->mood) {
+                $moods[] = [
+                    'date' => $tracking->date->format('Y-m-d'),
+                    'mood' => $tracking->mood,
+                    'phase' => $tracking->phase,
+                ];
+            }
+        }
+        
+        return array_slice($moods, 0, 7); // Últimos 7 días
     }
 }
 

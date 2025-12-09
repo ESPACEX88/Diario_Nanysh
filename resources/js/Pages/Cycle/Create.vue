@@ -39,7 +39,20 @@ const form = useForm({
     notes: '',
 });
 
-const symptomOptions = ['cramps', 'bloating', 'mood_swings', 'headache', 'fatigue', 'acne'];
+const symptomOptions = [
+    { value: 'cramps', label: 'Cólicos', icon: '😣' },
+    { value: 'bloating', label: 'Hinchazón', icon: '🤰' },
+    { value: 'mood_swings', label: 'Cambios de humor', icon: '😤' },
+    { value: 'headache', label: 'Dolor de cabeza', icon: '🤕' },
+    { value: 'fatigue', label: 'Fatiga', icon: '😴' },
+    { value: 'acne', label: 'Acné', icon: '😟' },
+    { value: 'back_pain', label: 'Dolor de espalda', icon: '🫠' },
+    { value: 'breast_tenderness', label: 'Sensibilidad en senos', icon: '💔' },
+    { value: 'nausea', label: 'Náuseas', icon: '🤢' },
+    { value: 'insomnia', label: 'Insomnio', icon: '🌙' },
+    { value: 'cravings', label: 'Antojos', icon: '🍫' },
+    { value: 'anxiety', label: 'Ansiedad', icon: '😰' },
+];
 const selectedSymptoms = ref<string[]>([]);
 
 const toggleSymptom = (symptom: string) => {
@@ -50,6 +63,11 @@ const toggleSymptom = (symptom: string) => {
         selectedSymptoms.value.push(symptom);
     }
     form.symptoms = selectedSymptoms.value;
+};
+
+const getSymptomLabel = (value: string) => {
+    const symptom = symptomOptions.find(s => s.value === value);
+    return symptom ? symptom.label : value;
 };
 
 const useSuggested = () => {
@@ -171,21 +189,34 @@ const phaseNames: Record<string, string> = {
                             <!-- Tercera fila: Síntomas -->
                             <div class="mb-6">
                                 <InputLabel value="Síntomas" class="text-pink-800 font-semibold mb-2" />
-                                <div class="mt-2 flex flex-wrap gap-2 bg-gray-50 p-4 rounded-lg border-2 border-pink-100">
+                                <div class="mt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                     <button
                                         v-for="symptom in symptomOptions"
-                                        :key="symptom"
+                                        :key="symptom.value"
                                         type="button"
-                                        @click="toggleSymptom(symptom)"
+                                        @click="toggleSymptom(symptom.value)"
                                         :class="[
-                                            'px-4 py-2 rounded-lg text-sm font-semibold transition-all border-2',
-                                            selectedSymptoms.includes(symptom)
-                                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-md'
-                                                : 'bg-white text-pink-700 border-pink-200 hover:bg-pink-50 hover:border-pink-300'
+                                            'px-4 py-3 rounded-xl text-sm font-semibold transition-all border-2 flex flex-col items-center gap-1',
+                                            selectedSymptoms.includes(symptom.value)
+                                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-md transform scale-105'
+                                                : 'bg-white dark:bg-gray-700 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-gray-600 hover:bg-pink-50 dark:hover:bg-gray-600 hover:border-pink-300'
                                         ]"
                                     >
-                                        {{ symptom === 'cramps' ? 'Cólicos' : symptom === 'bloating' ? 'Hinchazón' : symptom === 'mood_swings' ? 'Cambios de humor' : symptom === 'headache' ? 'Dolor de cabeza' : symptom === 'fatigue' ? 'Fatiga' : 'Acné' }}
+                                        <span class="text-2xl">{{ symptom.icon }}</span>
+                                        <span>{{ symptom.label }}</span>
                                     </button>
+                                </div>
+                                <div v-if="selectedSymptoms.length > 0" class="mt-3 p-3 bg-pink-50 dark:bg-gray-700 rounded-lg">
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Síntomas seleccionados:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span
+                                            v-for="symptom in selectedSymptoms"
+                                            :key="symptom"
+                                            class="px-2 py-1 bg-pink-200 dark:bg-pink-800 text-pink-800 dark:text-pink-200 rounded-full text-xs font-semibold"
+                                        >
+                                            {{ getSymptomLabel(symptom) }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 

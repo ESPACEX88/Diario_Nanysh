@@ -48,6 +48,7 @@ class EventController extends Controller
             'recurrence_end_date' => 'nullable|date',
             'send_reminder' => 'boolean',
             'reminder_minutes' => 'nullable|integer|min:1',
+            'reminder_email' => 'nullable|email|max:255',
         ]);
 
         $validated['user_id'] = Auth::id();
@@ -115,6 +116,7 @@ class EventController extends Controller
             'recurrence_end_date' => 'nullable|date',
             'send_reminder' => 'boolean',
             'reminder_minutes' => 'nullable|integer|min:1',
+            'reminder_email' => 'nullable|email|max:255',
         ]);
 
         $validated['start_date'] = Carbon::parse($validated['start_date']);
