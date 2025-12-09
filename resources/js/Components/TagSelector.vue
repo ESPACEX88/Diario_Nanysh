@@ -79,6 +79,12 @@ const selectedTags = computed(() => {
     );
 });
 
+const handleBlur = () => {
+    setTimeout(() => {
+        isSearching.value = false;
+    }, 200);
+};
+
 const tagColors = [
     '#EC4899', '#F472B6', '#FB7185', '#F87171',
     '#F59E0B', '#EAB308', '#84CC16', '#22C55E',
@@ -120,7 +126,7 @@ watch(() => props.modelValue, (newValue) => {
                 placeholder="🔍 Buscar o crear etiqueta..."
                 class="w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-all"
                 @focus="isSearching = true"
-                @blur="() => { window.setTimeout(() => isSearching = false, 200) }"
+                @blur="handleBlur"
             />
             
             <!-- Tag Suggestions Dropdown -->
