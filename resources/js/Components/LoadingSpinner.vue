@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface Props {
     size?: 'sm' | 'md' | 'lg';
-    color?: string;
+    color?: 'pink' | 'rose' | 'purple' | 'blue' | 'white';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -9,13 +9,13 @@ const props = withDefaults(defineProps<Props>(), {
     color: 'pink',
 });
 
-const sizeClasses = {
+const sizeClasses: Record<string, string> = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
     lg: 'w-12 h-12',
 };
 
-const colorClasses = {
+const colorClasses: Record<string, string> = {
     pink: 'text-pink-500',
     rose: 'text-rose-500',
     purple: 'text-purple-500',
@@ -27,7 +27,7 @@ const colorClasses = {
 <template>
     <div class="flex items-center justify-center">
         <svg
-            :class="[sizeClasses[size], colorClasses[color]]"
+            :class="[sizeClasses[props.size], colorClasses[props.color]]"
             class="animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

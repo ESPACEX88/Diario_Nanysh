@@ -120,7 +120,7 @@ watch(() => props.modelValue, (newValue) => {
                 placeholder="🔍 Buscar o crear etiqueta..."
                 class="w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-all"
                 @focus="isSearching = true"
-                @blur="setTimeout(() => isSearching = false, 200)"
+                @blur="() => { window.setTimeout(() => isSearching = false, 200) }"
             />
             
             <!-- Tag Suggestions Dropdown -->

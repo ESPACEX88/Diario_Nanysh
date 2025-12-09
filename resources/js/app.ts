@@ -28,7 +28,7 @@ createInertiaApp({
         
         // Handle Inertia flash messages
         if (props.initialPage.props.flash) {
-            const flash = props.initialPage.props.flash;
+            const flash = props.initialPage.props.flash as { success?: string; error?: string };
             setTimeout(async () => {
                 const { useToast } = await import('./composables/useToast');
                 if (flash.success) {

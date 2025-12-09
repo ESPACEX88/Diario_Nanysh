@@ -28,7 +28,7 @@ const props = defineProps<Props>();
 const searchQuery = ref(props.filters?.search || '');
 const selectedCategory = ref(props.filters?.category || '');
 const showCompleted = ref(true);
-const searchTimeout = ref<NodeJS.Timeout | null>(null);
+const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
 // Obtener todas las categorías únicas
 const categories = computed(() => {

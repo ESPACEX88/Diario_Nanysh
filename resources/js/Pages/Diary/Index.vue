@@ -34,7 +34,7 @@ const selectedTag = ref<number | null>(props.filters?.tag || null);
 const dateFrom = ref(props.filters?.date_from || '');
 const dateTo = ref(props.filters?.date_to || '');
 const selectedMood = ref(props.filters?.mood || '');
-const searchTimeout = ref<NodeJS.Timeout | null>(null);
+const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
 // Debounce search
 watch(searchQuery, (newValue) => {
