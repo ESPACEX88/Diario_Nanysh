@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
         // Limpiar y corregir DATABASE_URL si es necesario
         $dbUrl = env('DATABASE_URL') ?: env('DB_URL');
         if ($dbUrl) {
+            // Eliminar comillas y espacios al inicio/final
+            $dbUrl = trim($dbUrl, " \t\n\r\0\x0B\"'");
+            
             // Limpiar formato JDBC si está presente
             $dbUrl = preg_replace('/^jdbc:postgresql:\/\//', 'postgresql://', $dbUrl);
             $dbUrl = preg_replace('/^jdbc:postgres:\/\//', 'postgresql://', $dbUrl);
@@ -35,11 +38,18 @@ class AppServiceProvider extends ServiceProvider
             
             // Si la URL no tiene puerto explícito, agregarlo
             // Formato esperado: postgresql://user:pass@host:port/db
-            if (preg_match('/^postgresql:\/\/[^@]+@([^:]+)\/(.+)$/', $dbUrl, $matches)) {
+            if (preg_match('/^postgresql:\/\/[^@]+@([^:]+)\/([^?]+)/', $dbUrl, $matches)) {
                 // No tiene puerto, agregarlo
                 $host = $matches[1];
                 $db = $matches[2];
                 $dbUrl = str_replace('@' . $host . '/' . $db, '@' . $host . ':5432/' . $db, $dbUrl);
+            }
+            
+            // Asegurar que tenga sslmode=require si es Neon (contiene .neon.tech o .aws.neon.tech)
+            if (strpos($dbUrl, 'neon.tech') !== false && strpos($dbUrl, 'sslmode') === false) {
+                // Agregar sslmode=require si no está presente
+                $separator = strpos($dbUrl, '?') !== false ? '&' : '?';
+                $dbUrl .= $separator . 'sslmode=require';
             }
             
             // Actualizar la variable de entorno

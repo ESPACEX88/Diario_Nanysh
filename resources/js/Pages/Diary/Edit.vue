@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import TagSelector from '@/Components/TagSelector.vue';
+
+interface Tag {
+    id: number;
+    name: string;
+    color: string;
+}
 
 interface Props {
     entry: {
@@ -9,7 +16,9 @@ interface Props {
         content: string;
         mood: string;
         date: string;
+        tags?: Tag[];
     };
+    tags?: Tag[];
 }
 
 const props = defineProps<Props>();
@@ -19,6 +28,7 @@ const form = useForm({
     content: props.entry.content,
     mood: props.entry.mood,
     date: props.entry.date,
+    tags: props.entry.tags?.map(t => t.id) || [] as number[],
 });
 
 const submit = () => {
@@ -154,6 +164,13 @@ const moods = [
                             >
                                 {{ form.errors.content }}
                             </div>
+                        </div>
+
+                        <div>
+                            <TagSelector
+                                v-model="form.tags"
+                                :existing-tags="props.tags || []"
+                            />
                         </div>
 
                         <div class="flex items-center justify-end gap-4">

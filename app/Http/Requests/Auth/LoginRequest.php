@@ -43,7 +43,7 @@ class LoginRequest extends FormRequest
         // Limpiar y normalizar el PIN
         $pin = preg_replace('/[^0-9]/', '', (string) $this->input('pin', ''));
         $pin = str_pad($pin, 5, '0', STR_PAD_LEFT); // Asegurar que tenga 5 dígitos
-        $correctPin = '51124';
+        $correctPin = env('APP_PIN', '51124'); // Usar variable de entorno, fallback para desarrollo
 
         // Comparación estricta
         if ($pin !== $correctPin) {

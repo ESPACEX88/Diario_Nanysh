@@ -70,7 +70,7 @@ const deleteDream = (id: number) => {
                     <div
                         v-for="dream in dreams"
                         :key="dream.id"
-                        class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-sm hover:shadow-md"
+                        class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 border-2 border-pink-200 dark:border-gray-700 hover:border-pink-400 dark:hover:border-pink-500 transition-all shadow-sm hover:shadow-md"
                     >
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-full -mr-12 -mt-12"></div>
                         <div class="relative p-4">
@@ -78,7 +78,7 @@ const deleteDream = (id: number) => {
                                 <div class="flex items-center gap-2">
                                     <span class="text-2xl">{{ getTypeIcon(dream.type) }}</span>
                                     <div>
-                                        <h3 class="text-base font-bold text-gray-900">{{ dream.title }}</h3>
+                                        <h3 class="text-base font-bold text-gray-900 dark:text-gray-100">{{ dream.title }}</h3>
                                         <span
                                             :class="['px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r', getTypeColor(dream.type)]"
                                         >
@@ -86,11 +86,23 @@ const deleteDream = (id: number) => {
                                         </span>
                                     </div>
                                 </div>
-                                <span class="text-sm text-gray-500">
-                                    {{ new Date(dream.date).toLocaleDateString('es-ES') }}
-                                </span>
+                                <div class="text-right">
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 block">
+                                        📅 {{ new Date(dream.date).toLocaleDateString('es-ES', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ dream.created_at ? new Date(dream.created_at).toLocaleDateString('es-ES', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) : '' }}
+                                    </span>
+                                </div>
                             </div>
-                            <p class="text-gray-700 mb-2 text-sm line-clamp-2">
+                            <p class="text-gray-700 dark:text-gray-300 mb-2 text-sm line-clamp-2">
                                 {{ dream.content }}
                             </p>
                             <div v-if="dream.mood" class="mb-2">
@@ -100,7 +112,7 @@ const deleteDream = (id: number) => {
                                 <span
                                     v-for="tag in dream.tags"
                                     :key="tag"
-                                    class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
+                                    class="px-3 py-1 bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 rounded-full text-xs font-semibold"
                                 >
                                     #{{ tag }}
                                 </span>
@@ -131,11 +143,11 @@ const deleteDream = (id: number) => {
 
                 <div
                     v-else
-                    class="text-center py-20 bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 rounded-3xl border-4 border-pink-300"
+                    class="text-center py-20 bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-3xl border-4 border-pink-300 dark:border-gray-700"
                 >
                     <span class="text-8xl block mb-6 animate-pulse">🌙</span>
-                    <h3 class="text-3xl font-bold text-gray-800 mb-3">No has registrado sueños aún</h3>
-                    <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                    <h3 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-3">No has registrado sueños aún</h3>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
                         Registra tus sueños para recordarlos y analizarlos
                     </p>
                     <Link

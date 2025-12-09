@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\ForceHttps::class,
         ]);
+        
+        // Rate limiting para rutas sensibles
+        $middleware->alias([
+            'throttle.sensitive' => \App\Http\Middleware\ThrottleSensitiveRoutes::class,
+            'validate.upload' => \App\Http\Middleware\ValidateFileUpload::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

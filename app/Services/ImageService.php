@@ -25,6 +25,18 @@ class ImageService
      */
     public function store(UploadedFile $file, string $folder = 'photos'): array
     {
+        // Validar tipo de archivo
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($file->getMimeType(), $allowedMimes)) {
+            throw new \InvalidArgumentException('Tipo de archivo no permitido. Solo se permiten imágenes (JPEG, PNG, GIF, WebP).');
+        }
+        
+        // Validar tamaño (5MB máximo)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($file->getSize() > $maxSize) {
+            throw new \InvalidArgumentException('El archivo es demasiado grande. El tamaño máximo es 5MB.');
+        }
+        
         $path = $file->store($folder, 'public');
         $fullPath = storage_path('app/public/' . $path);
 

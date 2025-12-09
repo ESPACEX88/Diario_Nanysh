@@ -6,15 +6,17 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import { useDarkMode } from '@/composables/useDarkMode';
 
 const showingNavigationDropdown = ref(false);
+const { isDark, toggleDarkMode } = useDarkMode();
 </script>
 
 <template>
     <div>
-        <div class="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+        <div class="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <nav
-                class="border-b-2 border-pink-200 bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50"
+                class="border-b-2 border-pink-200 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg sticky top-0 z-50"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -31,55 +33,56 @@ const showingNavigationDropdown = ref(false);
 
                             <!-- Navigation Links -->
                             <div
-                                class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex items-center"
+                                class="hidden space-x-2 sm:space-x-4 sm:-my-px sm:ms-10 sm:flex items-center flex-wrap"
                             >
                                 <NavLink
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-2 sm:px-3 py-2 rounded-lg transition-all hover:bg-pink-50 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
                                     :class="{ 'bg-pink-100 shadow-sm': route().current('dashboard') }"
+                                    aria-label="Ir al dashboard"
                                 >
-                                    🏠 Dashboard
+                                    <span class="hidden sm:inline" aria-hidden="true">🏠 </span>Dashboard
                                 </NavLink>
                                 <NavLink
                                     :href="route('diary.index')"
                                     :active="route().current('diary.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-2 sm:px-3 py-2 rounded-lg transition-all hover:bg-pink-50 text-sm sm:text-base"
                                     :class="{ 'bg-pink-100 shadow-sm': route().current('diary.*') }"
                                 >
-                                    📖 Diario
+                                    <span class="hidden sm:inline">📖 </span>Diario
                                 </NavLink>
                                 <NavLink
                                     :href="route('todos.index')"
                                     :active="route().current('todos.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-2 sm:px-3 py-2 rounded-lg transition-all hover:bg-pink-50 text-sm sm:text-base"
                                     :class="{ 'bg-pink-100 shadow-sm': route().current('todos.*') }"
                                 >
-                                    ✅ Tareas
+                                    <span class="hidden sm:inline">✅ </span>Tareas
                                 </NavLink>
                                 <NavLink
                                     :href="route('events.index')"
                                     :active="route().current('events.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-2 sm:px-3 py-2 rounded-lg transition-all hover:bg-pink-50 text-sm sm:text-base"
                                     :class="{ 'bg-pink-100 shadow-sm': route().current('events.*') }"
                                 >
-                                    📅 Eventos
+                                    <span class="hidden sm:inline">📅 </span>Eventos
                                 </NavLink>
                                 <NavLink
                                     :href="route('pet.index')"
                                     :active="route().current('pet.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-2 sm:px-3 py-2 rounded-lg transition-all hover:bg-pink-50 text-sm sm:text-base"
                                     :class="{ 'bg-pink-100 shadow-sm': route().current('pet.*') }"
                                 >
-                                    🐕 Snoopy
+                                    <span class="hidden sm:inline">🐕 </span>Snoopy
                                 </NavLink>
                                 <NavLink
                                     :href="route('minigame.doors')"
                                     :active="route().current('minigame.*')"
-                                    class="text-pink-700 hover:text-pink-900 font-semibold px-3 py-2 rounded-lg transition-all hover:bg-pink-50"
+                                    class="text-pink-700 hover:text-pink-900 font-semibold px-2 sm:px-3 py-2 rounded-lg transition-all hover:bg-pink-50 text-sm sm:text-base"
                                     :class="{ 'bg-pink-100 shadow-sm': route().current('minigame.*') }"
                                 >
-                                    🎰 Minijuegos
+                                    <span class="hidden sm:inline">🎰 </span>Minijuegos
                                 </NavLink>
                                 
                                 <!-- Dropdown Menu -->
@@ -92,7 +95,7 @@ const showingNavigationDropdown = ref(false);
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </button>
-                                    <div class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border-2 border-pink-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                    <div class="absolute left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-2 border-pink-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                         <div class="p-2 space-y-1">
                                             <Link
                                                 :href="route('wishlist.index')"
@@ -120,9 +123,27 @@ const showingNavigationDropdown = ref(false);
                                             </Link>
                                             <Link
                                                 :href="route('media.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
                                             >
                                                 📚 Libros/Películas
+                                            </Link>
+                                            <button
+                                                @click="toggleDarkMode"
+                                                class="w-full text-left block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
+                                            >
+                                                {{ isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
+                                            </button>
+                                            <Link
+                                                :href="route('statistics')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
+                                            >
+                                                📊 Estadísticas
+                                            </Link>
+                                            <Link
+                                                :href="route('export.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
+                                            >
+                                                💾 Exportar Datos
                                             </Link>
                                             <Link
                                                 :href="route('meals.index')"
@@ -195,7 +216,10 @@ const showingNavigationDropdown = ref(false);
                                     showingNavigationDropdown =
                                         !showingNavigationDropdown
                                 "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
+                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+                                :aria-expanded="showingNavigationDropdown"
+                                aria-label="Abrir menú de navegación"
+                                aria-controls="mobile-menu"
                             >
                                 <svg
                                     class="h-6 w-6"
@@ -233,11 +257,14 @@ const showingNavigationDropdown = ref(false);
 
                 <!-- Responsive Navigation Menu -->
                 <div
+                    id="mobile-menu"
                     :class="{
                         block: showingNavigationDropdown,
                         hidden: !showingNavigationDropdown,
                     }"
                     class="sm:hidden"
+                    role="menu"
+                    aria-label="Menú de navegación móvil"
                 >
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
@@ -353,10 +380,10 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Heading -->
             <header
-                class="bg-white shadow"
+                class="bg-white/90 backdrop-blur-sm shadow-md sticky top-16 z-40 border-b-2 border-pink-100"
                 v-if="$slots.header"
             >
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
             </header>

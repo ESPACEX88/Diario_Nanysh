@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiaryEntry;
+use App\Models\Tag;
 use App\Models\Pet;
 use App\Services\AchievementService;
 use Illuminate\Http\Request;
@@ -34,10 +35,38 @@ class DiaryEntryController extends Controller
             });
         }
 
+        // Filter by tag
+        if ($request->has('tag') && $request->tag) {
+            $query->whereHas('tags', function($q) use ($request) {
+                $q->where('tags.id', $request->tag);
+            });
+        }
+
+        // Filter by date range
+        if ($request->has('date_from')) {
+            $query->where('date', '>=', $request->date_from);
+        }
+        if ($request->has('date_to')) {
+            $query->where('date', '<=', $request->date_to);
+        }
+
+        // Filter by mood
+        if ($request->has('mood') && $request->mood) {
+            $query->where('mood', $request->mood);
+        }
+
         $entries = $query->paginate(15);
+
+        // Get user's tags for filter
+        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
+        $userTags = Tag::whereHas('diaryEntries', function($q) use ($userEntryIds) {
+            $q->whereIn('diary_entries.id', $userEntryIds);
+        })->orderBy('name')->get();
 
         return Inertia::render('Diary/Index', [
             'entries' => $entries,
+            'tags' => $userTags,
+            'filters' => $request->only(['search', 'favorite', 'tag', 'date_from', 'date_to', 'mood']),
         ]);
     }
 
@@ -46,7 +75,15 @@ class DiaryEntryController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Diary/Create');
+        // Get user's existing tags
+        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
+        $tags = Tag::whereHas('diaryEntries', function($q) use ($userEntryIds) {
+            $q->whereIn('diary_entries.id', $userEntryIds);
+        })->orderBy('name')->get();
+
+        return Inertia::render('Diary/Create', [
+            'tags' => $tags,
+        ]);
     }
 
     /**
@@ -77,6 +114,11 @@ class DiaryEntryController extends Controller
             'mood' => $validated['mood'] ?? '😊',
             'date' => $date,
         ]);
+
+        // Attach tags
+        if (isset($validated['tags']) && is_array($validated['tags'])) {
+            $entry->tags()->sync($validated['tags']);
+        }
 
         // Reward coins for happy moods
         $happyMoods = ['😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋', '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗', '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤', '💯', '🔥', '⭐', '🌟', '💫', '✨', '☀️', '🌙', '⭐', '🌟', '💫', '✨', '☀️', '🌙', '⭐', '🌟', '💫', '✨', '☀️', '🌙'];
@@ -148,8 +190,15 @@ class DiaryEntryController extends Controller
             ->with(['tags', 'photos'])
             ->findOrFail($id);
 
+        // Get user's existing tags
+        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
+        $tags = Tag::whereHas('diaryEntries', function($q) use ($userEntryIds) {
+            $q->whereIn('diary_entries.id', $userEntryIds);
+        })->orderBy('name')->get();
+
         return Inertia::render('Diary/Edit', [
             'entry' => $entry,
+            'tags' => $tags,
         ]);
     }
 
@@ -176,6 +225,13 @@ class DiaryEntryController extends Controller
         $validated['date'] = $date;
 
         $entry->update($validated);
+
+        // Sync tags
+        if (isset($validated['tags'])) {
+            $entry->tags()->sync($validated['tags']);
+        } else {
+            $entry->tags()->detach();
+        }
 
         return redirect()->route('diary.show', $entry->id)
             ->with('success', 'Entrada del diario actualizada exitosamente.');

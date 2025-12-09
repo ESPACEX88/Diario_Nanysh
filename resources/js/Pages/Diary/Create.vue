@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import TagSelector from '@/Components/TagSelector.vue';
+
+interface Props {
+    tags?: Array<{
+        id: number;
+        name: string;
+        color: string;
+    }>;
+}
+
+const props = defineProps<Props>();
 
 // Función para obtener la fecha local en formato YYYY-MM-DD
 const getLocalDate = () => {
@@ -16,6 +27,7 @@ const form = useForm({
     content: '',
     mood: '😊',
     date: getLocalDate(),
+    tags: [] as number[],
 });
 
 const submit = () => {
@@ -69,12 +81,18 @@ const moods = [
                                     v-model="form.title"
                                     type="text"
                                     required
+                                    autocomplete="off"
                                     class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
                                     placeholder="¿Qué pasó hoy?"
+                                    aria-required="true"
+                                    aria-describedby="title-error"
                                 />
                                 <div
+                                    id="title-error"
                                     v-if="form.errors.title"
                                     class="mt-1 text-sm text-red-600 font-medium"
+                                    role="alert"
+                                    aria-live="polite"
                                 >
                                     {{ form.errors.title }}
                                 </div>
@@ -162,15 +180,29 @@ const moods = [
                                 v-model="form.content"
                                 rows="8"
                                 required
+                                autocomplete="off"
                                 class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 resize-none"
                                 placeholder="Escribe sobre tu día..."
+                                aria-required="true"
+                                aria-describedby="content-error"
                             />
                             <div
+                                id="content-error"
                                 v-if="form.errors.content"
                                 class="mt-1 text-sm text-red-600 font-medium"
+                                role="alert"
+                                aria-live="polite"
                             >
                                 {{ form.errors.content }}
                             </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mb-6">
+                            <TagSelector
+                                v-model="form.tags"
+                                :existing-tags="props.tags || []"
+                            />
                         </div>
 
                         <!-- Botones -->

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+import EmptyState from '@/Components/EmptyState.vue';
 
 interface Todo {
     id: number;
@@ -15,17 +16,96 @@ interface Todo {
 
 interface Props {
     todos: Todo[];
+    filters?: {
+        search?: string;
+        category?: string;
+        completed?: boolean;
+    };
 }
 
 const props = defineProps<Props>();
 
+const searchQuery = ref(props.filters?.search || '');
+const selectedCategory = ref(props.filters?.category || '');
+const showCompleted = ref(true);
+const searchTimeout = ref<NodeJS.Timeout | null>(null);
+
+// Obtener todas las categorías únicas
+const categories = computed(() => {
+    const cats = props.todos
+        .map(t => t.category)
+        .filter((cat): cat is string => !!cat);
+    return [...new Set(cats)].sort();
+});
+
+// Filtrar tareas
+const filteredTodos = computed(() => {
+    let filtered = [...props.todos];
+
+    // Filtro de búsqueda
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        filtered = filtered.filter(t => 
+            t.title.toLowerCase().includes(query) ||
+            (t.description && t.description.toLowerCase().includes(query)) ||
+            (t.category && t.category.toLowerCase().includes(query))
+        );
+    }
+
+    // Filtro por categoría
+    if (selectedCategory.value) {
+        filtered = filtered.filter(t => t.category === selectedCategory.value);
+    }
+
+    return filtered;
+});
+
 const pendingTodos = computed(() => 
-    props.todos.filter(t => !t.is_completed)
+    filteredTodos.value.filter(t => !t.is_completed)
 );
 
 const completedTodos = computed(() => 
-    props.todos.filter(t => t.is_completed)
+    filteredTodos.value.filter(t => t.is_completed)
 );
+
+// Debounce search
+watch(searchQuery, (newValue) => {
+    if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+    }
+    
+    searchTimeout.value = setTimeout(() => {
+        applyFilters();
+    }, 500);
+});
+
+watch(selectedCategory, () => {
+    applyFilters();
+});
+
+const applyFilters = () => {
+    router.get(
+        route('todos.index'),
+        {
+            search: searchQuery.value || undefined,
+            category: selectedCategory.value || undefined,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        }
+    );
+};
+
+const clearFilters = () => {
+    searchQuery.value = '';
+    selectedCategory.value = '';
+    router.get(route('todos.index'), {}, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
 
 const toggleComplete = (id: number) => {
     router.post(route('todos.toggle', id), {}, {
@@ -41,10 +121,10 @@ const deleteTodo = (id: number) => {
 
 const getPriorityColor = (priority: string) => {
     switch (priority) {
-        case 'high': return 'bg-red-100 text-red-700';
-        case 'medium': return 'bg-yellow-100 text-yellow-700';
-        case 'low': return 'bg-green-100 text-green-700';
-        default: return 'bg-gray-100 text-gray-700';
+        case 'high': return 'bg-red-100 text-red-700 border-red-300';
+        case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+        case 'low': return 'bg-green-100 text-green-700 border-green-300';
+        default: return 'bg-gray-100 text-gray-700 border-gray-300';
     }
 };
 </script>
@@ -69,37 +149,99 @@ const getPriorityColor = (priority: string) => {
 
         <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+                <!-- Search and Filters -->
+                <div class="mb-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1 relative">
+                            <label for="todos-search" class="sr-only">Buscar tareas</label>
+                            <input
+                                id="todos-search"
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="🔍 Buscar tareas..."
+                                class="w-full rounded-xl border-2 border-pink-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 pl-12 text-gray-900 dark:text-gray-100 shadow-sm focus:border-pink-500 dark:focus:border-pink-400 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-all"
+                                aria-label="Buscar tareas"
+                                aria-describedby="todos-search-description"
+                            />
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl" aria-hidden="true">🔍</span>
+                            <button
+                                v-if="searchQuery"
+                                @click="clearFilters"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 rounded"
+                                aria-label="Limpiar búsqueda"
+                                @keydown.enter="clearFilters"
+                                @keydown.space.prevent="clearFilters"
+                            >
+                                ✕
+                            </button>
+                            <span id="todos-search-description" class="sr-only">Busca por título, descripción o categoría</span>
+                        </div>
+                        <label for="todos-category" class="sr-only">Filtrar por categoría</label>
+                        <select
+                            id="todos-category"
+                            v-model="selectedCategory"
+                            class="px-4 py-3 rounded-xl border-2 border-pink-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-pink-500 dark:focus:border-pink-400 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-all"
+                            aria-label="Filtrar por categoría"
+                        >
+                            <option value="">Todas las categorías</option>
+                            <option
+                                v-for="category in categories"
+                                :key="category"
+                                :value="category"
+                            >
+                                {{ category }}
+                            </option>
+                        </select>
+                    </div>
+                    <div v-if="searchQuery || selectedCategory" class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 flex-wrap">
+                        <span>Filtros activos:</span>
+                        <span v-if="searchQuery" class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full">
+                            Búsqueda: "{{ searchQuery }}"
+                        </span>
+                        <span v-if="selectedCategory" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
+                            Categoría: {{ selectedCategory }}
+                        </span>
+                        <button
+                            @click="clearFilters"
+                            class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors text-xs font-semibold"
+                        >
+                            Limpiar filtros
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Pending Todos -->
                 <div v-if="pendingTodos.length > 0" class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                         <span>⏳</span>
                         Pendientes ({{ pendingTodos.length }})
                     </h3>
-                    <div class="max-h-96 overflow-y-auto space-y-2 pr-2">
+                    <div class="space-y-3">
                         <div
                             v-for="todo in pendingTodos"
                             :key="todo.id"
-                            class="bg-white rounded-lg shadow-sm border-2 border-pink-100 hover:border-pink-300 transition-all p-3"
+                            class="group bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-pink-100 dark:border-gray-700 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-4"
                         >
                             <div class="flex items-start gap-4">
                                 <input
                                     type="checkbox"
                                     :checked="todo.is_completed"
                                     @change="toggleComplete(todo.id)"
-                                    class="mt-1 w-5 h-5 text-pink-500 rounded focus:ring-pink-500"
+                                    :aria-label="`Marcar ${todo.title} como ${todo.is_completed ? 'pendiente' : 'completada'}`"
+                                    class="mt-1 w-5 h-5 text-pink-500 rounded focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 cursor-pointer"
                                 />
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <h4 class="font-semibold text-gray-900 text-base">{{ todo.title }}</h4>
+                                        <h4 class="font-semibold text-gray-900 dark:text-gray-100 text-base">{{ todo.title }}</h4>
                                         <span
                                             v-if="todo.priority"
-                                            :class="['px-2 py-1 rounded-full text-xs font-semibold', getPriorityColor(todo.priority)]"
+                                            :class="['px-2 py-1 rounded-full text-xs font-semibold border', getPriorityColor(todo.priority), 'dark:border-opacity-50']"
                                         >
-                                            {{ todo.priority === 'high' ? 'Alta' : todo.priority === 'medium' ? 'Media' : 'Baja' }}
+                                            {{ todo.priority === 'high' ? '🔴 Alta' : todo.priority === 'medium' ? '🟡 Media' : '🟢 Baja' }}
                                         </span>
                                     </div>
-                                    <p v-if="todo.description" class="text-gray-600 text-sm mb-1 line-clamp-1">{{ todo.description }}</p>
-                                    <div class="flex items-center gap-3 text-xs text-gray-500">
+                                    <p v-if="todo.description" class="text-gray-600 dark:text-gray-300 text-sm mb-1 line-clamp-1">{{ todo.description }}</p>
+                                    <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                                         <span v-if="todo.due_date">
                                             📅 {{ new Date(todo.due_date).toLocaleDateString('es-ES') }}
                                         </span>
@@ -127,15 +269,29 @@ const getPriorityColor = (priority: string) => {
 
                 <!-- Completed Todos -->
                 <div v-if="completedTodos.length > 0" class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <span>✅</span>
-                        Completadas ({{ completedTodos.length }})
-                    </h3>
-                    <div class="max-h-64 overflow-y-auto space-y-2 pr-2">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                            <span>✅</span>
+                            Completadas ({{ completedTodos.length }})
+                        </h3>
+                        <button
+                            @click="showCompleted = !showCompleted"
+                            :aria-expanded="showCompleted"
+                            aria-label="Mostrar u ocultar tareas completadas"
+                            class="text-sm text-gray-600 hover:text-gray-800 font-semibold px-3 py-1 rounded-lg hover:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+                            @keydown.enter="showCompleted = !showCompleted"
+                            @keydown.space.prevent="showCompleted = !showCompleted"
+                        >
+                            <span aria-hidden="true">{{ showCompleted ? '👁️' : '👁️‍🗨️' }}</span>
+                            <span class="sr-only">{{ showCompleted ? 'Ocultar' : 'Mostrar' }}</span>
+                            <span class="ml-1">{{ showCompleted ? 'Ocultar' : 'Mostrar' }}</span>
+                        </button>
+                    </div>
+                    <div v-show="showCompleted" class="space-y-3">
                         <div
                             v-for="todo in completedTodos"
                             :key="todo.id"
-                            class="bg-gray-50 rounded-lg border-2 border-gray-200 p-3 opacity-75"
+                            class="bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-4 opacity-75 hover:opacity-100 transition-opacity"
                         >
                             <div class="flex items-start gap-4">
                                 <input
@@ -145,8 +301,8 @@ const getPriorityColor = (priority: string) => {
                                     class="mt-1 w-5 h-5 text-pink-500 rounded focus:ring-pink-500"
                                 />
                                 <div class="flex-1">
-                                    <h4 class="font-semibold text-gray-600 text-sm line-through">{{ todo.title }}</h4>
-                                    <p v-if="todo.description" class="text-gray-500 text-xs mt-1 line-clamp-1">{{ todo.description }}</p>
+                                    <h4 class="font-semibold text-gray-600 dark:text-gray-400 text-sm line-through">{{ todo.title }}</h4>
+                                    <p v-if="todo.description" class="text-gray-500 dark:text-gray-500 text-xs mt-1 line-clamp-1">{{ todo.description }}</p>
                                 </div>
                                 <button
                                     @click="deleteTodo(todo.id)"
@@ -160,20 +316,14 @@ const getPriorityColor = (priority: string) => {
                 </div>
 
                 <!-- Empty State -->
-                <div
-                    v-if="todos.length === 0"
-                    class="text-center py-16 bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border-2 border-pink-200"
-                >
-                    <span class="text-6xl block mb-4">📝</span>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">No hay tareas aún</h3>
-                    <p class="text-gray-600 mb-6">Crea tu primera tarea para comenzar a organizarte</p>
-                    <Link
-                        :href="route('todos.create')"
-                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-semibold hover:from-pink-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
-                    >
-                        + Crear Primera Tarea
-                    </Link>
-                </div>
+                <EmptyState
+                    v-if="filteredTodos.length === 0"
+                    icon="📝"
+                    :title="searchQuery || selectedCategory ? 'No se encontraron tareas' : 'No hay tareas aún'"
+                    :description="searchQuery || selectedCategory ? 'Intenta con otros filtros o crea una nueva tarea.' : 'Crea tu primera tarea para comenzar a organizarte'"
+                    action-label="Crear Primera Tarea"
+                    :action-route="'todos.create'"
+                />
             </div>
         </div>
     </AuthenticatedLayout>

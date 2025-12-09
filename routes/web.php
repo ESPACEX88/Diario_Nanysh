@@ -12,7 +12,6 @@ use App\Http\Controllers\HabitLogController;
 use App\Http\Controllers\GratitudeController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\ExportController;
-use App\Http\Controllers\ExportDatabaseController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PetController;
 use Illuminate\Foundation\Application;
@@ -35,9 +34,8 @@ Route::get('/keep-alive', function () {
     ]);
 })->name('keep-alive');
 
-// Endpoint de exportación de base de datos (público para emergencia)
-Route::get('/api/export-database', [ExportDatabaseController::class, 'export'])->name('api.export-database');
-Route::get('/api/export-database/{table}', [ExportDatabaseController::class, 'exportTable'])->name('api.export-database-table');
+// Health check endpoint (sin autenticación)
+Route::get('/health', [\App\Http\Controllers\HealthController::class, 'index'])->name('health');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -45,6 +43,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Diary Entries
     Route::resource('diary', DiaryEntryController::class);
     Route::post('diary/{diary}/favorite', [DiaryEntryController::class, 'toggleFavorite'])->name('diary.favorite');
+
+    // Tags
+    Route::get('tags', [\App\Http\Controllers\TagController::class, 'index'])->name('tags.index');
+    Route::get('tags/user', [\App\Http\Controllers\TagController::class, 'userTags'])->name('tags.user');
+    Route::post('tags', [\App\Http\Controllers\TagController::class, 'store'])->name('tags.store');
+    Route::put('tags/{tag}', [\App\Http\Controllers\TagController::class, 'update'])->name('tags.update');
+    Route::delete('tags/{tag}', [\App\Http\Controllers\TagController::class, 'destroy'])->name('tags.destroy');
 
     // Notes
     Route::resource('notes', NoteController::class);
@@ -70,8 +75,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('statistics', [StatisticsController::class, 'index'])->name('statistics');
     Route::get('statistics/mood-trends', [StatisticsController::class, 'moodTrends'])->name('statistics.mood-trends');
 
-    // Export
-    Route::get('export', [ExportController::class, 'export'])->name('export');
+    // Export (con rate limiting)
+    Route::get('export', [ExportController::class, 'index'])->name('export.index');
+    Route::get('export/download', [ExportController::class, 'export'])
+        ->middleware('throttle.sensitive')
+        ->name('export');
 
     // Settings
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings');

@@ -25,8 +25,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Recent diary entries
+        // Recent diary entries (con eager loading para optimizar)
         $recentEntries = DiaryEntry::where('user_id', $user->id)
+            ->with(['tags'])
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
