@@ -16,7 +16,7 @@ const form = useForm({
     is_recurring: false,
     recurrence_pattern: '',
     send_reminder: false,
-    reminder_minutes: null,
+    reminder_minutes: null as number | null,
     reminder_email: '',
 });
 
@@ -140,7 +140,7 @@ const submit = () => {
                                 id="reminder_minutes"
                                 type="number"
                                 class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
-                                :value="form.reminder_minutes?.toString() || ''"
+                                :value="form.reminder_minutes !== null ? form.reminder_minutes.toString() : ''"
                                 @input="form.reminder_minutes = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                 min="1"
                                 placeholder="60"
