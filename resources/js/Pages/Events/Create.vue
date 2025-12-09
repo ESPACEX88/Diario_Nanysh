@@ -136,11 +136,12 @@ const submit = () => {
 
                         <div v-if="form.send_reminder" class="mb-6">
                             <InputLabel for="reminder_minutes" value="Minutos antes del evento" />
-                            <TextInput
+                            <input
                                 id="reminder_minutes"
                                 type="number"
-                                class="mt-1 block w-full"
-                                v-model="form.reminder_minutes"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                                :value="form.reminder_minutes?.toString() || ''"
+                                @input="form.reminder_minutes = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                 min="1"
                                 placeholder="60"
                             />
