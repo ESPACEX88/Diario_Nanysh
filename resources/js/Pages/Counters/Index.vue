@@ -107,21 +107,6 @@ const cancelDelete = () => {
                     </div>
                 </div>
 
-                <ConfirmModal
-                    :show="showDeleteModal"
-                    title="Eliminar Contador"
-                    message="¿Estás segura de que quieres eliminar este contador? Esta acción no se puede deshacer."
-                    confirm-text="Eliminar"
-                    cancel-text="Cancelar"
-                    type="danger"
-                    @confirm="confirmDelete"
-                    @cancel="cancelDelete"
-                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div
                     v-else
                     class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 rounded-3xl border-4 border-pink-300"
@@ -141,6 +126,17 @@ const cancelDelete = () => {
                 </div>
             </div>
         </div>
+
+        <ConfirmModal
+            :show="showDeleteModal"
+            title="Eliminar Contador"
+            message="¿Estás segura de que quieres eliminar este contador? Esta acción no se puede deshacer."
+            confirm-text="Eliminar"
+            cancel-text="Cancelar"
+            type="danger"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AuthenticatedLayout>
 </template>
 
