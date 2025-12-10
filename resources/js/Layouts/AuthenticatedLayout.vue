@@ -95,86 +95,127 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </button>
-                                    <div class="absolute left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-2 border-pink-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                        <div class="p-2 space-y-1">
-                                            <Link
-                                                :href="route('wishlist.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
-                                            >
-                                                💝 Lista de Deseos
-                                            </Link>
-                                            <Link
-                                                :href="route('achievements.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
-                                            >
-                                                🏆 Logros
-                                            </Link>
-                                            <Link
-                                                :href="route('counters.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
-                                            >
-                                                📅 Contadores
-                                            </Link>
-                                            <Link
-                                                :href="route('dreams.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
-                                            >
-                                                🌙 Sueños
-                                            </Link>
-                                            <Link
-                                                :href="route('media.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                📚 Libros/Películas
-                                            </Link>
-                                            <button
-                                                @click="toggleDarkMode"
-                                                class="w-full text-left block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                {{ isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
-                                            </button>
-                                            <Link
-                                                :href="route('statistics')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                📊 Estadísticas
-                                            </Link>
-                                            <Link
-                                                :href="route('export.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                💾 Exportar Datos
-                                            </Link>
-                                            <Link
-                                                :href="route('recipes.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                📖 Recetario
-                                            </Link>
-                                            <Link
-                                                :href="route('meals.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
-                                            >
-                                                🍽️ Comidas
-                                            </Link>
-                                            <Link
-                                                :href="route('cycle.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                🌸 Ciclo
-                                            </Link>
-                                            <Link
-                                                :href="route('photos.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                📸 Fotos
-                                            </Link>
-                                            <Link
-                                                :href="route('habits.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
-                                            >
-                                                🔄 Hábitos
-                                            </Link>
+                                    <div class="absolute left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-2 border-pink-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+                                        <div class="p-3">
+                                            <!-- Sección: Registros y Seguimiento -->
+                                            <div class="mb-3">
+                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                    📝 Registros
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <Link
+                                                        :href="route('dreams.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        🌙 Sueños
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('photos.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        📸 Fotos
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('cycle.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        🌸 Ciclo
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('habits.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        🔄 Hábitos
+                                                    </Link>
+                                                </div>
+                                            </div>
+
+                                            <!-- Sección: Entretenimiento -->
+                                            <div class="mb-3">
+                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                    🎬 Entretenimiento
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <Link
+                                                        :href="route('media.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        📚 Libros/Películas
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('wishlist.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                    >
+                                                        💝 Lista de Deseos
+                                                    </Link>
+                                                </div>
+                                            </div>
+
+                                            <!-- Sección: Cocina -->
+                                            <div class="mb-3">
+                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                    🍳 Cocina
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <Link
+                                                        :href="route('recipes.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        📖 Recetario
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('meals.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                    >
+                                                        🍽️ Comidas Favoritas
+                                                    </Link>
+                                                </div>
+                                            </div>
+
+                                            <!-- Sección: Progreso -->
+                                            <div class="mb-3">
+                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                    🎯 Progreso
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <Link
+                                                        :href="route('achievements.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                    >
+                                                        🏆 Logros
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('counters.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                    >
+                                                        📅 Contadores
+                                                    </Link>
+                                                    <Link
+                                                        :href="route('statistics')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        📊 Estadísticas
+                                                    </Link>
+                                                </div>
+                                            </div>
+
+                                            <!-- Sección: Configuración -->
+                                            <div class="border-t border-pink-100 dark:border-gray-700 pt-2 mt-2">
+                                                <div class="space-y-1">
+                                                    <button
+                                                        @click="toggleDarkMode"
+                                                        class="w-full text-left block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        {{ isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
+                                                    </button>
+                                                    <Link
+                                                        :href="route('export.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        💾 Exportar Datos
+                                                    </Link>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -321,12 +362,73 @@ const { isDark, toggleDarkMode } = useDarkMode();
                         >
                             🎰 Minijuegos
                         </ResponsiveNavLink>
+                        <!-- Registros -->
+                        <div class="px-4 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            📝 Registros
+                        </div>
+                        <ResponsiveNavLink
+                            :href="route('dreams.index')"
+                            :active="route().current('dreams.*')"
+                        >
+                            🌙 Sueños
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('photos.index')"
+                            :active="route().current('photos.*')"
+                        >
+                            📸 Fotos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('cycle.index')"
+                            :active="route().current('cycle.*')"
+                        >
+                            🌸 Ciclo
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('habits.index')"
+                            :active="route().current('habits.*')"
+                        >
+                            🔄 Hábitos
+                        </ResponsiveNavLink>
+                        
+                        <!-- Entretenimiento -->
+                        <div class="px-4 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            🎬 Entretenimiento
+                        </div>
+                        <ResponsiveNavLink
+                            :href="route('media.index')"
+                            :active="route().current('media.*')"
+                        >
+                            📚 Libros/Películas
+                        </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('wishlist.index')"
                             :active="route().current('wishlist.*')"
                         >
                             💝 Lista de Deseos
                         </ResponsiveNavLink>
+                        
+                        <!-- Cocina -->
+                        <div class="px-4 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            🍳 Cocina
+                        </div>
+                        <ResponsiveNavLink
+                            :href="route('recipes.index')"
+                            :active="route().current('recipes.*')"
+                        >
+                            📖 Recetario
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('meals.index')"
+                            :active="route().current('meals.*')"
+                        >
+                            🍽️ Comidas Favoritas
+                        </ResponsiveNavLink>
+                        
+                        <!-- Progreso -->
+                        <div class="px-4 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            🎯 Progreso
+                        </div>
                         <ResponsiveNavLink
                             :href="route('achievements.index')"
                             :active="route().current('achievements.*')"
@@ -340,40 +442,10 @@ const { isDark, toggleDarkMode } = useDarkMode();
                             📅 Contadores
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            :href="route('dreams.index')"
-                            :active="route().current('dreams.*')"
+                            :href="route('statistics')"
+                            :active="route().current('statistics')"
                         >
-                            🌙 Sueños
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('media.index')"
-                            :active="route().current('media.*')"
-                        >
-                            📚 Libros/Películas
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('meals.index')"
-                            :active="route().current('meals.*')"
-                        >
-                            🍽️ Comidas
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('cycle.index')"
-                            :active="route().current('cycle.*')"
-                        >
-                            🌸 Ciclo
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('photos.index')"
-                            :active="route().current('photos.*')"
-                        >
-                            📸 Fotos
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('habits.index')"
-                            :active="route().current('habits.*')"
-                        >
-                            🔄 Hábitos
+                            📊 Estadísticas
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('recipes.index')"

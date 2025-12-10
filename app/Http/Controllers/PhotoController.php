@@ -88,6 +88,8 @@ class PhotoController extends Controller
                 'thumbnail_path' => $imageData['thumbnail_path'],
                 'description' => $validated['description'] ?? null,
                 'taken_at' => $validated['taken_at'] ?? now(),
+                'photoable_id' => null,
+                'photoable_type' => null,
             ]);
 
             return redirect()->route('photos.index')
