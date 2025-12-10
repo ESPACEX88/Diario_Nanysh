@@ -125,6 +125,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Favorite Meals (Comidas favoritas)
     Route::resource('meals', \App\Http\Controllers\FavoriteMealController::class);
 
+    // Recipe Catalog (Recetario)
+    Route::get('recipes', [\App\Http\Controllers\RecipeCatalogController::class, 'index'])->name('recipes.index');
+    Route::get('recipes/{id}', [\App\Http\Controllers\RecipeCatalogController::class, 'show'])->name('recipes.show');
+
     // Motivational Quotes (Frases motivacionales)
     Route::get('quote/daily', [\App\Http\Controllers\MotivationalQuoteController::class, 'daily'])->name('quote.daily');
 

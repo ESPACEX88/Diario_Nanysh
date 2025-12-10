@@ -14,8 +14,8 @@ class AchievementController extends Controller
     {
         $user = Auth::user();
         
-        // Obtener todos los logros únicos (por código para evitar duplicados)
-        $allAchievements = Achievement::orderBy('type')->orderBy('points')->get()->unique('code')->values();
+        // Obtener todos los logros (sin filtrar por código único, mostrar todos)
+        $allAchievements = Achievement::orderBy('type')->orderBy('points')->get();
         
         // Obtener logros desbloqueados del usuario
         $userAchievements = UserAchievement::where('user_id', $user->id)

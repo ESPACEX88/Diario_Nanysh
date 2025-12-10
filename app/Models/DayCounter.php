@@ -33,15 +33,17 @@ class DayCounter extends Model
 
     public function getDaysCountAttribute(): int
     {
-        $now = Carbon::now();
-        $start = Carbon::parse($this->start_date);
+        $now = Carbon::now()->startOfDay();
+        $start = Carbon::parse($this->start_date)->startOfDay();
         
         // Si la fecha de inicio es en el futuro, retornar 0
         if ($start->isFuture()) {
             return 0;
         }
         
-        // Calcular días transcurridos (siempre positivo)
-        return $now->diffInDays($start, false);
+        // Calcular días transcurridos desde la fecha de inicio (siempre positivo)
+        // diffInDays con false retorna negativo si start > now, así que usamos abs
+        $days = $now->diffInDays($start, false);
+        return abs($days);
     }
 }

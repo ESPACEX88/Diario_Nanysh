@@ -146,6 +146,12 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                                 💾 Exportar Datos
                                             </Link>
                                             <Link
+                                                :href="route('recipes.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
+                                            >
+                                                📖 Recetario
+                                            </Link>
+                                            <Link
                                                 :href="route('meals.index')"
                                                 class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
                                             >

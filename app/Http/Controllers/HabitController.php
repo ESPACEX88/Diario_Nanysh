@@ -69,12 +69,66 @@ class HabitController extends Controller
     {
         $habit = Habit::where('user_id', Auth::id())
             ->with(['habitLogs' => function($query) {
-                $query->orderBy('date', 'desc')->limit(30);
+                $query->orderBy('completed_at', 'desc')->limit(90);
             }])
             ->findOrFail($id);
 
+        // Calculate current streak
+        $currentStreak = 0;
+        $checkDate = \Carbon\Carbon::today();
+        $logs = $habit->habitLogs->sortByDesc('completed_at');
+        
+        foreach ($logs as $log) {
+            $logDate = \Carbon\Carbon::parse($log->completed_at)->startOfDay();
+            if ($logDate->isSameDay($checkDate) || $logDate->isSameDay($checkDate->copy()->subDay())) {
+                if ($logDate->isSameDay($checkDate)) {
+                    $currentStreak++;
+                } else {
+                    $currentStreak++;
+                    $checkDate = $logDate;
+                }
+            } else {
+                break;
+            }
+        }
+
+        // Calculate total completions
+        $totalCompletions = $habit->habitLogs->count();
+        
+        // Calculate this month completions
+        $thisMonthCompletions = $habit->habitLogs
+            ->filter(function($log) {
+                return \Carbon\Carbon::parse($log->completed_at)->isCurrentMonth();
+            })
+            ->count();
+
+        // Calculate best streak
+        $bestStreak = 0;
+        $tempStreak = 0;
+        $lastDate = null;
+        
+        foreach ($logs->sortBy('completed_at') as $log) {
+            $logDate = \Carbon\Carbon::parse($log->completed_at)->startOfDay();
+            
+            if ($lastDate === null) {
+                $tempStreak = 1;
+            } elseif ($logDate->diffInDays($lastDate) === 1) {
+                $tempStreak++;
+            } else {
+                $bestStreak = max($bestStreak, $tempStreak);
+                $tempStreak = 1;
+            }
+            
+            $lastDate = $logDate;
+        }
+        $bestStreak = max($bestStreak, $tempStreak);
+
         return Inertia::render('Habits/Show', [
             'habit' => $habit,
+            'currentStreak' => $currentStreak,
+            'totalCompletions' => $totalCompletions,
+            'thisMonthCompletions' => $thisMonthCompletions,
+            'bestStreak' => $bestStreak,
         ]);
     }
 
