@@ -159,9 +159,21 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                             </Link>
                                             <Link
                                                 :href="route('cycle.index')"
-                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 font-semibold transition-all"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
                                             >
                                                 🌸 Ciclo
+                                            </Link>
+                                            <Link
+                                                :href="route('photos.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
+                                            >
+                                                📸 Fotos
+                                            </Link>
+                                            <Link
+                                                :href="route('habits.index')"
+                                                class="block px-4 py-3 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 font-semibold transition-all"
+                                            >
+                                                🔄 Hábitos
                                             </Link>
                                         </div>
                                     </div>
@@ -350,6 +362,24 @@ const { isDark, toggleDarkMode } = useDarkMode();
                             :active="route().current('cycle.*')"
                         >
                             🌸 Ciclo
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('photos.index')"
+                            :active="route().current('photos.*')"
+                        >
+                            📸 Fotos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('habits.index')"
+                            :active="route().current('habits.*')"
+                        >
+                            🔄 Hábitos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('recipes.index')"
+                            :active="route().current('recipes.*')"
+                        >
+                            📖 Recetario
                         </ResponsiveNavLink>
                     </div>
 

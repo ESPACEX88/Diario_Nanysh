@@ -13,7 +13,11 @@ class RecipeCatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RecipeCatalog::where('is_predefined', true);
+        // Mostrar todas las recetas predefinidas (is_predefined = true o null)
+        $query = RecipeCatalog::where(function($q) {
+            $q->where('is_predefined', true)
+              ->orWhereNull('is_predefined');
+        });
 
         // Filter by type
         if ($request->has('type') && $request->type) {
@@ -41,14 +45,20 @@ class RecipeCatalogController extends Controller
         $recipes = $query->orderBy('type')->orderBy('name')->paginate(24);
 
         // Get unique categories and types for filters
-        $categories = RecipeCatalog::where('is_predefined', true)
+        $categories = RecipeCatalog::where(function($q) {
+                $q->where('is_predefined', true)
+                  ->orWhereNull('is_predefined');
+            })
             ->whereNotNull('category')
             ->distinct()
             ->pluck('category')
             ->sort()
             ->values();
 
-        $types = RecipeCatalog::where('is_predefined', true)
+        $types = RecipeCatalog::where(function($q) {
+                $q->where('is_predefined', true)
+                  ->orWhereNull('is_predefined');
+            })
             ->distinct()
             ->pluck('type')
             ->sort()

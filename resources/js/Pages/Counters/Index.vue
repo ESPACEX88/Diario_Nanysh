@@ -12,6 +12,8 @@ interface Counter {
     days_count: number;
     icon?: string;
     color: string;
+    is_future?: boolean;
+    days_remaining?: number;
 }
 
 interface Props {
@@ -79,15 +81,25 @@ const cancelDelete = () => {
                                 {{ counter.description }}
                             </p>
                             <div class="mb-6">
-                                <div class="text-5xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
-                                    {{ counter.days_count }}
+                                <div class="text-5xl font-bold mb-2" :class="counter.days_count < 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent' : 'bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent'">
+                                    {{ Math.abs(counter.days_count) }}
                                 </div>
-                                <div class="text-sm text-gray-600 font-semibold">
-                                    {{ counter.days_count === 1 ? 'día' : 'días' }}
+                                <div class="text-sm font-semibold" :class="counter.days_count < 0 ? 'text-blue-600' : 'text-gray-600'">
+                                    <span v-if="counter.days_count < 0">
+                                        {{ Math.abs(counter.days_count) === 1 ? 'día faltante' : 'días faltantes' }}
+                                    </span>
+                                    <span v-else>
+                                        {{ counter.days_count === 1 ? 'día transcurrido' : 'días transcurridos' }}
+                                    </span>
                                 </div>
                             </div>
                             <div class="text-xs text-gray-500 mb-4">
-                                Desde: {{ new Date(counter.start_date).toLocaleDateString('es-ES') }}
+                                <span v-if="counter.days_count < 0">
+                                    Hasta: {{ new Date(counter.start_date).toLocaleDateString('es-ES') }}
+                                </span>
+                                <span v-else>
+                                    Desde: {{ new Date(counter.start_date).toLocaleDateString('es-ES') }}
+                                </span>
                             </div>
                             <div class="flex gap-2 justify-center">
                                 <Link

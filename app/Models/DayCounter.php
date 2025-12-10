@@ -36,14 +36,25 @@ class DayCounter extends Model
         $now = Carbon::now()->startOfDay();
         $start = Carbon::parse($this->start_date)->startOfDay();
         
-        // Si la fecha de inicio es en el futuro, retornar 0
+        // Calcular diferencia de días (positivo si start está en el pasado, negativo si está en el futuro)
+        $days = $now->diffInDays($start, false);
+        return $days;
+    }
+    
+    public function getIsFutureAttribute(): bool
+    {
+        return Carbon::parse($this->start_date)->isFuture();
+    }
+    
+    public function getDaysRemainingAttribute(): int
+    {
+        $now = Carbon::now()->startOfDay();
+        $start = Carbon::parse($this->start_date)->startOfDay();
+        
         if ($start->isFuture()) {
-            return 0;
+            return $now->diffInDays($start, false);
         }
         
-        // Calcular días transcurridos desde la fecha de inicio (siempre positivo)
-        // diffInDays con false retorna negativo si start > now, así que usamos abs
-        $days = $now->diffInDays($start, false);
-        return abs($days);
+        return 0;
     }
 }

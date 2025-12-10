@@ -24,6 +24,8 @@ class DayCounterController extends Controller
                     'days_count' => $counter->days_count,
                     'icon' => $counter->icon,
                     'color' => $counter->color,
+                    'is_future' => $counter->is_future,
+                    'days_remaining' => $counter->days_remaining,
                 ];
             });
 
