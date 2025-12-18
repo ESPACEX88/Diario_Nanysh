@@ -21,7 +21,7 @@ class MediaItemController extends Controller
             $query->where('status', $request->status);
         }
 
-        $items = $query->orderBy('created_at', 'desc')->get();
+        $items = $query->orderBy('created_at', 'desc')->paginate(20);
 
         return Inertia::render('Media/Index', [
             'items' => $items,

@@ -28,10 +28,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const searchQuery = ref('');
-const selectedType = ref('');
-const selectedCategory = ref('');
-const selectedDifficulty = ref('');
+// Initialize filters from query parameters if they exist
+const searchQuery = ref(props.recipes?.meta?.search || '');
+const selectedType = ref(props.recipes?.meta?.type || '');
+const selectedCategory = ref(props.recipes?.meta?.category || '');
+const selectedDifficulty = ref(props.recipes?.meta?.difficulty || '');
 
 const getTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
@@ -138,7 +139,7 @@ const clearFilters = () => {
                                 class="w-full rounded-lg border-2 border-pink-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:border-pink-500 focus:ring-2 focus:ring-pink-500"
                             >
                                 <option value="">Todos</option>
-                                <option v-for="type in types" :key="type" :value="type">
+                                <option v-for="type in (types || [])" :key="type" :value="type">
                                     {{ getTypeName(type) }}
                                 </option>
                             </select>
@@ -151,7 +152,7 @@ const clearFilters = () => {
                                 class="w-full rounded-lg border-2 border-pink-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:border-pink-500 focus:ring-2 focus:ring-pink-500"
                             >
                                 <option value="">Todas</option>
-                                <option v-for="category in categories" :key="category" :value="category">
+                                <option v-for="category in (categories || [])" :key="category" :value="category">
                                     {{ category }}
                                 </option>
                             </select>
@@ -178,8 +179,16 @@ const clearFilters = () => {
                     </button>
                 </div>
 
+                <!-- Debug: Mostrar información de recetas -->
+                <div v-if="!recipes" class="mb-4 p-4 bg-yellow-100 rounded-lg">
+                    <p class="text-yellow-800">⚠️ No se recibieron datos de recetas del servidor</p>
+                </div>
+                <div v-else-if="!recipes.data" class="mb-4 p-4 bg-yellow-100 rounded-lg">
+                    <p class="text-yellow-800">⚠️ No hay propiedad 'data' en recipes. Total: {{ recipes.total || 'N/A' }}</p>
+                </div>
+
                 <!-- Recetas -->
-                <div v-if="recipes.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-if="recipes && recipes.data && recipes.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <Link
                         v-for="recipe in recipes.data"
                         :key="recipe.id"
@@ -212,7 +221,7 @@ const clearFilters = () => {
                 </div>
 
                 <div
-                    v-else
+                    v-else-if="recipes?.data?.length === 0"
                     class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-3xl border-4 border-pink-300 dark:border-gray-700"
                 >
                     <span class="text-8xl block mb-6">📖</span>
@@ -226,6 +235,13 @@ const clearFilters = () => {
                     >
                         Limpiar Filtros
                     </button>
+                </div>
+                <div
+                    v-else
+                    class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-3xl border-4 border-pink-300 dark:border-gray-700"
+                >
+                    <span class="text-8xl block mb-6">⏳</span>
+                    <h3 class="text-3xl font-bold text-gray-800 dark:text-white mb-3">Cargando recetas...</h3>
                 </div>
             </div>
         </div>

@@ -20,7 +20,7 @@ class DreamController extends Controller
             $query->where('type', $request->type);
         }
 
-        $dreams = $query->get();
+        $dreams = $query->paginate(20);
 
         return Inertia::render('Dreams/Index', [
             'dreams' => $dreams,

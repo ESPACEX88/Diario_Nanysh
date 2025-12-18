@@ -16,6 +16,7 @@ class Photo extends Model
         'album_id',
         'path',
         'thumbnail_path',
+        'cloudinary_public_id',
         'description',
         'taken_at',
         'photoable_id',
@@ -27,6 +28,39 @@ class Photo extends Model
         return [
             'taken_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the full URL for the photo.
+     * Handles both Cloudinary URLs and local storage paths.
+     */
+    public function getFullUrlAttribute(): string
+    {
+        // Si ya es una URL completa de Cloudinary, devolverla tal cual
+        if (str_starts_with($this->path, 'https://')) {
+            return $this->path;
+        }
+        
+        // Si es una ruta local, construir la URL
+        return asset('storage/' . $this->path);
+    }
+
+    /**
+     * Get the full URL for the thumbnail.
+     */
+    public function getThumbnailUrlAttribute(): string
+    {
+        if (!$this->thumbnail_path) {
+            return $this->getFullUrlAttribute();
+        }
+
+        // Si ya es una URL completa de Cloudinary, devolverla tal cual
+        if (str_starts_with($this->thumbnail_path, 'https://')) {
+            return $this->thumbnail_path;
+        }
+        
+        // Si es una ruta local, construir la URL
+        return asset('storage/' . $this->thumbnail_path);
     }
 
     /**

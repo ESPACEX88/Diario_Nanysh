@@ -88,6 +88,7 @@ class NoteController extends Controller
     public function show(string $id)
     {
         $note = Note::where('user_id', Auth::id())
+            ->with(['tags'])
             ->findOrFail($id);
 
         return Inertia::render('Notes/Show', [

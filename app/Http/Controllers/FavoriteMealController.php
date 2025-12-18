@@ -17,7 +17,7 @@ class FavoriteMealController extends Controller
             $query->where('type', $request->type);
         }
 
-        $meals = $query->orderBy('created_at', 'desc')->get();
+        $meals = $query->orderBy('created_at', 'desc')->paginate(20);
 
         return Inertia::render('Meals/Index', [
             'meals' => $meals,

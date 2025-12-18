@@ -13,6 +13,7 @@ use App\Models\Event;
 use App\Models\MotivationalQuote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
@@ -37,68 +38,47 @@ class DashboardController extends Controller
             ->whereDate('date', Carbon::today())
             ->first();
 
-        // Statistics
-        $totalEntries = DiaryEntry::where('user_id', $user->id)->count();
-        $favoriteEntries = DiaryEntry::where('user_id', $user->id)
-            ->where('is_favorite', true)
-            ->count();
-        
-        $totalNotes = Note::where('user_id', $user->id)->count();
-        $pinnedNotes = Note::where('user_id', $user->id)
-            ->where('is_pinned', true)
-            ->count();
+        // Statistics con caché de 5 minutos
+        $stats = Cache::remember("dashboard.stats.{$user->id}", 300, function () use ($user) {
+            return [
+                'totalEntries' => DiaryEntry::where('user_id', $user->id)->count(),
+                'favoriteEntries' => DiaryEntry::where('user_id', $user->id)
+                    ->where('is_favorite', true)
+                    ->count(),
+                'totalNotes' => Note::where('user_id', $user->id)->count(),
+                'pinnedNotes' => Note::where('user_id', $user->id)
+                    ->where('is_pinned', true)
+                    ->count(),
+                'activeGoals' => Goal::where('user_id', $user->id)
+                    ->where('is_completed', false)
+                    ->count(),
+                'activeHabits' => Habit::where('user_id', $user->id)
+                    ->where('is_active', true)
+                    ->count(),
+            ];
+        });
 
-        $activeGoals = Goal::where('user_id', $user->id)
-            ->where('is_completed', false)
-            ->count();
-
-        $activeHabits = Habit::where('user_id', $user->id)
-            ->where('is_active', true)
-            ->count();
-
-        // This week's gratitudes
-        $thisWeekGratitudes = Gratitude::where('user_id', $user->id)
-            ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
-
-        // Calculate writing streak - cuenta días consecutivos desde el último día con entrada
-        $streak = 0;
-        $checkDate = Carbon::today();
-        
-        // Si hoy no hay entrada, empezar desde ayer
-        $todayEntry = DiaryEntry::where('user_id', $user->id)
-            ->whereDate('date', $checkDate)
-            ->first();
-        
-        if (!$todayEntry) {
-            $checkDate->subDay();
-        }
-        
-        // Contar días consecutivos hacia atrás
-        while (true) {
-            $entry = DiaryEntry::where('user_id', $user->id)
-                ->whereDate('date', $checkDate)
-                ->first();
+        // This week's statistics (caché de 10 minutos)
+        $weekStats = Cache::remember("dashboard.week.{$user->id}", 600, function () use ($user) {
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
             
-            if ($entry) {
-                $streak++;
-                $checkDate->subDay();
-            } else {
-                // Si no hay entrada en este día, romper la racha
-                break;
-            }
-        }
+            return [
+                'thisWeekGratitudes' => Gratitude::where('user_id', $user->id)
+                    ->whereBetween('date', [$startOfWeek, $endOfWeek])
+                    ->count(),
+                'thisWeekEntries' => DiaryEntry::where('user_id', $user->id)
+                    ->whereBetween('date', [$startOfWeek, $endOfWeek])
+                    ->count(),
+                'completedTodosThisWeek' => Todo::where('user_id', $user->id)
+                    ->where('is_completed', true)
+                    ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
+                    ->count(),
+            ];
+        });
 
-        // This week's entries
-        $thisWeekEntries = DiaryEntry::where('user_id', $user->id)
-            ->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
-
-        // Completed todos this week
-        $completedTodosThisWeek = Todo::where('user_id', $user->id)
-            ->where('is_completed', true)
-            ->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
+        // Calculate writing streak - sin caché ya que cambia diariamente
+        $streak = $this->calculateStreak($user->id);
 
         // Pending todos
         $pendingTodos = Todo::where('user_id', $user->id)
@@ -149,21 +129,58 @@ class DashboardController extends Controller
                 'coins' => (int) $pet->coins,
                 'mood' => $pet->mood,
             ],
-            'stats' => [
-                'totalEntries' => $totalEntries,
-                'favoriteEntries' => $favoriteEntries,
-                'totalNotes' => $totalNotes,
-                'pinnedNotes' => $pinnedNotes,
-                'activeGoals' => $activeGoals,
-                'activeHabits' => $activeHabits,
-                'thisWeekGratitudes' => $thisWeekGratitudes,
-                'streak' => $streak,
-                'thisWeekEntries' => $thisWeekEntries,
-                'completedTodosThisWeek' => $completedTodosThisWeek,
+        return Inertia::render('Dashboard', [
+            'recentEntries' => $recentEntries,
+            'todayEntry' => $todayEntry,
+            'pet' => [
+                'name' => $pet->name,
+                'level' => (int) $pet->level,
+                'happiness' => (int) $pet->happiness,
+                'hunger' => (int) $pet->hunger,
+                'energy' => (int) $pet->energy,
+                'health' => (int) $pet->health,
+                'coins' => (int) $pet->coins,
+                'mood' => $pet->mood,
             ],
+            'stats' => array_merge($stats, $weekStats, ['streak' => $streak]),
             'pendingTodos' => $pendingTodos,
             'upcomingEvents' => $upcomingEvents,
             'dailyQuote' => $dailyQuote,
         ]);
+    }
+
+    /**
+     * Calculate writing streak for user.
+     */
+    private function calculateStreak($userId): int
+    {
+        $streak = 0;
+        $checkDate = Carbon::today();
+        
+        // Si hoy no hay entrada, empezar desde ayer
+        $todayEntry = DiaryEntry::where('user_id', $userId)
+            ->whereDate('date', $checkDate)
+            ->exists();
+        
+        if (!$todayEntry) {
+            $checkDate->subDay();
+        }
+        
+        // Contar días consecutivos hacia atrás (máximo 100 para evitar loops infinitos)
+        $maxIterations = 100;
+        while ($maxIterations-- > 0) {
+            $hasEntry = DiaryEntry::where('user_id', $userId)
+                ->whereDate('date', $checkDate)
+                ->exists();
+            
+            if ($hasEntry) {
+                $streak++;
+                $checkDate->subDay();
+            } else {
+                break;
+            }
+        }
+        
+        return $streak;
     }
 }

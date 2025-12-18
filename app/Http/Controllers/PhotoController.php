@@ -7,6 +7,7 @@ use App\Models\Album;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -86,6 +87,7 @@ class PhotoController extends Controller
                 'album_id' => $validated['album_id'] ?? null,
                 'path' => $imageData['path'],
                 'thumbnail_path' => $imageData['thumbnail_path'],
+                'cloudinary_public_id' => $imageData['public_id'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'taken_at' => $validated['taken_at'] ?? now(),
                 'photoable_id' => null,
@@ -95,9 +97,15 @@ class PhotoController extends Controller
             return redirect()->route('photos.index')
                 ->with('success', 'Foto subida exitosamente.');
         } catch (\Exception $e) {
-            return back()->withErrors([
-                'photo' => 'Error al subir la foto: ' . $e->getMessage()
+            Log::error('Error al subir foto: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+                'file' => $request->file('photo') ? $request->file('photo')->getClientOriginalName() : 'N/A'
             ]);
+            
+            return back()->withErrors([
+                'photo' => 'Error al subir la foto. Por favor, intenta de nuevo.'
+            ])->withInput();
         }
     }
 
@@ -161,12 +169,17 @@ class PhotoController extends Controller
         $photo = Photo::where('user_id', Auth::id())
             ->findOrFail($id);
 
-        // Delete files from storage
-        if ($photo->path && Storage::disk('public')->exists($photo->path)) {
-            Storage::disk('public')->delete($photo->path);
-        }
-        if ($photo->thumbnail_path && Storage::disk('public')->exists($photo->thumbnail_path)) {
-            Storage::disk('public')->delete($photo->thumbnail_path);
+        // Delete from Cloudinary if public_id exists
+        if ($photo->cloudinary_public_id) {
+            $this->imageService->delete($photo->cloudinary_public_id);
+        } else {
+            // Fallback: Delete from local storage (for old photos)
+            if ($photo->path && Storage::disk('public')->exists($photo->path)) {
+                Storage::disk('public')->delete($photo->path);
+            }
+            if ($photo->thumbnail_path && Storage::disk('public')->exists($photo->thumbnail_path)) {
+                Storage::disk('public')->delete($photo->thumbnail_path);
+            }
         }
 
         $photo->delete();

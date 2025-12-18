@@ -5,6 +5,9 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libwebp-dev \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
@@ -12,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nodejs \
     npm \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Instalar Composer
@@ -43,7 +47,13 @@ RUN npm run build
 RUN ls -la public/build/ || echo "Warning: build directory not found"
 
 # Configurar permisos
-RUN chown -R www-data:www-data /var/www/html \
+RUN mkdir -p storage/app/public \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 

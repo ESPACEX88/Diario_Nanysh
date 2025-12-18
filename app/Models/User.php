@@ -133,4 +133,36 @@ class User extends Authenticatable
     {
         return $this->hasOne(Pet::class);
     }
+
+    /**
+     * Get todos for the user.
+     */
+    public function todos()
+    {
+        return $this->hasMany(Todo::class);
+    }
+
+    /**
+     * Get events for the user.
+     */
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
+
+    /**
+     * Get dreams for the user.
+     */
+    public function dreams()
+    {
+        return $this->hasMany(Dream::class);
+    }
+
+    /**
+     * Get wishlist items for the user.
+     */
+    public function wishlistItems()
+    {
+        return $this->hasMany(WishlistItem::class);
+    }
 }
