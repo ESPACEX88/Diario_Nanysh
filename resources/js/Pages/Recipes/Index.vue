@@ -21,6 +21,7 @@ interface Props {
         data: Recipe[];
         links: any;
         meta: any;
+        total?: number;
     };
     categories: string[];
     types: string[];
@@ -184,7 +185,7 @@ const clearFilters = () => {
                     <p class="text-yellow-800">⚠️ No se recibieron datos de recetas del servidor</p>
                 </div>
                 <div v-else-if="!recipes.data" class="mb-4 p-4 bg-yellow-100 rounded-lg">
-                    <p class="text-yellow-800">⚠️ No hay propiedad 'data' en recipes. Total: {{ recipes.total || 'N/A' }}</p>
+                    <p class="text-yellow-800">⚠️ No hay propiedad 'data' en recipes. Total: {{ recipes.total ?? 'N/A' }}</p>
                 </div>
 
                 <!-- Recetas -->
