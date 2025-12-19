@@ -10,6 +10,8 @@ interface Photo {
     id: number;
     path: string;
     thumbnail_path?: string;
+    full_url: string;
+    thumbnail_url: string;
     description?: string;
     taken_at?: string;
     album_id?: number;
@@ -34,6 +36,11 @@ const form = useForm({
 });
 
 const getPhotoUrl = (path: string) => {
+    // Si ya es una URL completa (Cloudinary), devolverla tal cual
+    if (path.startsWith('https://') || path.startsWith('http://')) {
+        return path;
+    }
+    // Si es una ruta local, agregar /storage/
     return `/storage/${path}`;
 };
 
@@ -57,7 +64,7 @@ const submit = () => {
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-pink-100 dark:border-gray-700 p-8">
                     <div class="mb-6">
                         <LazyImage
-                            :src="getPhotoUrl(props.photo.thumbnail_path || props.photo.path)"
+                            :src="props.photo.thumbnail_url || props.photo.full_url"
                             :alt="props.photo.description || 'Foto'"
                             class="w-full h-64 object-cover rounded-lg border-2 border-pink-200"
                         />

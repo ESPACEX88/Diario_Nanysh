@@ -23,6 +23,11 @@ class Photo extends Model
         'photoable_type',
     ];
 
+    protected $appends = [
+        'full_url',
+        'thumbnail_url',
+    ];
+
     protected function casts(): array
     {
         return [

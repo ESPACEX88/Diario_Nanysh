@@ -9,6 +9,8 @@ interface Photo {
     id: number;
     path: string;
     thumbnail_path?: string;
+    full_url: string;
+    thumbnail_url: string;
     description?: string;
     taken_at?: string;
     album?: {
@@ -55,6 +57,11 @@ const cancelDelete = () => {
 };
 
 const getPhotoUrl = (path: string) => {
+    // Si ya es una URL completa (Cloudinary), devolverla tal cual
+    if (path.startsWith('https://') || path.startsWith('http://')) {
+        return path;
+    }
+    // Si es una ruta local, agregar /storage/
     return `/storage/${path}`;
 };
 </script>
@@ -88,7 +95,7 @@ const getPhotoUrl = (path: string) => {
                     >
                         <Link :href="route('photos.show', photo.id)">
                             <LazyImage
-                                :src="getPhotoUrl(photo.thumbnail_path || photo.path)"
+                                :src="photo.thumbnail_url || photo.full_url"
                                 :alt="photo.description || 'Foto'"
                                 class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                             />

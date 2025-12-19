@@ -7,6 +7,8 @@ interface Photo {
     id: number;
     path: string;
     thumbnail_path?: string;
+    full_url: string;
+    thumbnail_url: string;
     description?: string;
     taken_at?: string;
     album?: {
@@ -22,6 +24,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const getPhotoUrl = (path: string) => {
+    // Si ya es una URL completa (Cloudinary), devolverla tal cual
+    if (path.startsWith('https://') || path.startsWith('http://')) {
+        return path;
+    }
+    // Si es una ruta local, agregar /storage/
     return `/storage/${path}`;
 };
 </script>
@@ -48,7 +55,7 @@ const getPhotoUrl = (path: string) => {
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-pink-100 dark:border-gray-700 overflow-hidden">
                     <LazyImage
-                        :src="getPhotoUrl(photo.path)"
+                        :src="photo.full_url"
                         :alt="photo.description || 'Foto'"
                         class="w-full h-auto max-h-[70vh] object-contain"
                     />
