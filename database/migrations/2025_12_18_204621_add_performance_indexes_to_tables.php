@@ -78,7 +78,7 @@ return new class extends Migration
 
         // Índices para habit_logs
         Schema::table('habit_logs', function (Blueprint $table) {
-            $table->index(['habit_id', 'logged_at'], 'idx_habit_logs_habit_date');
+            $table->index(['habit_id', 'completed_at'], 'idx_habit_logs_habit_date');
         });
     }
 
