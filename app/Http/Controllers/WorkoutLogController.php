@@ -23,7 +23,18 @@ class WorkoutLogController extends Controller
             ->whereYear('workout_date', $year)
             ->whereMonth('workout_date', $month)
             ->orderBy('workout_date', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($workout) {
+                return [
+                    'id' => $workout->id,
+                    'date' => $workout->workout_date->format('Y-m-d'),
+                    'routine_name' => $workout->routine_name,
+                    'intensity' => $workout->intensity,
+                    'duration_minutes' => $workout->duration_minutes,
+                    'exercises' => $workout->exercises,
+                    'notes' => $workout->notes,
+                ];
+            });
 
         // Obtener estadísticas del mes
         $stats = [
@@ -34,7 +45,7 @@ class WorkoutLogController extends Controller
         ];
 
         return Inertia::render('Workout/Index', [
-            'workouts' => $workouts,
+            'workouts' => $workouts->values(),
             'stats' => $stats,
             'currentMonth' => $month,
             'currentYear' => $year,
