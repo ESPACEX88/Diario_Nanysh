@@ -10,9 +10,9 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 interface Exercise {
   name: string;
-  sets?: number;
-  reps?: string;
-  weight?: string;
+  sets: string;
+  reps: string;
+  weight: string;
 }
 
 // Get date from URL query parameter or use today
@@ -34,7 +34,7 @@ const form = useForm({
   workout_date: getLocalDate(),
   routine_name: '',
   exercises: [] as Exercise[],
-  duration_minutes: null as number | null,
+  duration_minutes: '',
   notes: '',
   intensity: 'moderate' as 'light' | 'moderate' | 'intense',
 });
@@ -42,7 +42,7 @@ const form = useForm({
 const addExercise = () => {
   form.exercises.push({
     name: '',
-    sets: undefined,
+    sets: '',
     reps: '',
     weight: '',
   });

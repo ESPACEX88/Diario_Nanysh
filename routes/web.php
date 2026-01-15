@@ -16,11 +16,12 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\WorkoutLogController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('dashboard');
     }
     return redirect()->route('login');
@@ -134,8 +135,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('quote/daily', [\App\Http\Controllers\MotivationalQuoteController::class, 'daily'])->name('quote.daily');
 
     // Workout Logs (Registro de entrenamientos)
-    Route::resource('workouts', WorkoutLogController::class);
     Route::get('workouts/calendar/data', [WorkoutLogController::class, 'calendar'])->name('workouts.calendar');
+    Route::resource('workouts', WorkoutLogController::class);
 
     // Mini Games (Minijuegos)
     Route::get('minigame/doors', [\App\Http\Controllers\MiniGameController::class, 'index'])->name('minigame.doors');

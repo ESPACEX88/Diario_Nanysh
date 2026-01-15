@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
@@ -12,9 +12,9 @@ import { ref } from 'vue';
 
 interface Exercise {
   name: string;
-  sets?: number;
-  reps?: string;
-  weight?: string;
+  sets: string;
+  reps: string;
+  weight: string;
 }
 
 interface Workout {
@@ -38,18 +38,21 @@ const showDeleteModal = ref(false);
 const form = useForm({
   workout_date: props.workout.workout_date,
   routine_name: props.workout.routine_name,
-  exercises: props.workout.exercises || [],
-  duration_minutes: props.workout.duration_minutes,
+  exercises: props.workout.exercises?.map(ex => ({
+    name: ex.name || '',
+    sets: (ex.sets as any)?.toString() || '',
+    reps: ex.reps || '',
+    weight: ex.weight || '',
+  })) || [] as Exercise[],
+  duration_minutes: props.workout.duration_minutes?.toString() || '',
   notes: props.workout.notes || '',
   intensity: props.workout.intensity,
 });
 
-const deleteForm = useForm({});
-
 const addExercise = () => {
   form.exercises.push({
     name: '',
-    sets: undefined,
+    sets: '',
     reps: '',
     weight: '',
   });
@@ -68,7 +71,7 @@ const submit = () => {
 };
 
 const deleteWorkout = () => {
-  deleteForm.delete(route('workouts.destroy', props.workout.id), {
+  router.delete(route('workouts.destroy', props.workout.id), {
     onSuccess: () => {
       showDeleteModal.value = false;
     },
@@ -291,13 +294,14 @@ const intensityOptions = [
     <!-- Delete Confirmation Modal -->
     <ConfirmModal
       :show="showDeleteModal"
-      @close="showDeleteModal = false"
+      title="Eliminar entrenamiento"
+      message="¿Estás segura de que quieres eliminar este entrenamiento? Esta acción no se puede deshacer."
+      type="danger"
+      confirm-text="Eliminar"
+      cancel-text="Cancelar"
       @confirm="deleteWorkout"
-    >
-      <template #title>Eliminar entrenamiento</template>
-      <template #content>
-        ¿Estás segura de que quieres eliminar este entrenamiento? Esta acción no se puede deshacer.
-      </template>
-    </ConfirmModal>
+      @cancel="showDeleteModal = false"
+    />
   </AuthenticatedLayout>
 </template>
+
