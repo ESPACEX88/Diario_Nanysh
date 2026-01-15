@@ -14,6 +14,7 @@ use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\WorkoutLogController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -131,6 +132,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Motivational Quotes (Frases motivacionales)
     Route::get('quote/daily', [\App\Http\Controllers\MotivationalQuoteController::class, 'daily'])->name('quote.daily');
+
+    // Workout Logs (Registro de entrenamientos)
+    Route::resource('workouts', WorkoutLogController::class);
+    Route::get('workouts/calendar/data', [WorkoutLogController::class, 'calendar'])->name('workouts.calendar');
 
     // Mini Games (Minijuegos)
     Route::get('minigame/doors', [\App\Http\Controllers\MiniGameController::class, 'index'])->name('minigame.doors');

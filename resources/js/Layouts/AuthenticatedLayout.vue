@@ -127,6 +127,12 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                                     >
                                                         🔄 Hábitos
                                                     </Link>
+                                                    <Link
+                                                        :href="route('workouts.index')"
+                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                    >
+                                                        💪 Gym
+                                                    </Link>
                                                 </div>
                                             </div>
 
@@ -389,6 +395,12 @@ const { isDark, toggleDarkMode } = useDarkMode();
                             :active="route().current('habits.*')"
                         >
                             🔄 Hábitos
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('workouts.index')"
+                            :active="route().current('workouts.*')"
+                        >
+                            💪 Gym
                         </ResponsiveNavLink>
                         
                         <!-- Entretenimiento -->
