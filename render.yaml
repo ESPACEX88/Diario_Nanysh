@@ -1,3 +1,6 @@
+# NOTA: Este archivo ya no se usa - Base de datos migrada a Supabase
+# Ver MIGRACION_SUPABASE.md para instrucciones de configuración
+
 services:
   - type: web
     name: diario-nahysh
@@ -30,9 +33,9 @@ services:
       - key: CLOUDINARY_URL
         sync: false
 
-databases:
-  - name: diario-nahysh-db
-    plan: free
-    databaseName: diario_nahysh
-    user: diario_user
-
+# Base de datos migrada a Supabase - ya no se usa este bloque
+# databases:
+#   - name: diario-nahysh-db
+#     plan: free
+#     databaseName: diario_nahysh
+#     user: diario_user
