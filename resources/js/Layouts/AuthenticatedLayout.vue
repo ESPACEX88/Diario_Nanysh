@@ -13,10 +13,16 @@ const { isDark, toggleDarkMode } = useDarkMode();
 </script>
 
 <template>
-    <div>
-        <div class="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(244,114,182,0.16),_transparent_30%),linear-gradient(180deg,_#fff8fb_0%,_#fffdfd_45%,_#fdf2f8_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(244,114,182,0.14),_transparent_30%),linear-gradient(180deg,_#120816_0%,_#1a1020_50%,_#0f172a_100%)]">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden">
+            <div class="absolute -left-28 top-0 h-96 w-96 rounded-full bg-rose-300/20 blur-3xl"></div>
+            <div class="absolute right-0 top-24 h-[28rem] w-[28rem] rounded-full bg-fuchsia-300/16 blur-3xl"></div>
+            <div class="absolute bottom-0 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-pink-200/20 blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 min-h-screen">
             <nav
-                class="border-b-2 border-pink-200 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-lg sticky top-0 z-50"
+                class="sticky top-0 z-50 border-b border-rose-200/70 bg-white/80 shadow-[0_10px_30px_rgba(236,72,153,0.08)] backdrop-blur-xl dark:border-fuchsia-900/50 dark:bg-slate-950/70"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -26,7 +32,7 @@ const { isDark, toggleDarkMode } = useDarkMode();
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('dashboard')">
                                     <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
+                                        class="block h-9 w-auto fill-current text-rose-500"
                                     />
                                 </Link>
                             </div>
@@ -236,8 +242,11 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                         <span class="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                                class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/90 px-4 py-2 text-sm font-medium leading-4 text-rose-700 shadow-sm shadow-rose-500/10 transition duration-150 ease-in-out hover:-translate-y-px hover:text-rose-900 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
                                             >
+                                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-fuchsia-500 text-xs font-semibold text-white">
+                                                    {{ $page.props.auth.user.name.charAt(0) }}
+                                                </span>
                                                 {{ $page.props.auth.user.name }}
 
                                                 <svg
@@ -281,7 +290,7 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                     showingNavigationDropdown =
                                         !showingNavigationDropdown
                                 "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+                                class="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white/90 p-2.5 text-rose-500 shadow-sm shadow-rose-500/10 transition duration-150 ease-in-out hover:-translate-y-px hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
                                 :aria-expanded="showingNavigationDropdown"
                                 aria-label="Abrir menú de navegación"
                                 aria-controls="mobile-menu"
@@ -331,7 +340,7 @@ const { isDark, toggleDarkMode } = useDarkMode();
                     role="menu"
                     aria-label="Menú de navegación móvil"
                 >
-                    <div class="space-y-1 pb-3 pt-2">
+                        <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
@@ -469,15 +478,15 @@ const { isDark, toggleDarkMode } = useDarkMode();
 
                     <!-- Responsive Settings Options -->
                     <div
-                        class="border-t border-gray-200 pb-1 pt-4"
+                        class="border-t border-rose-100/80 pb-1 pt-4"
                     >
                         <div class="px-4">
                             <div
-                                class="text-base font-medium text-gray-800"
+                                class="text-base font-semibold text-rose-900"
                             >
                                 {{ $page.props.auth.user.name }}
                             </div>
-                            <div class="text-sm font-medium text-gray-500">
+                            <div class="text-sm font-medium text-rose-700/70">
                                 {{ $page.props.auth.user.email }}
                             </div>
                         </div>
@@ -500,7 +509,7 @@ const { isDark, toggleDarkMode } = useDarkMode();
 
             <!-- Page Heading -->
             <header
-                class="bg-white/90 backdrop-blur-sm shadow-md sticky top-16 z-40 border-b-2 border-pink-100"
+                class="sticky top-16 z-40 border-b border-rose-100/80 bg-white/70 shadow-[0_10px_30px_rgba(236,72,153,0.05)] backdrop-blur-xl"
                 v-if="$slots.header"
             >
                 <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -509,7 +518,7 @@ const { isDark, toggleDarkMode } = useDarkMode();
             </header>
 
             <!-- Page Content -->
-            <main>
+            <main class="relative z-10">
                 <slot />
             </main>
         </div>

@@ -14,8 +14,8 @@ defineProps<{
         leave-to-class="opacity-0 -translate-y-1"
     >
         <div v-show="message" class="mt-2 flex items-center gap-2">
-            <span class="text-red-500">⚠️</span>
-            <p class="text-sm font-semibold text-red-600">
+            <span class="text-rose-500" aria-hidden="true">⚠️</span>
+            <p class="text-sm font-semibold text-rose-700">
                 {{ message }}
             </p>
         </div>

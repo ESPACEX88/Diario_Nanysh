@@ -9,10 +9,29 @@
     
     html {
         scroll-behavior: smooth;
+        color-scheme: light;
     }
     
     body {
-        @apply antialiased;
+        @apply antialiased text-slate-800;
+        background:
+            radial-gradient(circle at top left, rgba(244, 114, 182, 0.16), transparent 28%),
+            radial-gradient(circle at top right, rgba(192, 132, 252, 0.14), transparent 24%),
+            linear-gradient(180deg, #fff8fb 0%, #fffdfd 42%, #fdf2f8 100%);
+    }
+
+    ::selection {
+        @apply bg-rose-200 text-rose-950;
+    }
+}
+
+@layer components {
+    .feminine-surface {
+        @apply rounded-3xl border border-white/70 bg-white/80 shadow-[0_18px_60px_rgba(236,72,153,0.12)] backdrop-blur-xl;
+    }
+
+    .feminine-panel {
+        @apply rounded-3xl border border-rose-100/80 bg-white/90 shadow-[0_16px_48px_rgba(236,72,153,0.1)] backdrop-blur-xl;
     }
 }
 
@@ -49,11 +68,11 @@
     }
     
     .custom-scrollbar::-webkit-scrollbar-thumb {
-        @apply bg-pink-300 rounded-full hover:bg-pink-400;
+        @apply bg-rose-300 rounded-full hover:bg-rose-400;
     }
     
     /* Focus visible improvements */
     *:focus-visible {
-        @apply outline-none ring-2 ring-pink-500 ring-offset-2 rounded;
+        @apply outline-none ring-2 ring-rose-400 ring-offset-2 rounded-lg;
     }
 }

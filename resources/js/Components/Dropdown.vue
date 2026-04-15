@@ -4,13 +4,13 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 const props = withDefaults(
     defineProps<{
         align?: 'left' | 'right';
-        width?: '48';
         contentClasses?: string;
+        width?: '48';
     }>(),
     {
         align: 'right',
         width: '48',
-        contentClasses: 'py-1 bg-white',
+        contentClasses: 'py-2',
     },
 );
 
@@ -26,7 +26,7 @@ onUnmounted(() => document.removeEventListener('keydown', closeOnEscape));
 const widthClass = computed(() => {
     return {
         48: 'w-48',
-    }[props.width.toString()];
+    }[props.width!.toString()];
 });
 
 const alignmentClasses = computed(() => {
@@ -65,13 +65,13 @@ const open = ref(false);
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
+                class="absolute z-50 mt-3 rounded-3xl shadow-[0_20px_60px_rgba(190,24,93,0.16)]"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
                 @click="open = false"
             >
                 <div
-                    class="rounded-md ring-1 ring-black ring-opacity-5"
+                    class="rounded-3xl border border-rose-100/80 bg-white/90 p-2 ring-1 ring-rose-100/60 backdrop-blur-xl"
                     :class="contentClasses"
                 >
                     <slot name="content" />

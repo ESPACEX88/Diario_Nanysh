@@ -201,9 +201,9 @@ const toggleHabitToday = (id: number) => {
                     <div class="lg:col-span-2">
                         <Link
                             :href="route('pet.index')"
-                            class="block relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-100 via-sky-50 to-cyan-50 shadow-2xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-[1.02] hover:shadow-3xl"
+                            class="block relative overflow-hidden rounded-[2rem] border border-rose-200/80 bg-gradient-to-br from-rose-100 via-pink-50 to-fuchsia-100 shadow-[0_24px_70px_rgba(236,72,153,0.14)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(236,72,153,0.2)]"
                         >
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-200/40 to-cyan-200/40 rounded-full -mr-32 -mt-32 animate-pulse"></div>
+                            <div class="absolute top-0 right-0 h-64 w-64 rounded-full bg-gradient-to-br from-rose-200/40 to-fuchsia-200/40 -mr-32 -mt-32 animate-pulse"></div>
                             <div class="relative p-8">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-6">
@@ -212,10 +212,10 @@ const toggleHabitToday = (id: number) => {
                                             <span class="absolute -top-1 -right-1 text-4xl animate-bounce">❤️</span>
                                         </div>
                                         <div>
-                                            <h3 class="text-3xl font-bold text-gray-800 mb-2">
+                                            <h3 class="mb-2 text-3xl font-bold text-rose-950">
                                                 {{ pet.name }}
                                             </h3>
-                                            <p class="text-lg text-gray-700 font-semibold mb-3">
+                                            <p class="mb-3 text-lg font-semibold text-rose-900/80">
                                                 Nivel {{ pet.level }} • 
                                                 <span :class="petStatus.color" class="font-bold">
                                                     {{ petStatus.emoji }} {{ petStatus.text }}
@@ -224,41 +224,41 @@ const toggleHabitToday = (id: number) => {
                                             <div class="grid grid-cols-2 gap-3 mb-3">
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-xl">💖</span>
-                                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                        <div class="bg-pink-500 h-2 rounded-full transition-all" :style="{ width: `${pet.happiness}%` }"></div>
+                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
+                                                        <div class="h-2 rounded-full bg-gradient-to-r from-rose-400 to-fuchsia-500 transition-all" :style="{ width: `${pet.happiness}%` }"></div>
                                                     </div>
-                                                    <span class="text-xs font-bold text-gray-700 w-8">{{ pet.happiness }}%</span>
+                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.happiness }}%</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-xl">🍽️</span>
-                                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                        <div class="bg-orange-500 h-2 rounded-full transition-all" :style="{ width: `${pet.hunger}%` }"></div>
+                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
+                                                        <div class="h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-500 transition-all" :style="{ width: `${pet.hunger}%` }"></div>
                                                     </div>
-                                                    <span class="text-xs font-bold text-gray-700 w-8">{{ pet.hunger }}%</span>
+                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.hunger }}%</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-xl">⚡</span>
-                                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                        <div class="bg-yellow-500 h-2 rounded-full transition-all" :style="{ width: `${pet.energy}%` }"></div>
+                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
+                                                        <div class="h-2 rounded-full bg-gradient-to-r from-fuchsia-400 to-purple-500 transition-all" :style="{ width: `${pet.energy}%` }"></div>
                                                     </div>
-                                                    <span class="text-xs font-bold text-gray-700 w-8">{{ pet.energy }}%</span>
+                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.energy }}%</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-xl">💚</span>
-                                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                        <div class="bg-green-500 h-2 rounded-full transition-all" :style="{ width: `${pet.health}%` }"></div>
+                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
+                                                        <div class="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all" :style="{ width: `${pet.health}%` }"></div>
                                                     </div>
-                                                    <span class="text-xs font-bold text-gray-700 w-8">{{ pet.health }}%</span>
+                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.health }}%</span>
                                                 </div>
                                             </div>
-                                            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full shadow-lg">
+                                            <div class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-2 shadow-lg shadow-rose-500/20">
                                                 <span class="text-xl">🪙</span>
                                                 <span class="font-bold text-white text-lg">{{ pet.coins || 0 }} fichitas</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <span class="inline-block px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                                        <span class="inline-block rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-6 py-3 font-bold text-white shadow-lg shadow-rose-500/20 transition-all hover:scale-105 hover:shadow-xl">
                                             Cuidar →
                                         </span>
                                     </div>
@@ -270,17 +270,17 @@ const toggleHabitToday = (id: number) => {
                     <!-- Daily Quote -->
                     <div
                         v-if="dailyQuote"
-                        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink-200 via-rose-200 to-purple-200 shadow-2xl border-2 border-pink-300"
+                        class="relative overflow-hidden rounded-[2rem] border border-fuchsia-200/80 bg-gradient-to-br from-fuchsia-100 via-rose-100 to-pink-100 shadow-[0_24px_70px_rgba(192,38,211,0.14)]"
                     >
-                        <div class="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-pink-300/40 to-purple-300/40 rounded-full -mr-24 -mt-24 animate-pulse"></div>
+                        <div class="absolute top-0 right-0 h-48 w-48 rounded-full bg-gradient-to-br from-pink-300/40 to-fuchsia-300/40 -mr-24 -mt-24 animate-pulse"></div>
                         <div class="relative p-6 h-full flex flex-col justify-center text-center">
                             <div class="text-6xl mb-4 animate-bounce">💝</div>
-                            <p class="text-xl font-bold text-gray-800 mb-3 italic leading-relaxed">
+                            <p class="mb-3 text-xl font-bold leading-relaxed text-rose-950 italic">
                                 "{{ dailyQuote.quote }}"
                             </p>
                             <p
                                 v-if="dailyQuote.author"
-                                class="text-sm text-gray-700 font-semibold mt-auto"
+                                class="mt-auto text-sm font-semibold text-rose-900/70"
                             >
                                 — {{ dailyQuote.author }}
                             </p>
