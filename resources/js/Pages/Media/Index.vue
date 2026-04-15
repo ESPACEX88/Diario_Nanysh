@@ -92,13 +92,13 @@ const cancelDelete = () => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-2">
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-rose-950">
                     <span>📚</span>
                     Mis Libros y Películas
                 </h2>
                 <Link
                     :href="route('media.create')"
-                    class="px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-semibold hover:from-pink-600 hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    class="rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-6 py-3 font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:-translate-y-px hover:shadow-xl"
                 >
                     + Agregar
                 </Link>
@@ -106,10 +106,10 @@ const cancelDelete = () => {
         </template>
 
         <div class="py-8">
-            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
                 <!-- Want to Read/Watch -->
                 <div v-if="wantItems.length > 0" class="mb-10">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <h3 class="mb-6 flex items-center gap-3 text-2xl font-bold text-rose-950">
                         <span class="text-3xl">📖</span>
                         Quiero Ver/Leer ({{ wantItems.length }})
                     </h3>
@@ -117,25 +117,25 @@ const cancelDelete = () => {
                         <div
                             v-for="item in wantItems"
                             :key="item.id"
-                            class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-lg hover:shadow-xl"
+                            class="group relative overflow-hidden rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 shadow-[0_18px_50px_rgba(236,72,153,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(236,72,153,0.14)]"
                         >
                             <div class="p-6">
                                 <div class="text-5xl mb-4">{{ getTypeIcon(item.type) }}</div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-2">{{ item.title }}</h4>
-                                <p v-if="item.author" class="text-gray-600 text-sm mb-4">por {{ item.author }}</p>
-                                <p v-if="item.description" class="text-gray-600 text-sm line-clamp-2 mb-4">
+                                <h4 class="mb-2 text-xl font-bold text-rose-950">{{ item.title }}</h4>
+                                <p v-if="item.author" class="mb-4 text-sm text-rose-900/65">por {{ item.author }}</p>
+                                <p v-if="item.description" class="mb-4 line-clamp-2 text-sm text-rose-900/65">
                                     {{ item.description }}
                                 </p>
                                 <div class="flex gap-2">
                                     <Link
                                         :href="route('media.edit', item.id)"
-                                        class="flex-1 px-4 py-2 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-lg text-sm font-semibold hover:from-pink-500 hover:to-rose-500 transition-all text-center"
+                                        class="flex-1 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-2 text-center text-sm font-semibold text-white transition hover:-translate-y-px"
                                     >
                                         Editar
                                     </Link>
                                     <button
                                         @click="deleteItem(item.id)"
-                                        class="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition-all"
+                                        class="rounded-full bg-rose-100 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-200"
                                     >
                                         🗑️
                                     </button>
@@ -147,7 +147,7 @@ const cancelDelete = () => {
 
                 <!-- In Progress -->
                 <div v-if="inProgressItems.length > 0" class="mb-10">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <h3 class="mb-6 flex items-center gap-3 text-2xl font-bold text-rose-950">
                         <span class="text-3xl">📖</span>
                         En Progreso ({{ inProgressItems.length }})
                     </h3>
@@ -155,16 +155,16 @@ const cancelDelete = () => {
                         <div
                             v-for="item in inProgressItems"
                             :key="item.id"
-                            class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 hover:border-blue-400 transition-all shadow-lg hover:shadow-xl"
+                            class="group relative overflow-hidden rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-fuchsia-50 to-rose-50 shadow-[0_18px_50px_rgba(236,72,153,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(236,72,153,0.14)]"
                         >
                             <div class="p-6">
                                 <div class="text-5xl mb-4">{{ getTypeIcon(item.type) }}</div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-2">{{ item.title }}</h4>
-                                <p v-if="item.author" class="text-gray-600 text-sm mb-4">por {{ item.author }}</p>
+                                <h4 class="mb-2 text-xl font-bold text-rose-950">{{ item.title }}</h4>
+                                <p v-if="item.author" class="mb-4 text-sm text-rose-900/65">por {{ item.author }}</p>
                                 <div class="flex gap-2">
                                     <Link
                                         :href="route('media.edit', item.id)"
-                                        class="flex-1 px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-400 text-white rounded-lg text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all text-center"
+                                        class="flex-1 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-2 text-center text-sm font-semibold text-white transition hover:-translate-y-px"
                                     >
                                         Editar
                                     </Link>
@@ -176,7 +176,7 @@ const cancelDelete = () => {
 
                 <!-- Completed -->
                 <div v-if="completedItems.length > 0" class="mb-10">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <h3 class="mb-6 flex items-center gap-3 text-2xl font-bold text-rose-950">
                         <span class="text-3xl">✅</span>
                         Completados ({{ completedItems.length }})
                     </h3>
@@ -184,12 +184,12 @@ const cancelDelete = () => {
                         <div
                             v-for="item in completedItems"
                             :key="item.id"
-                            class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 hover:border-green-400 transition-all shadow-lg hover:shadow-xl"
+                            class="group relative overflow-hidden rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 shadow-[0_18px_50px_rgba(236,72,153,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(236,72,153,0.14)]"
                         >
                             <div class="p-6">
                                 <div class="text-5xl mb-4">{{ getTypeIcon(item.type) }}</div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-2">{{ item.title }}</h4>
-                                <p v-if="item.author" class="text-gray-600 text-sm mb-2">por {{ item.author }}</p>
+                                <h4 class="mb-2 text-xl font-bold text-rose-950">{{ item.title }}</h4>
+                                <p v-if="item.author" class="mb-2 text-sm text-rose-900/65">por {{ item.author }}</p>
                                 <div v-if="item.rating" class="mb-4">
                                     <div class="flex gap-1">
                                         <span v-for="i in 5" :key="i" class="text-xl">
@@ -200,7 +200,7 @@ const cancelDelete = () => {
                                 <div class="flex gap-2">
                                     <Link
                                         :href="route('media.edit', item.id)"
-                                        class="flex-1 px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg text-sm font-semibold hover:from-green-500 hover:to-emerald-500 transition-all text-center"
+                                        class="flex-1 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-2 text-center text-sm font-semibold text-white transition hover:-translate-y-px"
                                     >
                                         Ver
                                     </Link>
@@ -213,18 +213,18 @@ const cancelDelete = () => {
                 <!-- Empty State -->
                 <div
                     v-if="mediaItems.length === 0"
-                    class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 rounded-3xl border-4 border-pink-300"
+                    class="rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 px-6 py-20 text-center shadow-[0_24px_70px_rgba(236,72,153,0.12)]"
                 >
-                    <span class="text-8xl block mb-6">📚</span>
-                    <h3 class="text-3xl font-bold text-gray-800 mb-3">No hay libros o películas aún</h3>
-                    <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                    <span class="mb-6 block text-8xl">📚</span>
+                    <h3 class="mb-3 text-3xl font-bold text-rose-950">No hay libros o películas aún</h3>
+                    <p class="mx-auto mb-8 max-w-md text-lg text-rose-900/70">
                         Agrega los libros, películas, series o música que quieres disfrutar
                     </p>
                     <Link
                         :href="route('media.create')"
-                        class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-bold text-lg shadow-xl hover:from-pink-600 hover:to-rose-600 hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+                        class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-rose-500/20 transition hover:-translate-y-px hover:shadow-2xl"
                     >
-                        <span class="mr-2 text-2xl">✨</span>
+                        <span class="text-2xl" aria-hidden="true">✨</span>
                         Agregar Mi Primera Lista
                     </Link>
                 </div>

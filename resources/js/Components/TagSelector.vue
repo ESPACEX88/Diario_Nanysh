@@ -99,7 +99,7 @@ watch(() => props.modelValue, (newValue) => {
 
 <template>
     <div class="space-y-3">
-        <label class="block text-sm font-semibold text-gray-800 mb-2">
+        <label class="mb-2 block text-sm font-semibold text-rose-950">
             Etiquetas
         </label>
 
@@ -109,7 +109,7 @@ watch(() => props.modelValue, (newValue) => {
                 v-for="tag in selectedTags"
                 :key="tag.id"
                 @click="toggleTag(tag.id)"
-                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold text-white transition-all hover:scale-105"
+                class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-white shadow-sm shadow-rose-500/10 transition hover:-translate-y-px"
                 :style="{ backgroundColor: tag.color }"
                 :aria-label="`Eliminar etiqueta ${tag.name}`"
             >
@@ -124,7 +124,7 @@ watch(() => props.modelValue, (newValue) => {
                 v-model="searchQuery"
                 type="text"
                 placeholder="🔍 Buscar o crear etiqueta..."
-                class="w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-all"
+                class="w-full rounded-2xl border border-rose-200 bg-white/90 px-4 py-3 text-slate-900 shadow-sm shadow-rose-500/5 placeholder:text-slate-400 focus:border-rose-400 focus:ring-4 focus:ring-rose-200"
                 @focus="isSearching = true"
                 @blur="handleBlur"
             />
@@ -132,15 +132,15 @@ watch(() => props.modelValue, (newValue) => {
             <!-- Tag Suggestions Dropdown -->
             <div
                 v-if="isSearching && (filteredTags.length > 0 || searchQuery.trim())"
-                class="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-2xl border-2 border-pink-200 max-h-60 overflow-y-auto custom-scrollbar"
+                class="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-3xl border border-rose-100/80 bg-white/95 shadow-[0_24px_70px_rgba(236,72,153,0.16)] backdrop-blur-xl custom-scrollbar"
             >
                 <!-- Existing Tags -->
                 <div
                     v-for="tag in filteredTags"
                     :key="tag.id"
                     @mousedown.prevent="toggleTag(tag.id)"
-                    class="flex items-center gap-3 px-4 py-3 hover:bg-pink-50 cursor-pointer transition-colors"
-                    :class="{ 'bg-pink-100': selectedTagIds.includes(tag.id) }"
+                    class="flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-rose-50"
+                    :class="{ 'bg-rose-100/80': selectedTagIds.includes(tag.id) }"
                 >
                     <div
                         class="w-4 h-4 rounded-full border-2"
@@ -149,10 +149,10 @@ watch(() => props.modelValue, (newValue) => {
                             borderColor: tag.color
                         }"
                     ></div>
-                    <span class="flex-1 font-semibold text-gray-800">{{ tag.name }}</span>
+                    <span class="flex-1 font-semibold text-rose-950">{{ tag.name }}</span>
                     <span
                         v-if="selectedTagIds.includes(tag.id)"
-                        class="text-pink-600"
+                        class="text-rose-600"
                     >
                         ✓
                     </span>
@@ -162,10 +162,10 @@ watch(() => props.modelValue, (newValue) => {
                 <div
                     v-if="allowCreate && searchQuery.trim() && !filteredTags.find(t => t.name.toLowerCase() === searchQuery.toLowerCase())"
                     @mousedown.prevent="showCreateTag = true"
-                    class="flex items-center gap-3 px-4 py-3 hover:bg-pink-50 cursor-pointer transition-colors border-t-2 border-pink-100"
+                    class="flex cursor-pointer items-center gap-3 border-t border-rose-100 px-4 py-3 transition-colors hover:bg-rose-50"
                 >
                     <span class="text-2xl">➕</span>
-                    <span class="flex-1 font-semibold text-gray-800">
+                    <span class="flex-1 font-semibold text-rose-950">
                         Crear "{{ searchQuery }}"
                     </span>
                 </div>
@@ -175,24 +175,24 @@ watch(() => props.modelValue, (newValue) => {
         <!-- Create Tag Form -->
         <div
             v-if="showCreateTag"
-            class="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border-2 border-pink-200"
+            class="rounded-3xl border border-rose-100/80 bg-gradient-to-r from-rose-50 to-fuchsia-50 p-4"
         >
             <div class="space-y-3">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1">
+                    <label class="mb-1 block text-sm font-semibold text-rose-950">
                         Nombre de la etiqueta
                     </label>
                     <input
                         v-model="newTagName"
                         type="text"
                         placeholder="Ej: Trabajo, Familia, Viaje..."
-                        class="w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-500"
+                        class="w-full rounded-2xl border border-rose-200 bg-white/90 px-4 py-3 text-slate-900 focus:border-rose-400 focus:ring-4 focus:ring-rose-200"
                         @keyup.enter="createTag"
                         autofocus
                     />
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">
+                    <label class="mb-2 block text-sm font-semibold text-rose-950">
                         Color
                     </label>
                     <div class="flex flex-wrap gap-2">
@@ -200,9 +200,9 @@ watch(() => props.modelValue, (newValue) => {
                             v-for="color in tagColors"
                             :key="color"
                             @click="newTagColor = color"
-                            class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110"
+                            class="h-8 w-8 rounded-full border-2 border-white transition hover:-translate-y-px hover:scale-110"
                             :style="{ backgroundColor: color }"
-                            :class="{ 'ring-2 ring-offset-2 ring-pink-500': newTagColor === color }"
+                            :class="{ 'ring-2 ring-offset-2 ring-rose-500': newTagColor === color }"
                             :aria-label="`Seleccionar color ${color}`"
                         ></button>
                     </div>
@@ -210,13 +210,13 @@ watch(() => props.modelValue, (newValue) => {
                 <div class="flex gap-2">
                     <button
                         @click="createTag"
-                        class="flex-1 px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all"
+                        class="flex-1 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-4 py-2 font-semibold text-white transition hover:-translate-y-px"
                     >
                         Crear
                     </button>
                     <button
                         @click="showCreateTag = false; newTagName = ''"
-                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+                        class="rounded-full bg-rose-100 px-4 py-2 font-semibold text-rose-700 transition hover:bg-rose-200"
                     >
                         Cancelar
                     </button>

@@ -1,22 +1,22 @@
 <template>
-  <div class="w-full">
-    <div class="flex items-center justify-between mb-6">
+  <div class="w-full rounded-[2rem] border border-rose-100/80 bg-white/85 p-4 shadow-[0_20px_60px_rgba(236,72,153,0.08)] backdrop-blur-xl sm:p-6">
+    <div class="mb-6 flex items-center justify-between">
       <button
         @click="previousMonth"
-        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        class="rounded-full border border-rose-200 bg-white/90 p-2 text-rose-600 transition hover:-translate-y-px hover:bg-rose-50"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
       
-      <h2 class="text-xl font-semibold">
+      <h2 class="text-xl font-bold text-rose-950">
         {{ currentMonthName }} {{ currentYear }}
       </h2>
       
       <button
         @click="nextMonth"
-        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        class="rounded-full border border-rose-200 bg-white/90 p-2 text-rose-600 transition hover:-translate-y-px hover:bg-rose-50"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -25,11 +25,11 @@
     </div>
 
     <!-- Days of the week -->
-    <div class="grid grid-cols-7 gap-2 mb-2">
+    <div class="mb-2 grid grid-cols-7 gap-2">
       <div
         v-for="day in daysOfWeek"
         :key="day"
-        class="text-center text-sm font-medium text-gray-600 dark:text-gray-400 py-2"
+        class="py-2 text-center text-sm font-semibold text-rose-800/70"
       >
         {{ day }}
       </div>
@@ -41,16 +41,16 @@
         v-for="day in calendarDays"
         :key="day.date"
         :class="[
-          'aspect-square rounded-lg border-2 transition-all cursor-pointer',
+          'aspect-square cursor-pointer rounded-2xl border transition-all duration-200',
           getDayClasses(day)
         ]"
         @click="selectDay(day)"
       >
-        <div class="h-full flex flex-col items-center justify-center p-2">
+        <div class="flex h-full flex-col items-center justify-center p-2">
           <span
             :class="[
-              'text-sm font-medium mb-1',
-              day.isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-600'
+              'mb-1 text-sm font-semibold',
+              day.isCurrentMonth ? 'text-rose-950' : 'text-rose-300'
             ]"
           >
             {{ day.dayNumber }}
@@ -60,11 +60,11 @@
           <div v-if="day.workout" class="flex flex-col items-center gap-1 w-full">
             <div
               :class="[
-                'w-2 h-2 rounded-full',
+                'h-2 w-2 rounded-full',
                 getIntensityColor(day.workout.intensity)
               ]"
             />
-            <div v-if="day.workout.duration_minutes" class="text-xs text-gray-500 dark:text-gray-400">
+            <div v-if="day.workout.duration_minutes" class="text-xs text-rose-700/70">
               {{ day.workout.duration_minutes }}m
             </div>
           </div>
@@ -75,52 +75,52 @@
     <!-- Legend -->
     <div class="mt-6 flex flex-wrap gap-4 text-sm">
       <div class="flex items-center gap-2">
-        <div class="w-3 h-3 rounded-full bg-green-500"></div>
-        <span class="text-gray-600 dark:text-gray-400">Ligero</span>
+        <div class="h-3 w-3 rounded-full bg-emerald-400"></div>
+        <span class="text-rose-800/70">Ligero</span>
       </div>
       <div class="flex items-center gap-2">
-        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-        <span class="text-gray-600 dark:text-gray-400">Moderado</span>
+        <div class="h-3 w-3 rounded-full bg-amber-400"></div>
+        <span class="text-rose-800/70">Moderado</span>
       </div>
       <div class="flex items-center gap-2">
-        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-        <span class="text-gray-600 dark:text-gray-400">Intenso</span>
+        <div class="h-3 w-3 rounded-full bg-rose-500"></div>
+        <span class="text-rose-800/70">Intenso</span>
       </div>
     </div>
 
     <!-- Day detail modal -->
     <Modal :show="showDetailModal" @close="showDetailModal = false">
-      <div class="p-6" v-if="selectedDay?.workout">
-        <h3 class="text-lg font-semibold mb-4">
+      <div v-if="selectedDay?.workout" class="p-6">
+        <h3 class="mb-4 text-lg font-bold text-rose-950">
           {{ selectedDay.workout.routine_name }}
         </h3>
         
         <div class="space-y-3">
           <div>
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Fecha:</span>
-            <p>{{ formatDate(selectedDay.date) }}</p>
+            <span class="text-sm font-semibold text-rose-800/70">Fecha:</span>
+            <p class="text-rose-950">{{ formatDate(selectedDay.date) }}</p>
           </div>
           
           <div v-if="selectedDay.workout.duration_minutes">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Duración:</span>
-            <p>{{ selectedDay.workout.duration_minutes }} minutos</p>
+            <span class="text-sm font-semibold text-rose-800/70">Duración:</span>
+            <p class="text-rose-950">{{ selectedDay.workout.duration_minutes }} minutos</p>
           </div>
           
           <div>
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Intensidad:</span>
-            <p class="capitalize">{{ getIntensityLabel(selectedDay.workout.intensity) }}</p>
+            <span class="text-sm font-semibold text-rose-800/70">Intensidad:</span>
+            <p class="capitalize text-rose-950">{{ getIntensityLabel(selectedDay.workout.intensity) }}</p>
           </div>
           
           <div v-if="selectedDay.workout.exercises && selectedDay.workout.exercises.length > 0">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Ejercicios:</span>
+            <span class="text-sm font-semibold text-rose-800/70">Ejercicios:</span>
             <ul class="mt-2 space-y-2">
               <li
                 v-for="(exercise, index) in selectedDay.workout.exercises"
                 :key="index"
-                class="p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                class="rounded-2xl border border-rose-100 bg-rose-50/70 p-3"
               >
-                <p class="font-medium">{{ exercise.name }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
+                <p class="font-semibold text-rose-950">{{ exercise.name }}</p>
+                <p class="text-sm text-rose-800/70">
                   <span v-if="exercise.sets">{{ exercise.sets }} series</span>
                   <span v-if="exercise.reps"> × {{ exercise.reps }} reps</span>
                   <span v-if="exercise.weight"> - {{ exercise.weight }}</span>
@@ -130,21 +130,21 @@
           </div>
           
           <div v-if="selectedDay.workout.notes">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Notas:</span>
-            <p class="mt-1 text-gray-700 dark:text-gray-300">{{ selectedDay.workout.notes }}</p>
+            <span class="text-sm font-semibold text-rose-800/70">Notas:</span>
+            <p class="mt-1 text-rose-900/80">{{ selectedDay.workout.notes }}</p>
           </div>
         </div>
 
         <div class="mt-6 flex gap-3">
           <a
             :href="`/workouts/${selectedDay.workout.id}/edit`"
-            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center"
+            class="flex-1 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-4 py-2 text-center font-semibold text-white transition hover:-translate-y-px"
           >
             Editar
           </a>
           <button
             @click="showDetailModal = false"
-            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            class="rounded-full bg-rose-100 px-4 py-2 font-semibold text-rose-700 transition hover:bg-rose-200"
           >
             Cerrar
           </button>
@@ -278,19 +278,19 @@ function getDayClasses(day: CalendarDay): string {
   const classes = [];
   
   if (day.isToday) {
-    classes.push('border-blue-500');
+    classes.push('border-rose-400 ring-2 ring-rose-400');
   } else if (day.workout) {
-    classes.push('border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20');
+    classes.push('border-rose-200 bg-rose-50/80');
   } else {
-    classes.push('border-gray-200 dark:border-gray-700');
+    classes.push('border-rose-100 bg-white/85');
   }
   
   if (day.isCurrentMonth && !day.workout) {
-    classes.push('hover:bg-gray-50 dark:hover:bg-gray-800');
+    classes.push('hover:bg-rose-50');
   }
   
   if (day.workout) {
-    classes.push('hover:border-green-400 dark:hover:border-green-600');
+    classes.push('hover:border-rose-300');
   }
   
   return classes.join(' ');
@@ -298,11 +298,11 @@ function getDayClasses(day: CalendarDay): string {
 
 function getIntensityColor(intensity: string): string {
   const colors = {
-    light: 'bg-green-500',
-    moderate: 'bg-yellow-500',
-    intense: 'bg-red-500',
+    light: 'bg-emerald-400',
+    moderate: 'bg-amber-400',
+    intense: 'bg-rose-500',
   };
-  return colors[intensity as keyof typeof colors] || 'bg-gray-500';
+  return colors[intensity as keyof typeof colors] || 'bg-rose-400';
 }
 
 function getIntensityLabel(intensity: string): string {

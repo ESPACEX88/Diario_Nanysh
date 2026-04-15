@@ -94,48 +94,48 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                 <!-- Dropdown Menu -->
                                 <div class="relative group">
                                     <button
-                                        class="text-pink-700 hover:text-pink-900 font-semibold flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-pink-100 transition-all"
+                                        class="flex items-center gap-1 rounded-full border border-rose-200 bg-white/80 px-4 py-2 font-semibold text-rose-700 transition hover:-translate-y-px hover:bg-rose-50 hover:text-rose-900"
                                     >
                                         Más
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </button>
-                                    <div class="absolute left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-2 border-pink-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
-                                        <div class="p-3">
+                                    <div class="absolute left-0 z-50 mt-3 w-80 overflow-hidden rounded-[1.75rem] border border-rose-100/80 bg-white/95 p-3 shadow-[0_24px_70px_rgba(236,72,153,0.14)] opacity-0 invisible transition-all duration-200 group-hover:visible group-hover:opacity-100 backdrop-blur-xl">
+                                        <div class="space-y-3">
                                             <!-- Sección: Registros y Seguimiento -->
                                             <div class="mb-3">
-                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                <div class="mb-1 px-3 py-2 text-xs font-bold uppercase tracking-[0.28em] text-rose-500">
                                                     📝 Registros
                                                 </div>
                                                 <div class="space-y-1">
                                                     <Link
                                                         :href="route('dreams.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         🌙 Sueños
                                                     </Link>
                                                     <Link
                                                         :href="route('photos.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         📸 Fotos
                                                     </Link>
                                                     <Link
                                                         :href="route('cycle.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         🌸 Ciclo
                                                     </Link>
                                                     <Link
                                                         :href="route('habits.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         🔄 Hábitos
                                                     </Link>
                                                     <Link
                                                         :href="route('workouts.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         💪 Gym
                                                     </Link>
@@ -144,19 +144,19 @@ const { isDark, toggleDarkMode } = useDarkMode();
 
                                             <!-- Sección: Entretenimiento -->
                                             <div class="mb-3">
-                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                <div class="mb-1 px-3 py-2 text-xs font-bold uppercase tracking-[0.28em] text-rose-500">
                                                     🎬 Entretenimiento
                                                 </div>
                                                 <div class="space-y-1">
                                                     <Link
                                                         :href="route('media.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         📚 Libros/Películas
                                                     </Link>
                                                     <Link
                                                         :href="route('wishlist.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         💝 Lista de Deseos
                                                     </Link>
@@ -165,19 +165,19 @@ const { isDark, toggleDarkMode } = useDarkMode();
 
                                             <!-- Sección: Cocina -->
                                             <div class="mb-3">
-                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                <div class="mb-1 px-3 py-2 text-xs font-bold uppercase tracking-[0.28em] text-rose-500">
                                                     🍳 Cocina
                                                 </div>
                                                 <div class="space-y-1">
                                                     <Link
                                                         :href="route('recipes.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         📖 Recetario
                                                     </Link>
                                                     <Link
                                                         :href="route('meals.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         🍽️ Comidas Favoritas
                                                     </Link>
@@ -186,25 +186,25 @@ const { isDark, toggleDarkMode } = useDarkMode();
 
                                             <!-- Sección: Progreso -->
                                             <div class="mb-3">
-                                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 py-2 mb-1">
+                                                <div class="mb-1 px-3 py-2 text-xs font-bold uppercase tracking-[0.28em] text-rose-500">
                                                     🎯 Progreso
                                                 </div>
                                                 <div class="space-y-1">
                                                     <Link
                                                         :href="route('achievements.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         🏆 Logros
                                                     </Link>
                                                     <Link
                                                         :href="route('counters.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 text-gray-700 hover:text-pink-700 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         📅 Contadores
                                                     </Link>
                                                     <Link
                                                         :href="route('statistics')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         📊 Estadísticas
                                                     </Link>
@@ -212,17 +212,17 @@ const { isDark, toggleDarkMode } = useDarkMode();
                                             </div>
 
                                             <!-- Sección: Configuración -->
-                                            <div class="border-t border-pink-100 dark:border-gray-700 pt-2 mt-2">
+                                            <div class="mt-2 border-t border-rose-100 pt-2">
                                                 <div class="space-y-1">
                                                     <button
                                                         @click="toggleDarkMode"
-                                                        class="w-full text-left block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block w-full rounded-2xl px-3 py-2 text-left text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         {{ isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
                                                     </button>
                                                     <Link
                                                         :href="route('export.index')"
-                                                        class="block px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-pink-700 dark:hover:text-pink-400 text-sm font-semibold transition-all"
+                                                        class="block rounded-2xl px-3 py-2 text-sm font-semibold text-rose-800 transition-all hover:bg-rose-50 hover:text-rose-950"
                                                     >
                                                         💾 Exportar Datos
                                                     </Link>

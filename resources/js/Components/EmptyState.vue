@@ -15,41 +15,41 @@ const props = defineProps<Props>();
 
 <template>
     <div
-        class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-100 via-purple-50 to-rose-50 shadow-xl text-center py-16 border-2 border-pink-200"
+        class="relative overflow-hidden rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 px-6 py-16 text-center shadow-[0_20px_60px_rgba(236,72,153,0.1)]"
     >
         <div
-            class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-pink-300/30 to-purple-300/30 rounded-full -mr-32 -mt-32"
+            class="absolute top-0 right-0 h-64 w-64 rounded-full bg-gradient-to-br from-rose-200/40 to-fuchsia-200/40 -mr-32 -mt-32"
         ></div>
-        <div class="relative p-6">
+        <div class="relative mx-auto max-w-xl">
             <span
                 v-if="icon"
-                class="text-7xl mb-6 block transform hover:scale-110 transition-transform inline-block"
+                class="mb-6 block text-7xl transition-transform duration-300 hover:scale-110"
             >
                 {{ icon }}
             </span>
-            <h3 class="text-3xl font-bold text-gray-800 mb-3">
+            <h3 class="mb-3 text-3xl font-bold text-rose-950">
                 {{ title }}
             </h3>
             <p
                 v-if="description"
-                class="text-lg text-gray-600 mb-8 max-w-md mx-auto"
+                class="mx-auto mb-8 max-w-md text-lg leading-8 text-rose-900/70"
             >
                 {{ description }}
             </p>
             <Link
                 v-if="actionRoute"
                 :href="route(actionRoute)"
-                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-bold text-base shadow-lg hover:from-pink-600 hover:to-rose-600 hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-8 py-4 text-base font-bold text-white shadow-lg shadow-rose-500/20 transition hover:-translate-y-px hover:shadow-xl"
             >
-                <span class="mr-2">💕</span>
+                <span aria-hidden="true">💕</span>
                 {{ actionLabel || 'Comenzar' }}
             </Link>
             <a
                 v-else-if="actionHref"
                 :href="actionHref"
-                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-bold text-base shadow-lg hover:from-pink-600 hover:to-rose-600 hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-8 py-4 text-base font-bold text-white shadow-lg shadow-rose-500/20 transition hover:-translate-y-px hover:shadow-xl"
             >
-                <span class="mr-2">💕</span>
+                <span aria-hidden="true">💕</span>
                 {{ actionLabel || 'Comenzar' }}
             </a>
         </div>

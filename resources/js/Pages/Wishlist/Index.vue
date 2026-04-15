@@ -78,13 +78,13 @@ const cancelDelete = () => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-2">
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-rose-950">
                     <span>💝</span>
                     Mi Lista de Deseos
                 </h2>
                 <Link
                     :href="route('wishlist.create')"
-                    class="px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-semibold hover:from-pink-600 hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    class="rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-6 py-3 font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:-translate-y-px hover:shadow-xl"
                 >
                     + Agregar Deseo
                 </Link>
@@ -92,10 +92,10 @@ const cancelDelete = () => {
         </template>
 
         <div class="py-4">
-            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
                 <!-- Pending Items -->
                 <div v-if="pendingItems.length > 0" class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <h3 class="mb-3 flex items-center gap-2 text-lg font-bold text-rose-950">
                         <span class="text-2xl">✨</span>
                         Deseos Pendientes ({{ pendingItems.length }})
                     </h3>
@@ -104,9 +104,9 @@ const cancelDelete = () => {
                             <div
                                 v-for="item in pendingItems"
                                 :key="item.id"
-                                class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-sm hover:shadow-md"
+                                class="group relative overflow-hidden rounded-[1.75rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 shadow-[0_16px_40px_rgba(236,72,153,0.08)] transition hover:-translate-y-px hover:shadow-[0_22px_60px_rgba(236,72,153,0.14)]"
                             >
-                                <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full -mr-10 -mt-10"></div>
+                                <div class="absolute top-0 right-0 h-20 w-20 rounded-full bg-gradient-to-br from-rose-200/30 to-fuchsia-200/30 -mr-10 -mt-10"></div>
                                 <div class="relative p-4">
                                     <div class="flex items-start justify-between mb-2">
                                         <div class="text-3xl">{{ getCategoryIcon(item.category) }}</div>
@@ -116,28 +116,28 @@ const cancelDelete = () => {
                                             {{ item.priority === 'high' ? 'Alta' : item.priority === 'medium' ? 'Media' : 'Baja' }}
                                         </span>
                                     </div>
-                                    <h4 class="text-base font-bold text-gray-900 mb-1">{{ item.name }}</h4>
-                                    <p v-if="item.description" class="text-gray-600 text-xs mb-2 line-clamp-1">
+                                    <h4 class="mb-1 text-base font-bold text-rose-950">{{ item.name }}</h4>
+                                    <p v-if="item.description" class="mb-2 line-clamp-1 text-xs text-rose-900/65">
                                         {{ item.description }}
                                     </p>
                                     <div class="flex items-center justify-between mb-2">
-                                        <span v-if="item.price" class="text-lg font-bold text-pink-600">
+                                        <span v-if="item.price" class="text-lg font-bold text-rose-600">
                                             💰 ${{ item.price.toLocaleString() }}
                                         </span>
-                                        <span class="text-xs text-gray-500 capitalize">
+                                        <span class="text-xs capitalize text-rose-800/60">
                                             {{ item.category }}
                                         </span>
                                     </div>
                                     <div class="flex gap-2">
                                         <Link
                                             :href="route('wishlist.edit', item.id)"
-                                            class="flex-1 px-3 py-1.5 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-lg text-xs font-semibold hover:from-pink-500 hover:to-rose-500 transition-all text-center"
+                                            class="flex-1 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-3 py-1.5 text-center text-xs font-semibold text-white transition hover:-translate-y-px"
                                         >
                                             Editar
                                         </Link>
                                         <button
                                             @click="deleteItem(item.id)"
-                                            class="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-200 transition-all"
+                                            class="rounded-full bg-rose-100 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-200"
                                         >
                                             🗑️
                                         </button>
@@ -146,7 +146,7 @@ const cancelDelete = () => {
                                         v-if="item.url"
                                         :href="item.url"
                                         target="_blank"
-                                        class="mt-2 block text-center text-xs text-pink-600 hover:text-pink-700 font-semibold"
+                                        class="mt-2 block text-center text-xs font-semibold text-rose-600 hover:text-rose-700"
                                     >
                                         Ver enlace →
                                     </a>
@@ -158,7 +158,7 @@ const cancelDelete = () => {
 
                 <!-- Obtained Items -->
                 <div v-if="obtainedItems.length > 0" class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <h3 class="mb-3 flex items-center gap-2 text-lg font-bold text-rose-950">
                         <span class="text-2xl">🎉</span>
                         Deseos Cumplidos ({{ obtainedItems.length }})
                     </h3>
@@ -167,13 +167,13 @@ const cancelDelete = () => {
                             <div
                                 v-for="item in obtainedItems"
                                 :key="item.id"
-                                class="relative overflow-hidden rounded-lg bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 opacity-75"
+                                class="relative overflow-hidden rounded-[1.75rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 opacity-80 shadow-[0_12px_30px_rgba(236,72,153,0.06)]"
                             >
                                 <div class="absolute top-2 right-2 text-xl">✅</div>
                                 <div class="p-4">
                                     <div class="text-3xl mb-2 opacity-50">{{ getCategoryIcon(item.category) }}</div>
-                                    <h4 class="text-sm font-bold text-gray-700 mb-1 line-through">{{ item.name }}</h4>
-                                    <p v-if="item.obtained_date" class="text-xs text-gray-500">
+                                    <h4 class="mb-1 text-sm font-bold text-rose-900 line-through">{{ item.name }}</h4>
+                                    <p v-if="item.obtained_date" class="text-xs text-rose-800/60">
                                         Obtenido: {{ new Date(item.obtained_date).toLocaleDateString('es-ES') }}
                                     </p>
                                 </div>
@@ -185,20 +185,19 @@ const cancelDelete = () => {
                 <!-- Empty State -->
                 <div
                     v-if="items.length === 0"
-                    class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 rounded-3xl border-4 border-pink-300"
+                    class="rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 px-6 py-20 text-center shadow-[0_24px_70px_rgba(236,72,153,0.12)]"
                 >
-                    <div class="absolute inset-0 bg-gradient-to-br from-pink-200/20 to-purple-200/20 rounded-3xl"></div>
                     <div class="relative">
-                        <span class="text-8xl block mb-6 animate-bounce">💝</span>
-                        <h3 class="text-3xl font-bold text-gray-800 mb-3">Tu lista de deseos está vacía</h3>
-                        <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                        <span class="mb-6 block text-8xl">💝</span>
+                        <h3 class="mb-3 text-3xl font-bold text-rose-950">Tu lista de deseos está vacía</h3>
+                        <p class="mx-auto mb-8 max-w-md text-lg text-rose-900/70">
                             Agrega tus sueños y deseos aquí para recordarlos siempre
                         </p>
                         <Link
                             :href="route('wishlist.create')"
-                            class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-bold text-lg shadow-xl hover:from-pink-600 hover:to-rose-600 hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+                            class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-rose-500/20 transition hover:-translate-y-px hover:shadow-2xl"
                         >
-                            <span class="mr-2 text-2xl">✨</span>
+                            <span class="text-2xl" aria-hidden="true">✨</span>
                             Agregar Mi Primer Deseo
                         </Link>
                     </div>
