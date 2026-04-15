@@ -29,6 +29,12 @@ interface Props {
         completedTodosThisWeek?: number;
     };
     pendingTodos?: any[];
+    activeHabitsQuick?: Array<{
+        id: number;
+        name: string;
+        icon?: string;
+        is_active: boolean;
+    }>;
     upcomingEvents?: any[];
     dailyQuote?: {
         quote: string;
@@ -160,6 +166,13 @@ const toggleTodo = (id: number) => {
         preserveScroll: true,
     });
 };
+
+const toggleHabitToday = (id: number) => {
+    router.post(route('habits.log', id), {}, {
+        preserveScroll: true,
+        preserveState: true,
+    });
+};
 </script>
 
 <template>
@@ -238,7 +251,7 @@ const toggleTodo = (id: number) => {
                                                     <span class="text-xs font-bold text-gray-700 w-8">{{ pet.health }}%</span>
                                                 </div>
                                             </div>
-                                            <div class="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full inline-block shadow-lg">
+                                            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 rounded-full shadow-lg">
                                                 <span class="text-xl">🪙</span>
                                                 <span class="font-bold text-white text-lg">{{ pet.coins || 0 }} fichitas</span>
                                             </div>
@@ -438,13 +451,45 @@ const toggleTodo = (id: number) => {
                                 <span class="text-3xl transform group-hover:scale-110 transition-transform">🌙</span>
                                 <span class="font-semibold text-gray-700 flex-1">Registrar Sueño</span>
                             </Link>
-                            <Link
-                                :href="route('minigame.doors')"
-                                class="group flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl hover:from-yellow-100 hover:to-orange-100 transition-all border-2 border-transparent hover:border-yellow-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-3xl transform group-hover:scale-110 transition-transform">🎰</span>
-                                <span class="font-semibold text-gray-700 flex-1">Minijuegos</span>
-                            </Link>
+                             <Link
+                                 :href="route('minigame.doors')"
+                                 class="group flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl hover:from-yellow-100 hover:to-orange-100 transition-all border-2 border-transparent hover:border-yellow-300 hover:shadow-lg transform hover:-translate-y-1"
+                             >
+                                 <span class="text-3xl transform group-hover:scale-110 transition-transform">🎰</span>
+                                 <span class="font-semibold text-gray-700 flex-1">Minijuegos</span>
+                             </Link>
+                             <Link
+                                 :href="route('habits.index')"
+                                 class="group flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl hover:from-emerald-100 hover:to-green-100 transition-all border-2 border-transparent hover:border-emerald-300 hover:shadow-lg transform hover:-translate-y-1"
+                             >
+                                 <span class="text-3xl transform group-hover:scale-110 transition-transform">🎯</span>
+                                 <span class="font-semibold text-gray-700 flex-1">Mis Hábitos</span>
+                             </Link>
+
+                            <div v-if="activeHabitsQuick && activeHabitsQuick.length > 0" class="pt-2">
+                                <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">Atajos de hábitos</p>
+                                <div class="space-y-2">
+                                    <div
+                                        v-for="habit in activeHabitsQuick"
+                                        :key="habit.id"
+                                        class="flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-emerald-200"
+                                    >
+                                        <Link
+                                            :href="route('habits.show', habit.id)"
+                                            class="flex items-center gap-2 flex-1 min-w-0"
+                                        >
+                                            <span class="text-xl">{{ habit.icon || '🔄' }}</span>
+                                            <span class="font-medium text-gray-700 truncate">{{ habit.name }}</span>
+                                        </Link>
+                                        <button
+                                            @click="toggleHabitToday(habit.id)"
+                                            class="px-2 py-1 text-xs font-semibold rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+                                        >
+                                            Hoy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

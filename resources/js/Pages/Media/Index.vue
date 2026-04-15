@@ -18,8 +18,12 @@ interface MediaItem {
     url?: string;
 }
 
+interface PaginatedResponse<T> {
+    data: T[];
+}
+
 interface Props {
-    items: MediaItem[];
+    items: PaginatedResponse<MediaItem> | MediaItem[];
 }
 
 const props = defineProps<Props>();
@@ -35,18 +39,30 @@ const getTypeIcon = (type: string) => {
     return icons[type] || '📖';
 };
 
-const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-        want: 'from-gray-400 to-gray-500',
-        in_progress: 'from-blue-400 to-indigo-500',
-        completed: 'from-green-400 to-emerald-500',
-    };
-    return colors[status] || 'from-pink-400 to-rose-400';
+const statusMap: Record<string, 'want' | 'in_progress' | 'completed'> = {
+    want: 'want',
+    wishlist: 'want',
+    pendiente: 'want',
+    por_ver: 'want',
+    in_progress: 'in_progress',
+    progress: 'in_progress',
+    leyendo: 'in_progress',
+    viendo: 'in_progress',
+    completed: 'completed',
+    done: 'completed',
+    terminado: 'completed',
+    finalizado: 'completed',
 };
 
-const wantItems = computed(() => props.items.filter(item => item.status === 'want'));
-const inProgressItems = computed(() => props.items.filter(item => item.status === 'in_progress'));
-const completedItems = computed(() => props.items.filter(item => item.status === 'completed'));
+const mediaItems = computed<MediaItem[]>(() =>
+    Array.isArray(props.items) ? props.items : (props.items?.data ?? [])
+);
+
+const normalizeStatus = (status: string) => statusMap[(status || '').toLowerCase()] || 'want';
+
+const wantItems = computed(() => mediaItems.value.filter((item: MediaItem) => normalizeStatus(item.status) === 'want'));
+const inProgressItems = computed(() => mediaItems.value.filter((item: MediaItem) => normalizeStatus(item.status) === 'in_progress'));
+const completedItems = computed(() => mediaItems.value.filter((item: MediaItem) => normalizeStatus(item.status) === 'completed'));
 
 const showDeleteModal = ref(false);
 const itemToDelete = ref<number | null>(null);
@@ -196,7 +212,7 @@ const cancelDelete = () => {
 
                 <!-- Empty State -->
                 <div
-                    v-if="items.length === 0"
+                    v-if="mediaItems.length === 0"
                     class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 rounded-3xl border-4 border-pink-300"
                 >
                     <span class="text-8xl block mb-6">📚</span>

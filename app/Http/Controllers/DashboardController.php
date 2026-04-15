@@ -88,6 +88,13 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Quick habit shortcuts for dashboard
+        $activeHabitsQuick = Habit::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderByDesc('updated_at')
+            ->limit(6)
+            ->get(['id', 'name', 'icon', 'is_active']);
+
         // Upcoming events (next 7 days)
         $upcomingEvents = Event::where('user_id', $user->id)
             ->where('start_date', '>=', Carbon::now())
@@ -131,6 +138,7 @@ class DashboardController extends Controller
             ],
             'stats' => array_merge($stats, $weekStats, ['streak' => $streak]),
             'pendingTodos' => $pendingTodos,
+            'activeHabitsQuick' => $activeHabitsQuick,
             'upcomingEvents' => $upcomingEvents,
             'dailyQuote' => $dailyQuote,
         ]);

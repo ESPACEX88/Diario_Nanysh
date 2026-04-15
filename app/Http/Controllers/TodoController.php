@@ -7,6 +7,7 @@ use App\Models\Pet;
 use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class TodoController extends Controller
@@ -16,6 +17,16 @@ class TodoController extends Controller
         $query = Todo::where('user_id', Auth::id())
             ->orderBy('order')
             ->orderBy('created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = trim((string) $request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%");
+            });
+        }
 
         if ($request->has('completed')) {
             $query->where('is_completed', $request->boolean('completed'));
@@ -29,6 +40,11 @@ class TodoController extends Controller
 
         return Inertia::render('Todos/Index', [
             'todos' => $todos,
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'category' => $request->input('category', ''),
+                'completed' => $request->input('completed'),
+            ],
         ]);
     }
 
@@ -216,7 +232,7 @@ class TodoController extends Controller
 
             return back()->with('success', 'Tarea marcada como pendiente');
         } catch (\Exception $e) {
-            \Log::error('Error en toggleComplete: ' . $e->getMessage());
+            Log::error('Error en toggleComplete: ' . $e->getMessage());
             return back()->with('error', 'Error al actualizar la tarea. Por favor, intenta de nuevo.');
         }
     }
