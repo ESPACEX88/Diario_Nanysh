@@ -68,8 +68,8 @@ const intensityColor = (intensity: string): string => {
 
   <AuthenticatedLayout>
     <template #header>
-      <div class="flex items-center justify-between">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <h2 class="bg-gradient-to-r from-rose-600 to-fuchsia-600 bg-clip-text text-xl font-semibold leading-tight text-transparent">
           Mis Entrenamientos 💪
         </h2>
         <a href="/workouts/create">
@@ -80,15 +80,15 @@ const intensityColor = (intensity: string): string => {
       </div>
     </template>
 
-    <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-10 sm:py-12">
+      <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div class="feminine-surface rounded-3xl border border-rose-100/80 p-6 shadow-[0_18px_45px_rgba(236,72,153,0.12)]">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Entrenamientos este mes</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                <p class="text-sm font-medium text-rose-700">Entrenamientos este mes</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900">
                   {{ stats.total_workouts }}
                 </p>
               </div>
@@ -96,11 +96,11 @@ const intensityColor = (intensity: string): string => {
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="feminine-surface rounded-3xl border border-rose-100/80 p-6 shadow-[0_18px_45px_rgba(236,72,153,0.12)]">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Minutos totales</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                <p class="text-sm font-medium text-rose-700">Minutos totales</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900">
                   {{ stats.total_minutes }}
                 </p>
               </div>
@@ -108,13 +108,13 @@ const intensityColor = (intensity: string): string => {
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="feminine-surface rounded-3xl border border-rose-100/80 p-6 shadow-[0_18px_45px_rgba(236,72,153,0.12)]">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Racha actual</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                <p class="text-sm font-medium text-rose-700">Racha actual</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900">
                   {{ stats.streak }}
-                  <span class="text-base text-gray-600 dark:text-gray-400">días</span>
+                  <span class="text-base text-rose-600">días</span>
                 </p>
               </div>
               <div class="text-4xl">🔥</div>
@@ -123,7 +123,7 @@ const intensityColor = (intensity: string): string => {
         </div>
 
         <!-- Calendar -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div class="feminine-panel p-6">
           <WorkoutCalendar
             :workouts="workouts"
             :current-month="currentMonth"
@@ -133,12 +133,12 @@ const intensityColor = (intensity: string): string => {
         </div>
 
         <!-- Recent Workouts List -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div class="feminine-panel p-6">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900">
             Entrenamientos recientes
           </h3>
 
-          <div v-if="workouts.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div v-if="workouts.length === 0" class="py-8 text-center text-gray-500">
             <p class="text-lg mb-2">No hay entrenamientos registrados</p>
             <p class="text-sm">¡Comienza registrando tu primer entrenamiento!</p>
           </div>
@@ -147,12 +147,12 @@ const intensityColor = (intensity: string): string => {
             <div
               v-for="workout in workouts.slice(0, 5)"
               :key="workout.id"
-              class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              class="rounded-2xl border border-rose-100 bg-white/80 p-4 shadow-sm shadow-rose-400/10 transition-all hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
-                    <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+                    <h4 class="text-lg font-medium text-gray-900">
                       {{ workout.routine_name }}
                     </h4>
                     <span
@@ -165,7 +165,7 @@ const intensityColor = (intensity: string): string => {
                     </span>
                   </div>
                   
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <p class="mb-2 text-sm text-rose-700">
                     {{ new Date(workout.date).toLocaleDateString('es-ES', {
                       weekday: 'long',
                       year: 'numeric',
@@ -174,19 +174,19 @@ const intensityColor = (intensity: string): string => {
                     }) }}
                   </p>
 
-                  <div v-if="workout.duration_minutes" class="text-sm text-gray-500 dark:text-gray-400">
+                  <div v-if="workout.duration_minutes" class="text-sm text-gray-500">
                     ⏱️ {{ workout.duration_minutes }} minutos
                   </div>
 
                   <div v-if="workout.exercises && workout.exercises.length > 0" class="mt-3">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    <p class="mb-1 text-sm text-gray-600">
                       Ejercicios ({{ workout.exercises.length }}):
                     </p>
                     <div class="flex flex-wrap gap-2">
                       <span
                         v-for="(exercise, index) in workout.exercises"
                         :key="index"
-                        class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded"
+                        class="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700"
                       >
                         {{ exercise.name }}
                       </span>
@@ -197,7 +197,7 @@ const intensityColor = (intensity: string): string => {
                 <div class="flex gap-2 ml-4">
                   <a
                     :href="`/workouts/${workout.id}/edit`"
-                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                    class="text-sm font-semibold text-rose-600 transition-colors hover:text-rose-800"
                   >
                     Editar
                   </a>

@@ -108,14 +108,14 @@ const daysUntilPeriod = computed(() => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent flex items-center gap-2">
                     <span>🌸</span>
                     Mi Seguimiento
                 </h2>
                 <Link
                     :href="route('cycle.create')"
-                    class="px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-semibold hover:from-pink-600 hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    class="rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-400/25 transition-all hover:-translate-y-0.5 hover:from-rose-600 hover:to-fuchsia-600"
                 >
                     + Nuevo Registro
                 </Link>
@@ -123,64 +123,74 @@ const daysUntilPeriod = computed(() => {
         </template>
 
         <div class="py-8">
-            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-6xl space-y-6 sm:px-6 lg:px-8">
+                <section class="feminine-panel flex flex-wrap items-center justify-between gap-3 p-5 sm:p-6">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.15em] text-rose-500">Control de ciclo</p>
+                        <p class="mt-1 text-sm text-rose-700">Visualiza fase actual, predicción y registra cómo te sientes cada día.</p>
+                    </div>
+                    <span class="rounded-full border border-rose-200/80 bg-white/80 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm">
+                        {{ trackings.length }} registros
+                    </span>
+                </section>
+
                 <!-- Estadísticas y Consejos -->
                 <div v-if="stats" class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Estado Actual -->
-                    <div class="lg:col-span-2 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-2xl border-2 border-pink-200 dark:border-gray-700 p-6 shadow-lg">
+                    <div class="feminine-surface lg:col-span-2 rounded-2xl border border-rose-100/80 p-6 shadow-[0_16px_42px_rgba(236,72,153,0.12)]">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                             <span>📊</span>
                             Tu Ciclo Actual
                         </h3>
                         <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="bg-white dark:bg-gray-700 rounded-xl p-4">
-                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Fase Actual</div>
-                                <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                            <div class="rounded-xl border border-rose-100 bg-white/80 p-4">
+                                <div class="mb-1 text-sm text-gray-600">Fase Actual</div>
+                                <div class="text-2xl font-bold text-rose-600">
                                     {{ stats.current_phase ? getPhaseName(stats.current_phase) : 'N/A' }}
                                 </div>
                             </div>
-                            <div class="bg-white dark:bg-gray-700 rounded-xl p-4">
-                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Día del Ciclo</div>
-                                <div class="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                            <div class="rounded-xl border border-rose-100 bg-white/80 p-4">
+                                <div class="mb-1 text-sm text-gray-600">Día del Ciclo</div>
+                                <div class="text-2xl font-bold text-rose-600">
                                     {{ stats.cycle_day || 'N/A' }}
                                 </div>
                             </div>
                         </div>
-                        <div v-if="stats.next_period_predicted && daysUntilPeriod !== null" class="bg-white dark:bg-gray-700 rounded-xl p-4">
-                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Próximo Período</div>
-                            <div class="text-lg font-bold text-pink-600 dark:text-pink-400">
+                        <div v-if="stats.next_period_predicted && daysUntilPeriod !== null" class="rounded-xl border border-rose-100 bg-white/80 p-4">
+                            <div class="mb-1 text-sm text-gray-600">Próximo Período</div>
+                            <div class="text-lg font-bold text-rose-600">
                                 {{ daysUntilPeriod > 0 ? `En ${daysUntilPeriod} días` : daysUntilPeriod === 0 ? 'Hoy' : 'Ya pasó' }}
                             </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <div class="mt-1 text-xs text-gray-500">
                                 {{ new Date(stats.next_period_predicted).toLocaleDateString('es-ES') }}
                             </div>
                         </div>
-                        <div v-if="stats.average_cycle_length" class="mt-4 bg-white dark:bg-gray-700 rounded-xl p-4">
-                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Ciclo Promedio</div>
-                            <div class="text-lg font-bold text-pink-600 dark:text-pink-400">
+                        <div v-if="stats.average_cycle_length" class="mt-4 rounded-xl border border-rose-100 bg-white/80 p-4">
+                            <div class="mb-1 text-sm text-gray-600">Ciclo Promedio</div>
+                            <div class="text-lg font-bold text-rose-600">
                                 {{ stats.average_cycle_length }} días
                             </div>
                         </div>
                     </div>
 
                     <!-- Consejos Personalizados -->
-                    <div v-if="stats.advice" class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 rounded-2xl border-2 border-blue-200 dark:border-gray-700 p-6 shadow-lg">
+                    <div v-if="stats.advice" class="feminine-surface rounded-2xl border border-indigo-100/80 p-6 shadow-[0_16px_42px_rgba(99,102,241,0.14)]">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                             <span>💡</span>
                             Consejos para Ti
                         </h3>
                         <div class="mb-3">
-                            <h4 class="font-semibold text-blue-900 dark:text-blue-300 mb-2">{{ stats.advice.title }}</h4>
+                            <h4 class="mb-2 font-semibold text-indigo-900">{{ stats.advice.title }}</h4>
                             <ul class="space-y-2">
-                                <li v-for="(tip, index) in stats.advice.tips.slice(0, 3)" :key="index" class="text-sm text-gray-700 dark:text-gray-300">
+                                <li v-for="(tip, index) in stats.advice.tips.slice(0, 3)" :key="index" class="text-sm text-gray-700">
                                     {{ tip }}
                                 </li>
                             </ul>
                         </div>
-                        <div v-if="stats.advice.wellness.length > 0" class="mt-4 pt-4 border-t border-blue-200 dark:border-gray-600">
-                            <h5 class="font-semibold text-blue-800 dark:text-blue-400 text-xs mb-2">Bienestar:</h5>
+                        <div v-if="stats.advice.wellness.length > 0" class="mt-4 border-t border-indigo-100 pt-4">
+                            <h5 class="mb-2 text-xs font-semibold text-indigo-800">Bienestar:</h5>
                             <ul class="space-y-1">
-                                <li v-for="(wellness, index) in stats.advice.wellness" :key="index" class="text-xs text-gray-600 dark:text-gray-400">
+                                <li v-for="(wellness, index) in stats.advice.wellness" :key="index" class="text-xs text-gray-600">
                                     • {{ wellness }}
                                 </li>
                             </ul>
@@ -189,7 +199,7 @@ const daysUntilPeriod = computed(() => {
                 </div>
 
                 <!-- Resumen de Síntomas -->
-                <div v-if="stats?.symptoms_summary && Object.keys(stats.symptoms_summary).length > 0" class="mb-8 bg-white dark:bg-gray-800 rounded-2xl border-2 border-pink-200 dark:border-gray-700 p-6 shadow-lg">
+                <div v-if="stats?.symptoms_summary && Object.keys(stats.symptoms_summary).length > 0" class="feminine-panel mb-8 p-6">
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <span>📈</span>
                         Síntomas Más Frecuentes
@@ -198,10 +208,10 @@ const daysUntilPeriod = computed(() => {
                         <div
                             v-for="(count, symptom) in stats.symptoms_summary"
                             :key="symptom"
-                            class="bg-gradient-to-r from-pink-100 to-rose-100 dark:from-gray-700 dark:to-gray-700 rounded-xl px-4 py-2"
+                            class="rounded-xl bg-gradient-to-r from-pink-100 to-rose-100 px-4 py-2"
                         >
-                            <span class="font-semibold text-pink-700 dark:text-pink-400">{{ getSymptomName(symptom) }}</span>
-                            <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">({{ count }}x)</span>
+                            <span class="font-semibold text-pink-700">{{ getSymptomName(symptom) }}</span>
+                            <span class="ml-2 text-sm text-gray-600">({{ count }}x)</span>
                         </div>
                     </div>
                 </div>
@@ -211,7 +221,7 @@ const daysUntilPeriod = computed(() => {
                     <div
                         v-for="tracking in trackings"
                         :key="tracking.id"
-                        class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 border-2 border-pink-200 hover:border-pink-400 transition-all shadow-lg hover:shadow-xl"
+                        class="group relative overflow-hidden rounded-2xl border border-rose-100/80 bg-white/80 transition-all shadow-[0_14px_36px_rgba(236,72,153,0.11)] hover:-translate-y-1 hover:border-rose-300 hover:shadow-[0_20px_48px_rgba(236,72,153,0.16)]"
                     >
                         <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b" :class="getPhaseColor(tracking.phase)"></div>
                         <div class="relative p-6 ml-4">
@@ -232,7 +242,7 @@ const daysUntilPeriod = computed(() => {
                                         {{ getPhaseName(tracking.phase) }}
                                     </span>
                                 </div>
-                                <span v-if="tracking.cycle_day" class="text-sm text-gray-600 font-semibold">
+                                <span v-if="tracking.cycle_day" class="text-sm font-semibold text-rose-700">
                                     Día {{ tracking.cycle_day }}
                                 </span>
                             </div>
@@ -244,7 +254,7 @@ const daysUntilPeriod = computed(() => {
                                     <span
                                         v-for="symptom in tracking.symptoms"
                                         :key="symptom"
-                                        class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
+                                        class="rounded-full border border-pink-200 bg-pink-50 px-3 py-1 text-xs font-semibold text-pink-700"
                                     >
                                         {{ symptom }}
                                     </span>
@@ -262,13 +272,13 @@ const daysUntilPeriod = computed(() => {
                             <div class="flex gap-2">
                                 <Link
                                     :href="route('cycle.edit', tracking.id)"
-                                    class="px-4 py-2 bg-gradient-to-r from-pink-400 to-rose-400 text-white rounded-full text-sm font-semibold hover:from-pink-500 hover:to-rose-500 transition-all"
+                                    class="rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:from-rose-600 hover:to-fuchsia-600"
                                 >
                                     Editar
                                 </Link>
                                 <button
                                     @click="deleteTracking(tracking.id)"
-                                    class="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-semibold hover:bg-red-200 transition-all"
+                                    class="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition-all hover:bg-red-100"
                                 >
                                     Eliminar
                                 </button>
@@ -279,7 +289,7 @@ const daysUntilPeriod = computed(() => {
 
                 <div
                     v-else
-                    class="text-center py-20 bg-gradient-to-br from-pink-100 via-rose-100 to-purple-100 rounded-3xl border-4 border-pink-300"
+                    class="feminine-panel py-20 text-center"
                 >
                     <span class="text-8xl block mb-6">🌸</span>
                     <h3 class="text-3xl font-bold text-gray-800 mb-3">No hay registros aún</h3>
@@ -288,7 +298,7 @@ const daysUntilPeriod = computed(() => {
                     </p>
                     <Link
                         :href="route('cycle.create')"
-                        class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-bold text-lg shadow-xl hover:from-pink-600 hover:to-rose-600 hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+                        class="inline-flex items-center rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-rose-400/30 transition-all hover:-translate-y-0.5 hover:from-rose-600 hover:to-fuchsia-600"
                     >
                         <span class="mr-2 text-2xl">✨</span>
                         Crear Mi Primer Registro

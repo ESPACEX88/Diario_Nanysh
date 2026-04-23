@@ -55,19 +55,24 @@ const moods = [
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+            <h2 class="bg-gradient-to-r from-rose-600 to-fuchsia-600 bg-clip-text text-xl font-semibold leading-tight text-transparent">
                 Editar Entrada
             </h2>
         </template>
 
-        <div class="py-12">
+        <div class="py-10 sm:py-12">
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <form @submit.prevent="submit" class="p-6 space-y-6">
+                <div class="feminine-panel overflow-hidden p-0">
+                    <form @submit.prevent="submit" class="space-y-6 p-6 sm:p-8">
+                        <div class="rounded-2xl border border-rose-100/80 bg-white/70 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-rose-500">Edicion consciente</p>
+                            <p class="mt-1 text-sm text-rose-700">Reescribe tu entrada con calma y conserva lo que sentiste ese dia.</p>
+                        </div>
+
                         <div>
                             <label
                                 for="title"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                class="block text-sm font-semibold text-gray-700"
                             >
                                 Título
                             </label>
@@ -76,7 +81,7 @@ const moods = [
                                 v-model="form.title"
                                 type="text"
                                 required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                             />
                             <div
                                 v-if="form.errors.title"
@@ -89,7 +94,7 @@ const moods = [
                         <div>
                             <label
                                 for="date"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                class="block text-sm font-semibold text-gray-700"
                             >
                                 Fecha
                             </label>
@@ -98,21 +103,21 @@ const moods = [
                                 v-model="form.date"
                                 type="date"
                                 required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                             />
                         </div>
 
                         <div>
                             <label
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                                class="mb-2 block text-sm font-semibold text-gray-700"
                             >
                                 Estado de Ánimo
                                 <span class="text-xs text-gray-500 ml-2">
                                     💡 Los estados felices (😊, 😍, 🥳) te dan fichitas para Snoopy
                                 </span>
                             </label>
-                            <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p class="text-sm text-blue-800 font-semibold">
+                            <div class="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                                <p class="text-sm font-semibold text-amber-700">
                                     💰 Estados felices = Fichitas para alimentar a Snoopy
                                 </p>
                             </div>
@@ -147,7 +152,7 @@ const moods = [
                         <div>
                             <label
                                 for="content"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                class="block text-sm font-semibold text-gray-700"
                             >
                                 Contenido
                             </label>
@@ -156,7 +161,7 @@ const moods = [
                                 v-model="form.content"
                                 rows="10"
                                 required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-2xl border border-rose-200 bg-white/85 px-4 py-3 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                             />
                             <div
                                 v-if="form.errors.content"
@@ -173,17 +178,17 @@ const moods = [
                             />
                         </div>
 
-                        <div class="flex items-center justify-end gap-4">
+                        <div class="flex items-center justify-end gap-4 border-t border-rose-100 pt-4">
                             <Link
-                                :href="route('diary.show', entry.id)"
-                                class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                                :href="route('diary.show', props.entry.id)"
+                                class="rounded-xl px-4 py-2 text-gray-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
                             >
                                 Cancelar
                             </Link>
                             <button
                                 type="submit"
                                 :disabled="form.processing"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
+                                class="inline-flex items-center rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 px-5 py-2.5 font-semibold text-white shadow-lg shadow-rose-400/25 transition-all hover:-translate-y-0.5 hover:from-rose-600 hover:to-fuchsia-600 disabled:opacity-50"
                             >
                                 Actualizar
                             </button>

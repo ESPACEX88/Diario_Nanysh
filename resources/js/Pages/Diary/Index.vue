@@ -90,7 +90,7 @@ const clearSearch = () => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span class="text-3xl">📖</span>
                     <h2 class="text-2xl font-bold leading-tight bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
@@ -107,10 +107,14 @@ const clearSearch = () => {
             </div>
         </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="py-10 sm:py-12">
+            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <!-- Search and Filters -->
-                <div class="mb-6 space-y-4">
+                <section class="feminine-panel space-y-4 p-5 sm:p-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-sm font-semibold uppercase tracking-[0.16em] text-rose-500">Explora tus recuerdos</p>
+                        <span class="rounded-full border border-rose-200/80 bg-white/80 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm">{{ entries.meta?.total ?? entries.data.length }} entradas</span>
+                    </div>
                     <div class="flex flex-col sm:flex-row gap-3">
                         <div class="flex-1 relative">
                             <label for="diary-search" class="sr-only">Buscar en el diario</label>
@@ -119,7 +123,7 @@ const clearSearch = () => {
                                 v-model="searchQuery"
                                 type="text"
                                 placeholder="🔍 Buscar en el diario..."
-                                class="w-full rounded-xl border-2 border-pink-200 bg-white px-4 py-3 pl-12 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 transition-all"
+                                class="w-full rounded-2xl border border-rose-200/80 bg-white/85 px-4 py-3 pl-12 text-gray-900 shadow-sm shadow-rose-500/10 transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 aria-label="Buscar en el diario"
                                 aria-describedby="search-description"
                             />
@@ -139,10 +143,10 @@ const clearSearch = () => {
                         <button
                             @click="toggleFavorites"
                             :class="[
-                                'px-6 py-3 rounded-xl font-semibold transition-all border-2 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2',
+                                'px-6 py-3 rounded-2xl font-semibold transition-all border focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2',
                                 showFavorites
-                                    ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-yellow-500 shadow-lg'
-                                    : 'bg-white text-gray-700 border-pink-200 hover:border-pink-400 hover:bg-pink-50'
+                                    ? 'bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white border-rose-500 shadow-lg shadow-rose-400/30'
+                                    : 'bg-white/85 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50'
                             ]"
                             :aria-pressed="showFavorites"
                             aria-label="Filtrar por favoritos"
@@ -155,11 +159,11 @@ const clearSearch = () => {
                     </div>
                     
                     <!-- Advanced Filters -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <select
                             v-model="selectedTag"
                             @change="applyFilters"
-                            class="px-4 py-2 rounded-xl border-2 border-pink-200 bg-white text-gray-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-500"
+                            class="px-4 py-2.5 rounded-2xl border border-rose-200 bg-white/85 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                         >
                             <option :value="null">Todas las etiquetas</option>
                             <option
@@ -176,7 +180,7 @@ const clearSearch = () => {
                             @change="applyFilters"
                             type="date"
                             placeholder="Desde"
-                            class="px-4 py-2 rounded-xl border-2 border-pink-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-pink-500 dark:focus:border-pink-400 focus:ring-2 focus:ring-pink-500"
+                            class="px-4 py-2.5 rounded-2xl border border-rose-200 bg-white/85 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                         />
                         
                         <input
@@ -184,13 +188,13 @@ const clearSearch = () => {
                             @change="applyFilters"
                             type="date"
                             placeholder="Hasta"
-                            class="px-4 py-2 rounded-xl border-2 border-pink-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-pink-500 dark:focus:border-pink-400 focus:ring-2 focus:ring-pink-500"
+                            class="px-4 py-2.5 rounded-2xl border border-rose-200 bg-white/85 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                         />
                         
                         <select
                             v-model="selectedMood"
                             @change="applyFilters"
-                            class="px-4 py-2 rounded-xl border-2 border-pink-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-pink-500 dark:focus:border-pink-400 focus:ring-2 focus:ring-pink-500"
+                            class="px-4 py-2.5 rounded-2xl border border-rose-200 bg-white/85 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                         >
                             <option value="">Todos los estados</option>
                             <option value="😊">😊 Feliz</option>
@@ -200,31 +204,31 @@ const clearSearch = () => {
                         </select>
                     </div>
                     
-                    <div v-if="searchQuery || showFavorites || selectedTag || dateFrom || dateTo || selectedMood" class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 flex-wrap">
+                    <div v-if="searchQuery || showFavorites || selectedTag || dateFrom || dateTo || selectedMood" class="flex flex-wrap items-center gap-2 text-sm text-rose-700">
                         <span>Filtros activos:</span>
-                        <span v-if="searchQuery" class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full">
+                        <span v-if="searchQuery" class="rounded-full border border-rose-200 bg-rose-50 px-3 py-1">
                             Búsqueda: "{{ searchQuery }}"
                         </span>
-                        <span v-if="showFavorites" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full">
+                        <span v-if="showFavorites" class="rounded-full border border-fuchsia-200 bg-fuchsia-50 px-3 py-1 text-fuchsia-700">
                             Solo favoritos
                         </span>
-                        <span v-if="selectedTag" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
+                        <span v-if="selectedTag" class="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-violet-700">
                             Etiqueta: {{ props.tags?.find(t => t.id === selectedTag)?.name }}
                         </span>
-                        <span v-if="dateFrom || dateTo" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+                        <span v-if="dateFrom || dateTo" class="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sky-700">
                             {{ dateFrom || 'Inicio' }} - {{ dateTo || 'Hoy' }}
                         </span>
-                        <span v-if="selectedMood" class="px-3 py-1 bg-green-100 text-green-700 rounded-full">
+                        <span v-if="selectedMood" class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
                             {{ selectedMood }}
                         </span>
                         <button
                             @click="clearSearch"
-                            class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors text-xs font-semibold"
+                            class="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-50"
                         >
                             Limpiar filtros
                         </button>
                     </div>
-                </div>
+                </section>
 
                 <!-- Entries List -->
                 <div v-if="entries.data.length > 0" class="space-y-4">
@@ -233,16 +237,16 @@ const clearSearch = () => {
                             v-for="entry in entries.data"
                             :key="entry.id"
                             :href="route('diary.show', entry.id)"
-                            class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-gray-800 dark:to-gray-700 shadow-lg hover:shadow-2xl border-2 border-pink-100 dark:border-gray-700 hover:border-pink-400 dark:hover:border-pink-500 transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+                            class="group feminine-surface relative overflow-hidden rounded-[1.75rem] border border-rose-100/80 p-0 shadow-[0_16px_45px_rgba(236,72,153,0.12)] transition-all duration-300 hover:-translate-y-1.5 hover:border-rose-300 hover:shadow-[0_22px_55px_rgba(236,72,153,0.18)] focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2"
                             role="listitem"
                             :aria-label="`Entrada del diario: ${entry.title}`"
                             tabindex="0"
                         >
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+                            <div class="absolute right-0 top-0 h-32 w-32 -mr-14 -mt-14 rounded-full bg-gradient-to-br from-rose-200/40 to-fuchsia-200/30 blur-sm transition-transform duration-500 group-hover:scale-150"></div>
                             <div class="relative p-5">
-                                <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="mb-3 flex items-start justify-between gap-3">
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-2 mb-2">
+                                        <div class="mb-2 flex items-center gap-2">
                                             <span class="text-3xl transform group-hover:scale-125 transition-transform">{{ entry.mood }}</span>
                                             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
                                                 {{ entry.title }}
@@ -251,7 +255,7 @@ const clearSearch = () => {
                                         <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3 leading-relaxed">
                                             {{ entry.content }}
                                         </p>
-                                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        <div class="mb-2 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-xs font-medium text-rose-700">
                                             <span>📅</span>
                                             <span>
                                                 {{ new Date(entry.date).toLocaleDateString('es-ES', {
@@ -265,7 +269,7 @@ const clearSearch = () => {
                                             <span
                                                 v-for="tag in entry.tags"
                                                 :key="tag.id"
-                                                class="px-2 py-0.5 rounded-full text-xs font-semibold text-white"
+                                                class="rounded-full px-2 py-0.5 text-xs font-semibold text-white shadow-sm"
                                                 :style="{ backgroundColor: tag.color }"
                                             >
                                                 {{ tag.name }}
@@ -287,17 +291,17 @@ const clearSearch = () => {
                     <!-- Pagination -->
                     <div
                         v-if="entries.links.length > 3"
-                        class="flex flex-wrap justify-center gap-2 mt-8"
+                        class="mt-8 flex flex-wrap justify-center gap-2"
                     >
                         <Link
                             v-for="link in entries.links"
                             :key="link.label"
                             :href="link.url || '#'"
                             :class="[
-                                'px-4 py-2 rounded-xl font-semibold transition-all border-2',
+                                'rounded-xl border px-4 py-2 font-semibold transition-all',
                                 link.active
                                     ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-lg'
-                                    : 'bg-white text-gray-700 border-pink-200 hover:border-pink-400 hover:bg-pink-50',
+                                    : 'bg-white/90 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50',
                                 !link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:scale-105'
                             ]"
                             v-html="link.label"

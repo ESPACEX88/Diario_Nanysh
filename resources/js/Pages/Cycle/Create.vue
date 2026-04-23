@@ -109,7 +109,7 @@ const phaseNames: Record<string, string> = {
         <div class="py-8">
             <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
                 <!-- Sugerencias inteligentes -->
-                <div v-if="suggestedPhase || suggestedCycleDay" class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+                <div v-if="suggestedPhase || suggestedCycleDay" class="mb-6 rounded-2xl border border-indigo-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-sm">
                     <div class="flex items-start gap-3">
                         <span class="text-2xl">💡</span>
                         <div class="flex-1">
@@ -118,17 +118,17 @@ const phaseNames: Record<string, string> = {
                                 Basándome en tus registros anteriores, hoy probablemente estás en:
                             </p>
                             <div class="flex gap-2 flex-wrap">
-                                <span v-if="suggestedPhase" class="px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-sm font-semibold">
+                                <span v-if="suggestedPhase" class="rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-900">
                                     Fase: {{ phaseNames[suggestedPhase] || suggestedPhase }}
                                 </span>
-                                <span v-if="suggestedCycleDay" class="px-3 py-1 bg-indigo-200 text-indigo-900 rounded-full text-sm font-semibold">
+                                <span v-if="suggestedCycleDay" class="rounded-full border border-indigo-300 bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-900">
                                     Día {{ suggestedCycleDay }} del ciclo
                                 </span>
                             </div>
                             <button
                                 type="button"
                                 @click="useSuggested"
-                                class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
+                                class="mt-3 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
                             >
                                 Usar Sugerencias
                             </button>
@@ -136,8 +136,8 @@ const phaseNames: Record<string, string> = {
                     </div>
                 </div>
 
-                <div class="relative overflow-hidden rounded-2xl bg-white border-2 border-pink-200 shadow-xl">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full -mr-20 -mt-20"></div>
+                <div class="feminine-panel relative overflow-hidden border border-rose-100/80 p-0 shadow-[0_18px_45px_rgba(236,72,153,0.12)]">
+                    <div class="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-rose-200/35 to-fuchsia-200/30 blur-sm"></div>
                     <div class="relative p-8">
                         <form @submit.prevent="submit">
                             <!-- Primera fila: Fecha y Día del ciclo -->
@@ -147,7 +147,7 @@ const phaseNames: Record<string, string> = {
                                     <TextInput
                                         id="date"
                                         type="date"
-                                        class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                        class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                         v-model="form.date"
                                         required
                                     />
@@ -161,7 +161,7 @@ const phaseNames: Record<string, string> = {
                                         type="number"
                                         min="1"
                                         max="35"
-                                        class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                        class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                         :value="form.cycle_day?.toString() || ''"
                                         @input="form.cycle_day = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                         placeholder="Auto-calculado"
@@ -175,7 +175,7 @@ const phaseNames: Record<string, string> = {
                                 <InputLabel for="phase" value="Fase" class="text-pink-800 font-semibold mb-2" />
                                 <select
                                     id="phase"
-                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                    class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                     v-model="form.phase"
                                 >
                                     <option value="">Seleccionar (se calculará automáticamente si se deja vacío)...</option>
@@ -199,20 +199,20 @@ const phaseNames: Record<string, string> = {
                                             'px-4 py-3 rounded-xl text-sm font-semibold transition-all border-2 flex flex-col items-center gap-1',
                                             selectedSymptoms.includes(symptom.value)
                                                 ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-md transform scale-105'
-                                                : 'bg-white dark:bg-gray-700 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-gray-600 hover:bg-pink-50 dark:hover:bg-gray-600 hover:border-pink-300'
+                                                : 'bg-white text-pink-700 border-pink-200 hover:bg-pink-50 hover:border-pink-300'
                                         ]"
                                     >
                                         <span class="text-2xl">{{ symptom.icon }}</span>
                                         <span>{{ symptom.label }}</span>
                                     </button>
                                 </div>
-                                <div v-if="selectedSymptoms.length > 0" class="mt-3 p-3 bg-pink-50 dark:bg-gray-700 rounded-lg">
-                                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Síntomas seleccionados:</p>
+                                <div v-if="selectedSymptoms.length > 0" class="mt-3 rounded-xl border border-pink-200 bg-pink-50 p-3">
+                                    <p class="mb-1 text-xs text-gray-600">Síntomas seleccionados:</p>
                                     <div class="flex flex-wrap gap-2">
                                         <span
                                             v-for="symptom in selectedSymptoms"
                                             :key="symptom"
-                                            class="px-2 py-1 bg-pink-200 dark:bg-pink-800 text-pink-800 dark:text-pink-200 rounded-full text-xs font-semibold"
+                                            class="rounded-full border border-pink-300 bg-pink-100 px-2 py-1 text-xs font-semibold text-pink-800"
                                         >
                                             {{ getSymptomLabel(symptom) }}
                                         </span>
@@ -227,7 +227,7 @@ const phaseNames: Record<string, string> = {
                                     <TextInput
                                         id="mood"
                                         type="text"
-                                        class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-center text-2xl focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                        class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-center text-2xl focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                         v-model="form.mood"
                                         maxlength="2"
                                         placeholder="😊"
@@ -241,7 +241,7 @@ const phaseNames: Record<string, string> = {
                                         type="number"
                                         min="1"
                                         max="5"
-                                        class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                        class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                         :value="form.flow_level?.toString() || ''"
                                         @input="form.flow_level = ($event.target as HTMLInputElement).value ? parseInt(($event.target as HTMLInputElement).value) : null"
                                         placeholder="1 = Ligero, 5 = Abundante"
@@ -255,7 +255,7 @@ const phaseNames: Record<string, string> = {
                                 <InputLabel for="notes" value="Notas" class="text-pink-800 font-semibold mb-2" />
                                 <textarea
                                     id="notes"
-                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 resize-none"
+                                    class="mt-1 block w-full resize-none rounded-2xl border border-rose-200 bg-white/85 px-4 py-3 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                     v-model="form.notes"
                                     rows="4"
                                     placeholder="Notas adicionales sobre cómo te sientes..."
@@ -263,15 +263,15 @@ const phaseNames: Record<string, string> = {
                             </div>
 
                             <!-- Botones -->
-                            <div class="flex items-center justify-end gap-4 pt-4 border-t-2 border-pink-100">
+                            <div class="flex items-center justify-end gap-4 border-t border-rose-100 pt-4">
                                 <Link
                                     :href="route('cycle.index')"
-                                    class="px-6 py-2.5 text-gray-700 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                                    class="rounded-xl px-6 py-2.5 font-semibold text-gray-700 transition-colors hover:bg-rose-50 hover:text-rose-800"
                                 >
                                     Cancelar
                                 </Link>
                                 <PrimaryButton
-                                    class="px-8 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 rounded-lg font-bold shadow-lg"
+                                    class="rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 px-8 py-3 font-bold shadow-lg shadow-rose-400/25 hover:from-rose-600 hover:to-fuchsia-600"
                                     :class="{ 'opacity-25': form.processing }"
                                     :disabled="form.processing"
                                 >

@@ -64,9 +64,13 @@ const moods = [
 
         <div class="py-8">
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
-                <div class="relative overflow-hidden rounded-2xl bg-white shadow-xl border-2 border-pink-200">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-pink-200/30 to-purple-200/30 rounded-full -mr-20 -mt-20"></div>
-                    <form @submit.prevent="submit" class="relative p-8">
+                <div class="feminine-panel relative overflow-hidden p-0">
+                    <div class="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-rose-200/35 to-fuchsia-200/30 blur-sm"></div>
+                    <form @submit.prevent="submit" class="relative space-y-6 p-8">
+                        <div class="rounded-2xl border border-rose-100/80 bg-white/70 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-rose-500">Entrada del día</p>
+                            <p class="mt-1 text-sm text-rose-700">Usa un título corto, elige tu mood y escribe lo más importante que quieras recordar.</p>
+                        </div>
                         <!-- Primera fila: Título y Fecha -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
@@ -82,7 +86,7 @@ const moods = [
                                     type="text"
                                     required
                                     autocomplete="off"
-                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                    class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                     placeholder="¿Qué pasó hoy?"
                                     aria-required="true"
                                     aria-describedby="title-error"
@@ -110,7 +114,7 @@ const moods = [
                                     v-model="form.date"
                                     type="date"
                                     required
-                                    class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50"
+                                    class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 />
                                 <div
                                     v-if="form.errors.date"
@@ -128,21 +132,21 @@ const moods = [
                             >
                                 Estado de Ánimo *
                             </label>
-                            <div class="mb-3 p-3 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-200 rounded-lg">
+                            <div class="mb-3 rounded-xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50 p-3">
                                 <p class="text-sm text-amber-900 font-semibold">
                                     💰 Los estados felices te dan fichitas para Snoopy
                                 </p>
                             </div>
-                            <div class="flex gap-2 flex-wrap bg-gray-50 p-4 rounded-lg border-2 border-pink-100">
+                            <div class="flex flex-wrap gap-2 rounded-2xl border border-rose-100 bg-white/70 p-4">
                                 <button
                                     v-for="mood in moods"
                                     :key="mood"
                                     type="button"
                                     :class="[
-                                        'text-3xl p-2.5 rounded-xl border-2 transition-all transform hover:scale-110 relative',
+                                        'relative rounded-xl border p-2.5 text-3xl transition-all hover:scale-110',
                                         form.mood === mood
-                                            ? 'border-pink-600 bg-gradient-to-br from-pink-200 to-rose-200 shadow-lg scale-110 ring-2 ring-pink-400'
-                                            : 'border-pink-200 hover:border-pink-400 bg-white hover:bg-pink-50',
+                                            ? 'scale-110 border-rose-500 bg-gradient-to-br from-rose-200 to-fuchsia-200 shadow-lg ring-2 ring-rose-300'
+                                            : 'border-rose-200 bg-white hover:border-rose-400 hover:bg-rose-50',
                                         ['😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋', '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗', '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤', '💯', '🔥', '⭐', '🌟', '💫', '✨', '☀️', '🌙'].includes(mood)
                                             ? 'ring-2 ring-yellow-400'
                                             : ''
@@ -181,7 +185,7 @@ const moods = [
                                 rows="8"
                                 required
                                 autocomplete="off"
-                                class="mt-1 block w-full rounded-lg border-2 border-pink-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 resize-none"
+                                class="mt-1 block w-full resize-none rounded-2xl border border-rose-200 bg-white/85 px-4 py-3 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 placeholder="Escribe sobre tu día..."
                                 aria-required="true"
                                 aria-describedby="content-error"
@@ -206,17 +210,17 @@ const moods = [
                         </div>
 
                         <!-- Botones -->
-                        <div class="flex items-center justify-end gap-4 pt-4 border-t-2 border-pink-100">
+                        <div class="flex items-center justify-end gap-4 border-t border-rose-100 pt-4">
                             <a
                                 :href="route('diary.index')"
-                                class="px-6 py-2.5 text-gray-700 hover:text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                                class="rounded-xl px-6 py-2.5 font-semibold text-gray-700 transition-colors hover:bg-rose-50 hover:text-rose-800"
                             >
                                 Cancelar
                             </a>
                             <button
                                 type="submit"
                                 :disabled="form.processing"
-                                class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-pink-500 to-rose-500 border border-transparent rounded-lg font-bold text-white shadow-lg hover:from-pink-600 hover:to-rose-600 hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="inline-flex items-center rounded-xl border border-transparent bg-gradient-to-r from-rose-500 to-fuchsia-500 px-8 py-3 font-bold text-white shadow-lg shadow-rose-400/30 transition-all hover:-translate-y-0.5 hover:from-rose-600 hover:to-fuchsia-600 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <span class="mr-2">💕</span>
                                 <span v-if="form.processing">Guardando...</span>

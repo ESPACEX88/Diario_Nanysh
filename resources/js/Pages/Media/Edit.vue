@@ -45,21 +45,26 @@ const submit = () => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+            <h2 class="bg-gradient-to-r from-rose-600 to-fuchsia-600 bg-clip-text text-2xl font-bold text-transparent">
                 ✏️ Editar Artículo
             </h2>
         </template>
 
-        <div class="py-8">
+        <div class="py-8 sm:py-10">
             <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-pink-100 dark:border-gray-700 p-8">
+                <div class="feminine-panel p-8">
                     <form @submit.prevent="submit">
+                        <div class="mb-6 rounded-2xl border border-rose-100/80 bg-white/70 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-rose-500">Actualiza tu registro</p>
+                            <p class="mt-1 text-sm text-rose-700">Modifica estado, reseña y calificación para mantener tu bitácora cultural al día.</p>
+                        </div>
+
                         <div class="mb-6">
                             <InputLabel for="type" value="Tipo *" />
                             <select
                                 id="type"
                                 v-model="form.type"
-                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                                class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 required
                             >
                                 <option value="book">Libro</option>
@@ -98,7 +103,7 @@ const submit = () => {
                             <InputLabel for="description" value="Descripción" />
                             <textarea
                                 id="description"
-                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                                class="mt-1 block w-full rounded-2xl border border-rose-200 bg-white/85 px-4 py-3 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 v-model="form.description"
                                 rows="4"
                             ></textarea>
@@ -109,7 +114,7 @@ const submit = () => {
                             <select
                                 id="status"
                                 v-model="form.status"
-                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                                class="mt-1 block w-full rounded-xl border border-rose-200 bg-white/85 px-4 py-2.5 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 required
                             >
                                 <option value="want">Quiero ver/leer</option>
@@ -135,7 +140,7 @@ const submit = () => {
                             <InputLabel for="review" value="Reseña" />
                             <textarea
                                 id="review"
-                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                                class="mt-1 block w-full rounded-2xl border border-rose-200 bg-white/85 px-4 py-3 text-gray-900 shadow-sm shadow-rose-500/10 focus:border-rose-400 focus:ring-2 focus:ring-rose-300"
                                 v-model="form.review"
                                 rows="4"
                             ></textarea>
@@ -151,7 +156,7 @@ const submit = () => {
                             />
                         </div>
 
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4 border-t border-rose-100 pt-4">
                             <PrimaryButton
                                 :class="{ 'opacity-25': form.processing }"
                                 :disabled="form.processing"
@@ -160,7 +165,7 @@ const submit = () => {
                             </PrimaryButton>
                             <Link
                                 :href="route('media.index')"
-                                class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold"
+                                class="rounded-xl px-4 py-2 font-semibold text-gray-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
                             >
                                 Cancelar
                             </Link>
