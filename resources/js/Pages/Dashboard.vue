@@ -71,11 +71,13 @@ const petStatus = computed(() => {
     return { text: 'Necesita cuidado urgente', emoji: '😟', color: 'text-red-600' };
 });
 
+type ProgressBarColor = 'rose' | 'purple' | 'blue' | 'green' | 'orange' | 'amber' | 'emerald' | 'fuchsia';
+
 const petProgressBars = computed(() => [
-    { label: 'Felicidad', icon: '💖', value: props.pet.happiness, color: 'rose' },
-    { label: 'Hambre', icon: '🍽️', value: props.pet.hunger, color: 'amber' },
-    { label: 'Energía', icon: '⚡', value: props.pet.energy, color: 'purple' },
-    { label: 'Salud', icon: '💚', value: props.pet.health, color: 'emerald' },
+    { label: 'Felicidad', icon: '💖', value: props.pet.happiness, color: 'rose' as ProgressBarColor },
+    { label: 'Hambre', icon: '🍽️', value: props.pet.hunger, color: 'amber' as ProgressBarColor },
+    { label: 'Energía', icon: '⚡', value: props.pet.energy, color: 'purple' as ProgressBarColor },
+    { label: 'Salud', icon: '💚', value: props.pet.health, color: 'emerald' as ProgressBarColor },
 ]);
 
 const suggestions = computed(() => {
