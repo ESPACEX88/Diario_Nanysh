@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import StatCard from '@/Components/StatCard.vue';
+import AnimatedCounter from '@/Components/AnimatedCounter.vue';
+import ProgressBar from '@/Components/ProgressBar.vue';
+import SkeletonLoader from '@/Components/SkeletonLoader.vue';
 
 interface Props {
     recentEntries: any[];
@@ -43,6 +47,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const isLoading = ref(true);
+
+onMounted(() => {
+    // Simular carga inicial para mostrar skeletons
+    setTimeout(() => {
+        isLoading.value = false;
+    }, 800);
+});
 
 const greeting = computed(() => {
     const hour = new Date().getHours();
@@ -58,6 +70,13 @@ const petStatus = computed(() => {
     if (avg >= 40) return { text: 'Necesita atención', emoji: '😐', color: 'text-orange-600' };
     return { text: 'Necesita cuidado urgente', emoji: '😟', color: 'text-red-600' };
 });
+
+const petProgressBars = computed(() => [
+    { label: 'Felicidad', icon: '💖', value: props.pet.happiness, color: 'rose' },
+    { label: 'Hambre', icon: '🍽️', value: props.pet.hunger, color: 'amber' },
+    { label: 'Energía', icon: '⚡', value: props.pet.energy, color: 'purple' },
+    { label: 'Salud', icon: '💚', value: props.pet.health, color: 'emerald' },
+]);
 
 const suggestions = computed(() => {
     const suggestions = [];
@@ -109,56 +128,66 @@ const statCards = computed(() => [
         title: 'Racha de Días',
         value: props.stats.streak || 0,
         icon: '🔥',
-        gradient: 'from-orange-400 to-red-500',
-        bgGradient: 'from-orange-50 to-red-50',
-        subtitle: props.stats.streak && props.stats.streak > 0 ? '¡Sigue así!' : 'Comienza hoy',
+        trend: props.stats.streak && props.stats.streak > 0 ? 100 : 0,
+        trendLabel: props.stats.streak && props.stats.streak > 0 ? '¡Sigue así!' : 'Comienza hoy',
+        color: 'orange' as const,
         link: route('diary.create'),
     },
     {
         title: 'Entradas del Diario',
         value: props.stats.totalEntries,
         icon: '✨',
-        gradient: 'from-rose-400 to-pink-500',
-        bgGradient: 'from-rose-50 to-pink-50',
-        subtitle: `${props.stats.thisWeekEntries || 0} esta semana`,
+        trend: ((props.stats.thisWeekEntries || 0) / Math.max(props.stats.totalEntries, 1)) * 100,
+        trendLabel: `${props.stats.thisWeekEntries || 0} esta semana`,
+        color: 'rose' as const,
         link: route('diary.index'),
     },
     {
         title: 'Favoritos',
         value: props.stats.favoriteEntries,
         icon: '💖',
-        gradient: 'from-amber-400 to-orange-400',
-        bgGradient: 'from-amber-50 to-orange-50',
-        subtitle: 'Momentos especiales',
+        trend: 0,
+        trendLabel: 'Momentos especiales',
+        color: 'amber' as const,
         link: route('diary.index', { favorite: true }),
     },
     {
         title: 'Tareas Completadas',
         value: props.stats.completedTodosThisWeek || 0,
         icon: '✅',
-        gradient: 'from-green-400 to-emerald-500',
-        bgGradient: 'from-green-50 to-emerald-50',
-        subtitle: 'Esta semana',
+        trend: 0,
+        trendLabel: 'Esta semana',
+        color: 'emerald' as const,
         link: route('todos.index'),
     },
     {
         title: 'Notas',
         value: props.stats.totalNotes,
         icon: '🌸',
-        gradient: 'from-purple-400 to-pink-400',
-        bgGradient: 'from-purple-50 to-pink-50',
-        subtitle: `${props.stats.pinnedNotes} fijadas`,
+        trend: ((props.stats.pinnedNotes || 0) / Math.max(props.stats.totalNotes, 1)) * 100,
+        trendLabel: `${props.stats.pinnedNotes} fijadas`,
+        color: 'purple' as const,
         link: route('notes.index'),
     },
     {
         title: 'Metas Activas',
         value: props.stats.activeGoals,
         icon: '🎀',
-        gradient: 'from-fuchsia-400 to-purple-500',
-        bgGradient: 'from-fuchsia-50 to-purple-50',
-        subtitle: 'En progreso',
+        trend: 0,
+        trendLabel: 'En progreso',
+        color: 'fuchsia' as const,
         link: route('goals.index'),
     },
+]);
+
+const quickActions = computed(() => [
+    { label: 'Nueva Entrada', icon: '✨', route: route('diary.create'), gradient: 'from-rose-50 to-pink-50', hoverGradient: 'hover:from-rose-100 hover:to-pink-100', border: 'hover:border-pink-300' },
+    { label: 'Nueva Tarea', icon: '✅', route: route('todos.create'), gradient: 'from-amber-50 to-orange-50', hoverGradient: 'hover:from-amber-100 hover:to-orange-100', border: 'hover:border-amber-300' },
+    { label: 'Nuevo Evento', icon: '📅', route: route('events.create'), gradient: 'from-purple-50 to-indigo-50', hoverGradient: 'hover:from-purple-100 hover:to-indigo-100', border: 'hover:border-purple-300' },
+    { label: 'Agregar Deseo', icon: '💝', route: route('wishlist.create'), gradient: 'from-pink-50 to-rose-50', hoverGradient: 'hover:from-pink-100 hover:to-rose-100', border: 'hover:border-pink-300' },
+    { label: 'Registrar Sueño', icon: '🌙', route: route('dreams.create'), gradient: 'from-indigo-50 to-purple-50', hoverGradient: 'hover:from-indigo-100 hover:to-purple-100', border: 'hover:border-indigo-300' },
+    { label: 'Minijuegos', icon: '🎰', route: route('minigame.doors'), gradient: 'from-yellow-50 to-orange-50', hoverGradient: 'hover:from-yellow-100 hover:to-orange-100', border: 'hover:border-yellow-300' },
+    { label: 'Mis Hábitos', icon: '🎯', route: route('habits.index'), gradient: 'from-emerald-50 to-green-50', hoverGradient: 'hover:from-emerald-100 hover:to-green-100', border: 'hover:border-emerald-300' },
 ]);
 
 const toggleTodo = (id: number) => {
@@ -216,44 +245,24 @@ const toggleHabitToday = (id: number) => {
                                                 {{ pet.name }}
                                             </h3>
                                             <p class="mb-3 text-lg font-semibold text-rose-900/80">
-                                                Nivel {{ pet.level }} • 
+                                                Nivel <AnimatedCounter :value="pet.level" :duration="1000" /> • 
                                                 <span :class="petStatus.color" class="font-bold">
                                                     {{ petStatus.emoji }} {{ petStatus.text }}
                                                 </span>
                                             </p>
                                             <div class="grid grid-cols-2 gap-3 mb-3">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="text-xl">💖</span>
-                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
-                                                        <div class="h-2 rounded-full bg-gradient-to-r from-rose-400 to-fuchsia-500 transition-all" :style="{ width: `${pet.happiness}%` }"></div>
+                                                <div v-for="bar in petProgressBars" :key="bar.label" class="flex items-center gap-2">
+                                                    <span class="text-xl">{{ bar.icon }}</span>
+                                                    <div class="flex-1">
+                                                        <ProgressBar :progress="bar.value" :color="bar.color" size="sm" showValue />
                                                     </div>
-                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.happiness }}%</span>
-                                                </div>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="text-xl">🍽️</span>
-                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
-                                                        <div class="h-2 rounded-full bg-gradient-to-r from-pink-400 to-rose-500 transition-all" :style="{ width: `${pet.hunger}%` }"></div>
-                                                    </div>
-                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.hunger }}%</span>
-                                                </div>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="text-xl">⚡</span>
-                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
-                                                        <div class="h-2 rounded-full bg-gradient-to-r from-fuchsia-400 to-purple-500 transition-all" :style="{ width: `${pet.energy}%` }"></div>
-                                                    </div>
-                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.energy }}%</span>
-                                                </div>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="text-xl">💚</span>
-                                                    <div class="flex-1 rounded-full bg-white/70 h-2 ring-1 ring-rose-200/80">
-                                                        <div class="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all" :style="{ width: `${pet.health}%` }"></div>
-                                                    </div>
-                                                    <span class="w-8 text-xs font-bold text-rose-900/70">{{ pet.health }}%</span>
                                                 </div>
                                             </div>
                                             <div class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-2 shadow-lg shadow-rose-500/20">
                                                 <span class="text-xl">🪙</span>
-                                                <span class="font-bold text-white text-lg">{{ pet.coins || 0 }} fichitas</span>
+                                                <span class="font-bold text-white text-lg">
+                                                    <AnimatedCounter :value="pet.coins || 0" :duration="1500" /> fichitas
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -286,10 +295,14 @@ const toggleHabitToday = (id: number) => {
                             </p>
                         </div>
                     </div>
+                    <!-- Skeleton for Quote -->
+                    <div v-else-if="isLoading" class="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-white">
+                        <SkeletonLoader variant="card" class="h-full" />
+                    </div>
                 </div>
 
                 <!-- Smart Suggestions -->
-                <div v-if="suggestions.length > 0" class="space-y-3">
+                <div v-if="suggestions.length > 0 && !isLoading" class="space-y-3">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                         <span class="text-2xl">💡</span>
                         Sugerencias para ti
@@ -311,6 +324,16 @@ const toggleHabitToday = (id: number) => {
                         </Link>
                     </div>
                 </div>
+                <!-- Skeleton for Suggestions -->
+                <div v-else-if="isLoading" class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <SkeletonLoader variant="circular" size="lg" />
+                        <SkeletonLoader variant="text" class="w-48 h-6" />
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <SkeletonLoader v-for="i in 3" :key="i" variant="card" class="h-24" />
+                    </div>
+                </div>
 
                 <!-- Statistics Cards -->
                 <div>
@@ -319,33 +342,17 @@ const toggleHabitToday = (id: number) => {
                         Tus Estadísticas
                     </h3>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <Link
+                        <StatCard
                             v-for="card in statCards"
                             :key="card.title"
+                            :title="card.title"
+                            :value="card.value"
+                            :icon="card.icon"
+                            :trend="card.trend"
+                            :trend-label="card.trendLabel"
+                            :color="card.color"
                             :href="card.link"
-                            class="group relative overflow-hidden rounded-2xl bg-gradient-to-br shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
-                            :class="card.bgGradient"
-                        >
-                            <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" :class="card.gradient"></div>
-                            <div class="relative p-6">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-semibold text-gray-700 mb-1 group-hover:text-white transition-colors">
-                                            {{ card.title }}
-                                        </p>
-                                        <p class="text-4xl font-bold text-gray-900 group-hover:text-white transition-colors">
-                                            {{ card.value }}
-                                        </p>
-                                        <p v-if="card.subtitle" class="text-xs text-gray-600 mt-1 group-hover:text-white/90 transition-colors">
-                                            {{ card.subtitle }}
-                                        </p>
-                                    </div>
-                                    <div class="text-5xl transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
-                                        {{ card.icon }}
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
+                        />
                     </div>
                 </div>
 
@@ -417,54 +424,15 @@ const toggleHabitToday = (id: number) => {
                         </div>
                         <div class="p-5 space-y-3">
                             <Link
-                                :href="route('diary.create')"
-                                class="group flex items-center gap-3 p-4 bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl hover:from-rose-100 hover:to-pink-100 transition-all border-2 border-transparent hover:border-pink-300 hover:shadow-lg transform hover:-translate-y-1"
+                                v-for="action in quickActions"
+                                :key="action.label"
+                                :href="action.route"
+                                class="group flex items-center gap-3 p-4 rounded-xl transition-all border-2 border-transparent hover:shadow-lg transform hover:-translate-y-1"
+                                :class="[action.gradient, action.hoverGradient, action.border]"
                             >
-                                <span class="text-3xl transform group-hover:scale-110 transition-transform">✨</span>
-                                <span class="font-semibold text-gray-700 flex-1">Nueva Entrada</span>
+                                <span class="text-3xl transform group-hover:scale-110 transition-transform">{{ action.icon }}</span>
+                                <span class="font-semibold text-gray-700 flex-1">{{ action.label }}</span>
                             </Link>
-                            <Link
-                                :href="route('todos.create')"
-                                class="group flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl hover:from-amber-100 hover:to-orange-100 transition-all border-2 border-transparent hover:border-amber-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-3xl transform group-hover:scale-110 transition-transform">✅</span>
-                                <span class="font-semibold text-gray-700 flex-1">Nueva Tarea</span>
-                            </Link>
-                            <Link
-                                :href="route('events.create')"
-                                class="group flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl hover:from-purple-100 hover:to-indigo-100 transition-all border-2 border-transparent hover:border-purple-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-3xl transform group-hover:scale-110 transition-transform">📅</span>
-                                <span class="font-semibold text-gray-700 flex-1">Nuevo Evento</span>
-                            </Link>
-                            <Link
-                                :href="route('wishlist.create')"
-                                class="group flex items-center gap-3 p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl hover:from-pink-100 hover:to-rose-100 transition-all border-2 border-transparent hover:border-pink-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-3xl transform group-hover:scale-110 transition-transform">💝</span>
-                                <span class="font-semibold text-gray-700 flex-1">Agregar Deseo</span>
-                            </Link>
-                            <Link
-                                :href="route('dreams.create')"
-                                class="group flex items-center gap-3 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl hover:from-indigo-100 hover:to-purple-100 transition-all border-2 border-transparent hover:border-indigo-300 hover:shadow-lg transform hover:-translate-y-1"
-                            >
-                                <span class="text-3xl transform group-hover:scale-110 transition-transform">🌙</span>
-                                <span class="font-semibold text-gray-700 flex-1">Registrar Sueño</span>
-                            </Link>
-                             <Link
-                                 :href="route('minigame.doors')"
-                                 class="group flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl hover:from-yellow-100 hover:to-orange-100 transition-all border-2 border-transparent hover:border-yellow-300 hover:shadow-lg transform hover:-translate-y-1"
-                             >
-                                 <span class="text-3xl transform group-hover:scale-110 transition-transform">🎰</span>
-                                 <span class="font-semibold text-gray-700 flex-1">Minijuegos</span>
-                             </Link>
-                             <Link
-                                 :href="route('habits.index')"
-                                 class="group flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl hover:from-emerald-100 hover:to-green-100 transition-all border-2 border-transparent hover:border-emerald-300 hover:shadow-lg transform hover:-translate-y-1"
-                             >
-                                 <span class="text-3xl transform group-hover:scale-110 transition-transform">🎯</span>
-                                 <span class="font-semibold text-gray-700 flex-1">Mis Hábitos</span>
-                             </Link>
 
                             <div v-if="activeHabitsQuick && activeHabitsQuick.length > 0" class="pt-2">
                                 <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">Atajos de hábitos</p>
