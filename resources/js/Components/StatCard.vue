@@ -19,6 +19,8 @@ const props = withDefaults(defineProps<StatCardProps>(), {
   trend: 0,
   color: 'rose',
   animated: true,
+  prefix: '',
+  suffix: '',
 });
 
 const colorClasses: Record<string, string> = {
@@ -39,11 +41,11 @@ const trendColor = computed(() => {
 });
 
 const formattedValue = computed(() => {
-  if (typeof props.value === 'number') {
-    const num = props.value.toFixed(0);
-    return `${props.prefix}${num}${props.suffix}`;
-  }
-  return `${props.prefix}${props.value}${props.suffix}`;
+  const numericValue = typeof props.value === 'number'
+    ? props.value
+    : Number(props.value) || 0;
+
+  return `${props.prefix}${numericValue.toFixed(0)}${props.suffix}`;
 });
 </script>
 
