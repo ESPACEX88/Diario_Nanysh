@@ -3,159 +3,536 @@
 namespace App\Services;
 
 use App\Models\Achievement;
+use App\Models\CycleTracking;
+use App\Models\DayCounter;
+use App\Models\DiaryEntry;
+use App\Models\Dream;
+use App\Models\Event;
+use App\Models\FavoriteMeal;
+use App\Models\Habit;
+use App\Models\HabitLog;
+use App\Models\MediaItem;
+use App\Models\Pet;
+use App\Models\Photo;
+use App\Models\Todo;
 use App\Models\User;
 use App\Models\UserAchievement;
-use App\Models\DiaryEntry;
-use App\Models\Todo;
-use Illuminate\Support\Facades\DB;
+use App\Models\WishlistItem;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class AchievementService
 {
+    private const HAPPY_MOODS = [
+        '😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋',
+        '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗',
+        '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤',
+        '💯', '🔥', '⭐', '💫', '☀️', '🌙',
+    ];
+
+    /** @var Collection<string, Achievement>|null */
+    private ?Collection $achievementsByCode = null;
+
+    /** @var array<int, true>|null */
+    private ?array $unlockedIds = null;
+
+    private ?User $currentUser = null;
+
     /**
-     * Verificar y otorgar logros relacionados con el diario
+     * Sincroniza todos los logros del usuario (incluye verificación retroactiva).
+     *
+     * @return Achievement[]
      */
+    public function syncAll(User $user): array
+    {
+        $this->resetContext();
+        $this->loadContext($user);
+
+        $unlocked = [];
+
+        foreach ($this->getChecks() as $check) {
+            $unlocked = array_merge($unlocked, $check($user));
+        }
+
+        return $unlocked;
+    }
+
+    /**
+     * Sincroniza logros de tipos específicos.
+     *
+     * @param  string[]  $types
+     * @return Achievement[]
+     */
+    public function syncTypes(User $user, array $types): array
+    {
+        $this->resetContext();
+        $this->loadContext($user);
+
+        $unlocked = [];
+
+        foreach ($this->getChecks() as $type => $check) {
+            if (in_array($type, $types, true)) {
+                $unlocked = array_merge($unlocked, $check($user));
+            }
+        }
+
+        return $unlocked;
+    }
+
+    /** @deprecated Usar syncTypes($user, ['diary']) */
     public function checkDiaryAchievements(User $user): array
     {
-        $unlocked = [];
-        
-        // Primer entrada
-        $firstEntry = Achievement::where('code', 'first_entry')->first();
-        if ($firstEntry && !$this->hasAchievement($user, $firstEntry->id)) {
-            $entryCount = DiaryEntry::where('user_id', $user->id)->count();
-            if ($entryCount >= 1) {
-                $this->unlockAchievement($user, $firstEntry);
-                $unlocked[] = $firstEntry;
-            }
-        }
-        
-        // Racha de 7 días
-        $weekStreak = Achievement::where('code', 'week_streak')->first();
-        if ($weekStreak && !$this->hasAchievement($user, $weekStreak->id)) {
-            if ($this->checkStreak($user, 7)) {
-                $this->unlockAchievement($user, $weekStreak);
-                $unlocked[] = $weekStreak;
-            }
-        }
-        
-        // Racha de 30 días
-        $monthStreak = Achievement::where('code', 'month_streak')->first();
-        if ($monthStreak && !$this->hasAchievement($user, $monthStreak->id)) {
-            if ($this->checkStreak($user, 30)) {
-                $this->unlockAchievement($user, $monthStreak);
-                $unlocked[] = $monthStreak;
-            }
-        }
-        
-        // Escritora feliz (10 entradas con estados felices)
-        $happyWriter = Achievement::where('code', 'happy_writer')->first();
-        if ($happyWriter && !$this->hasAchievement($user, $happyWriter->id)) {
-            $happyMoods = ['😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋', '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗', '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤', '💯', '🔥', '⭐', '🌟', '💫', '✨', '☀️', '🌙'];
-            $happyEntries = DiaryEntry::where('user_id', $user->id)
-                ->whereIn('mood', $happyMoods)
-                ->count();
-            if ($happyEntries >= 10) {
-                $this->unlockAchievement($user, $happyWriter);
-                $unlocked[] = $happyWriter;
-            }
-        }
-        
-        return $unlocked;
+        return $this->syncTypes($user, ['diary']);
     }
-    
-    /**
-     * Verificar y otorgar logros relacionados con tareas
-     */
+
+    /** @deprecated Usar syncTypes($user, ['todo']) */
     public function checkTodoAchievements(User $user): array
     {
+        return $this->syncTypes($user, ['todo']);
+    }
+
+    /**
+     * @return array<string, callable(User): array>
+     */
+    private function getChecks(): array
+    {
+        return [
+            'diary' => fn (User $user) => $this->checkDiary($user),
+            'todo' => fn (User $user) => $this->checkTodo($user),
+            'habit' => fn (User $user) => $this->checkHabit($user),
+            'pet' => fn (User $user) => $this->checkPet($user),
+            'event' => fn (User $user) => $this->checkEvent($user),
+            'dream' => fn (User $user) => $this->checkDream($user),
+            'media' => fn (User $user) => $this->checkMedia($user),
+            'photo' => fn (User $user) => $this->checkPhoto($user),
+            'cycle' => fn (User $user) => $this->checkCycle($user),
+            'meal' => fn (User $user) => $this->checkMeal($user),
+            'wishlist' => fn (User $user) => $this->checkWishlist($user),
+            'counter' => fn (User $user) => $this->checkCounter($user),
+        ];
+    }
+
+    private function resetContext(): void
+    {
+        $this->achievementsByCode = null;
+        $this->unlockedIds = null;
+        $this->currentUser = null;
+    }
+
+    private function loadContext(User $user): void
+    {
+        $this->currentUser = $user;
+
+        $this->achievementsByCode = Cache::remember(
+            'achievements:all_by_code',
+            now()->addHour(),
+            fn () => Achievement::all()->keyBy('code')
+        );
+
+        $this->unlockedIds = UserAchievement::where('user_id', $user->id)
+            ->pluck('achievement_id')
+            ->flip()
+            ->all();
+    }
+
+    /** @return Achievement[] */
+    private function checkDiary(User $user): array
+    {
         $unlocked = [];
-        
-        // Primera tarea completada
-        $firstTodo = Achievement::where('code', 'first_todo')->first();
-        if ($firstTodo && !$this->hasAchievement($user, $firstTodo->id)) {
-            $completedCount = Todo::where('user_id', $user->id)
-                ->where('is_completed', true)
-                ->count();
-            if ($completedCount >= 1) {
-                $this->unlockAchievement($user, $firstTodo);
-                $unlocked[] = $firstTodo;
-            }
-        }
-        
-        // 10 tareas completadas
-        $todoMaster = Achievement::where('code', 'todo_master')->first();
-        if ($todoMaster && !$this->hasAchievement($user, $todoMaster->id)) {
-            $completedCount = Todo::where('user_id', $user->id)
-                ->where('is_completed', true)
-                ->count();
-            if ($completedCount >= 10) {
-                $this->unlockAchievement($user, $todoMaster);
-                $unlocked[] = $todoMaster;
-            }
-        }
-        
+        $entryCount = DiaryEntry::where('user_id', $user->id)->count();
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'first_entry',
+            $entryCount >= $this->requirement('first_entry', 1)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'diary_entries_10',
+            $entryCount >= $this->requirement('diary_entries_10', 10)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'diary_entries_50',
+            $entryCount >= $this->requirement('diary_entries_50', 50)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'diary_entries_100',
+            $entryCount >= $this->requirement('diary_entries_100', 100)
+        ));
+
+        $favoriteCount = DiaryEntry::where('user_id', $user->id)
+            ->where('is_favorite', true)
+            ->count();
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'favorite_entries_5',
+            $favoriteCount >= $this->requirement('favorite_entries_5', 5)
+        ));
+
+        $happyCount = DiaryEntry::where('user_id', $user->id)
+            ->whereIn('mood', self::HAPPY_MOODS)
+            ->count();
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'happy_writer',
+            $happyCount >= $this->requirement('happy_writer', 10)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'week_streak',
+            $this->hasDiaryStreak($user, $this->requirement('week_streak', 7))
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'month_streak',
+            $this->hasDiaryStreak($user, $this->requirement('month_streak', 30))
+        ));
+
         return $unlocked;
     }
-    
-    /**
-     * Verificar si el usuario tiene un logro
-     */
-    private function hasAchievement(User $user, int $achievementId): bool
+
+    /** @return Achievement[] */
+    private function checkTodo(User $user): array
     {
-        return UserAchievement::where('user_id', $user->id)
-            ->where('achievement_id', $achievementId)
-            ->exists();
+        $unlocked = [];
+        $totalTodos = Todo::where('user_id', $user->id)->count();
+        $completedTodos = Todo::where('user_id', $user->id)
+            ->where('is_completed', true)
+            ->count();
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'first_todo',
+            $totalTodos >= $this->requirement('first_todo', 1)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'todo_completed_10',
+            $completedTodos >= $this->requirement('todo_completed_10', 10)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'todo_master',
+            $completedTodos >= $this->requirement('todo_master', 50)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'todo_completed_100',
+            $completedTodos >= $this->requirement('todo_completed_100', 100)
+        ));
+
+        return $unlocked;
     }
-    
-    /**
-     * Otorgar un logro al usuario
-     */
-    private function unlockAchievement(User $user, Achievement $achievement): void
+
+    /** @return Achievement[] */
+    private function checkHabit(User $user): array
     {
-        UserAchievement::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'achievement_id' => $achievement->id,
-            ],
-            [
-                'unlocked_at' => now(),
-            ]
-        );
-        
-        // Agregar puntos a la mascota si existe
-        $pet = $user->pet;
-        if ($pet) {
-            $pet->coins += $achievement->points;
-            $pet->save();
+        $unlocked = [];
+        $habitsCount = Habit::where('user_id', $user->id)->count();
+        $maxStreak = $this->getMaxHabitStreak($user);
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'habits_created_5',
+            $habitsCount >= $this->requirement('habits_created_5', 5)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'habit_streak_7',
+            $maxStreak >= $this->requirement('habit_streak_7', 7)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'habit_streak_30',
+            $maxStreak >= $this->requirement('habit_streak_30', 30)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'habit_streak_100',
+            $maxStreak >= $this->requirement('habit_streak_100', 100)
+        ));
+
+        return $unlocked;
+    }
+
+    /** @return Achievement[] */
+    private function checkPet(User $user): array
+    {
+        $unlocked = [];
+        $pet = Pet::where('user_id', $user->id)->first();
+
+        if (! $pet) {
+            return $unlocked;
         }
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'snoopy_level_5',
+            $pet->level >= $this->requirement('snoopy_level_5', 5)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'snoopy_level_10',
+            $pet->level >= $this->requirement('snoopy_level_10', 10)
+        ));
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'coins_collector',
+            $pet->coins >= $this->requirement('coins_collector', 1000)
+        ));
+
+        return $unlocked;
     }
-    
-    /**
-     * Verificar racha de días consecutivos
-     */
-    private function checkStreak(User $user, int $days): bool
+
+    /** @return Achievement[] */
+    private function checkEvent(User $user): array
     {
-        $entries = DiaryEntry::where('user_id', $user->id)
-            ->orderBy('date', 'desc')
-            ->limit($days)
-            ->get()
+        $count = Event::where('user_id', $user->id)->count();
+
+        return array_merge(
+            $this->unlockIf('first_event', $count >= $this->requirement('first_event', 1)),
+            $this->unlockIf('events_created_10', $count >= $this->requirement('events_created_10', 10))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkDream(User $user): array
+    {
+        $count = Dream::where('user_id', $user->id)->count();
+
+        return array_merge(
+            $this->unlockIf('first_dream', $count >= $this->requirement('first_dream', 1)),
+            $this->unlockIf('dreams_recorded_20', $count >= $this->requirement('dreams_recorded_20', 20))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkMedia(User $user): array
+    {
+        $total = MediaItem::where('user_id', $user->id)->count();
+        $reviewed = MediaItem::where('user_id', $user->id)
+            ->where(function ($query) {
+                $query->where('status', 'completed')
+                    ->orWhereNotNull('rating')
+                    ->orWhereNotNull('review');
+            })
+            ->count();
+
+        return array_merge(
+            $this->unlockIf('first_media', $total >= $this->requirement('first_media', 1)),
+            $this->unlockIf('media_reviewed_20', $reviewed >= $this->requirement('media_reviewed_20', 20))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkPhoto(User $user): array
+    {
+        $count = Photo::where('user_id', $user->id)->count();
+
+        return array_merge(
+            $this->unlockIf('first_photo', $count >= $this->requirement('first_photo', 1)),
+            $this->unlockIf('photos_uploaded_50', $count >= $this->requirement('photos_uploaded_50', 50))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkCycle(User $user): array
+    {
+        $count = CycleTracking::where('user_id', $user->id)->count();
+
+        return array_merge(
+            $this->unlockIf('first_cycle_tracking', $count >= $this->requirement('first_cycle_tracking', 1)),
+            $this->unlockIf('cycle_tracked_30', $count >= $this->requirement('cycle_tracked_30', 30))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkMeal(User $user): array
+    {
+        $count = FavoriteMeal::where('user_id', $user->id)->count();
+
+        return array_merge(
+            $this->unlockIf('first_meal', $count >= $this->requirement('first_meal', 1)),
+            $this->unlockIf('meals_added_20', $count >= $this->requirement('meals_added_20', 20))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkWishlist(User $user): array
+    {
+        $total = WishlistItem::where('user_id', $user->id)->count();
+        $obtained = WishlistItem::where('user_id', $user->id)
+            ->where('is_obtained', true)
+            ->count();
+
+        return array_merge(
+            $this->unlockIf('first_wishlist', $total >= $this->requirement('first_wishlist', 1)),
+            $this->unlockIf('wishlist_obtained_10', $obtained >= $this->requirement('wishlist_obtained_10', 10))
+        );
+    }
+
+    /** @return Achievement[] */
+    private function checkCounter(User $user): array
+    {
+        $unlocked = [];
+        $counters = DayCounter::where('user_id', $user->id)->get();
+
+        $unlocked = array_merge($unlocked, $this->unlockIf(
+            'first_counter',
+            $counters->count() >= $this->requirement('first_counter', 1)
+        ));
+
+        $hasHundredDays = $counters->contains(
+            fn (DayCounter $counter) => $counter->days_count >= $this->requirement('counter_100_days', 100)
+        );
+
+        $unlocked = array_merge($unlocked, $this->unlockIf('counter_100_days', $hasHundredDays));
+
+        return $unlocked;
+    }
+
+    private function hasDiaryStreak(User $user, int $requiredDays): bool
+    {
+        $dates = DiaryEntry::where('user_id', $user->id)
+            ->select('date')
+            ->distinct()
+            ->orderByDesc('date')
             ->pluck('date')
-            ->map(fn($date) => $date->format('Y-m-d'))
-            ->toArray();
-        
-        if (count($entries) < $days) {
+            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->values()
+            ->all();
+
+        if (count($dates) < $requiredDays) {
             return false;
         }
-        
-        // Verificar que sean días consecutivos
-        $today = now()->format('Y-m-d');
-        for ($i = 0; $i < $days; $i++) {
-            $expectedDate = date('Y-m-d', strtotime("-$i days", strtotime($today)));
-            if (!in_array($expectedDate, $entries)) {
+
+        $anchors = [
+            now()->format('Y-m-d'),
+            now()->subDay()->format('Y-m-d'),
+        ];
+
+        foreach ($anchors as $anchor) {
+            if ($this->hasConsecutiveStreakFromAnchor($dates, $anchor, $requiredDays)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasConsecutiveStreakFromAnchor(array $dates, string $anchor, int $requiredDays): bool
+    {
+        if (! in_array($anchor, $dates, true)) {
+            return false;
+        }
+
+        for ($i = 0; $i < $requiredDays; $i++) {
+            $expected = Carbon::parse($anchor)->subDays($i)->format('Y-m-d');
+            if (! in_array($expected, $dates, true)) {
                 return false;
             }
         }
-        
+
         return true;
     }
-}
 
+    private function getMaxHabitStreak(User $user): int
+    {
+        $logsByHabit = HabitLog::where('user_id', $user->id)
+            ->select('habit_id', 'completed_at')
+            ->get()
+            ->groupBy('habit_id');
+
+        $maxStreak = 0;
+
+        foreach ($logsByHabit as $logs) {
+            $dates = $logs
+                ->pluck('completed_at')
+                ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+                ->unique()
+                ->sort()
+                ->values()
+                ->all();
+
+            $maxStreak = max($maxStreak, $this->longestConsecutiveStreak($dates));
+        }
+
+        return $maxStreak;
+    }
+
+    private function longestConsecutiveStreak(array $sortedDates): int
+    {
+        if (empty($sortedDates)) {
+            return 0;
+        }
+
+        $max = 1;
+        $current = 1;
+
+        for ($i = 1, $count = count($sortedDates); $i < $count; $i++) {
+            $prev = Carbon::parse($sortedDates[$i - 1]);
+            $curr = Carbon::parse($sortedDates[$i]);
+
+            if ($prev->copy()->addDay()->format('Y-m-d') === $curr->format('Y-m-d')) {
+                $current++;
+                $max = max($max, $current);
+            } else {
+                $current = 1;
+            }
+        }
+
+        return $max;
+    }
+
+    private function requirement(string $code, int $fallback): int
+    {
+        $achievement = $this->achievementsByCode?->get($code);
+
+        return $achievement?->requirement_value ?? $fallback;
+    }
+
+    /** @return Achievement[] */
+    private function unlockIf(string $code, bool $condition): array
+    {
+        if (! $condition) {
+            return [];
+        }
+
+        $achievement = $this->achievementsByCode?->get($code);
+
+        if (! $achievement || $this->hasAchievement($achievement->id)) {
+            return [];
+        }
+
+        $this->unlockAchievement($achievement);
+
+        return [$achievement];
+    }
+
+    private function hasAchievement(int $achievementId): bool
+    {
+        return isset($this->unlockedIds[$achievementId]);
+    }
+
+    private function unlockAchievement(Achievement $achievement): void
+    {
+        if (! $this->currentUser) {
+            return;
+        }
+
+        UserAchievement::firstOrCreate(
+            [
+                'user_id' => $this->currentUser->id,
+                'achievement_id' => $achievement->id,
+            ],
+            ['unlocked_at' => now()]
+        );
+
+        $this->unlockedIds[$achievement->id] = true;
+
+        $pet = Pet::where('user_id', $this->currentUser->id)->first();
+        if ($pet) {
+            $pet->increment('coins', $achievement->points);
+        }
+    }
+}

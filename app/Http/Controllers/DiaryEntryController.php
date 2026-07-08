@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\DiaryEntry;
 use App\Models\Tag;
 use App\Models\Pet;
-use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -13,6 +13,8 @@ use Carbon\Carbon;
 
 class DiaryEntryController extends Controller
 {
+    use HandlesAchievements;
+
     /**
      * Display a listing of the resource.
      */
@@ -150,8 +152,7 @@ class DiaryEntryController extends Controller
         }
 
         // Verificar logros
-        $achievementService = new AchievementService();
-        $unlockedAchievements = $achievementService->checkDiaryAchievements(Auth::user());
+        $unlockedAchievements = $this->syncAchievements(['diary', 'pet']);
         
         $message = 'Entrada del diario creada exitosamente.';
         if ($coinsEarned > 0) {
@@ -233,8 +234,11 @@ class DiaryEntryController extends Controller
             $entry->tags()->detach();
         }
 
+        $unlocked = $this->syncAchievements(['diary']);
+        $message = 'Entrada del diario actualizada exitosamente.' . $this->achievementMessage($unlocked);
+
         return redirect()->route('diary.show', $entry->id)
-            ->with('success', 'Entrada del diario actualizada exitosamente.');
+            ->with('success', $message);
     }
 
     /**
@@ -266,6 +270,9 @@ class DiaryEntryController extends Controller
             $message = $entry->is_favorite 
                 ? 'Marcado como favorito.' 
                 : 'Eliminado de favoritos.';
+
+            $unlocked = $this->syncAchievements(['diary']);
+            $message .= $this->achievementMessage($unlocked);
 
             // Si es una petición AJAX/Inertia, devolver JSON
             if (request()->wantsJson() || request()->expectsJson()) {

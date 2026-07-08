@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\DayCounter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,8 @@ use Inertia\Inertia;
 
 class DayCounterController extends Controller
 {
+    use HandlesAchievements;
+
     public function index()
     {
         $counters = DayCounter::where('user_id', Auth::id())
@@ -52,8 +55,10 @@ class DayCounterController extends Controller
         $validated['user_id'] = Auth::id();
         DayCounter::create($validated);
 
+        $unlocked = $this->syncAchievements(['counter']);
+
         return redirect()->route('counters.index')
-            ->with('success', 'Contador creado exitosamente');
+            ->with('success', 'Contador creado exitosamente' . $this->achievementMessage($unlocked));
     }
 
     public function show($id)
@@ -93,8 +98,10 @@ class DayCounterController extends Controller
 
         $counter->update($validated);
 
+        $unlocked = $this->syncAchievements(['counter']);
+
         return redirect()->route('counters.index')
-            ->with('success', 'Contador actualizado');
+            ->with('success', 'Contador actualizado' . $this->achievementMessage($unlocked));
     }
 
     public function destroy($id)

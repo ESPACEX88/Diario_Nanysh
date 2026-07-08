@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Pet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +11,8 @@ use Carbon\Carbon;
 
 class PetController extends Controller
 {
+    use HandlesAchievements;
+
     /**
      * Display the pet.
      */
@@ -86,7 +89,9 @@ class PetController extends Controller
             ? "¡Snoopy está muy feliz! ¡Subió de nivel! 🎉 (Costó {$feedCost} fichitas)" 
             : "¡Snoopy ha comido y está más feliz! 🍽️ (Costó {$feedCost} fichitas). Tienes {$pet->coins} fichitas restantes.";
 
-        return redirect()->route('pet.index')->with('success', $message);
+        $unlocked = $this->syncAchievements(['pet']);
+
+        return redirect()->route('pet.index')->with('success', $message . $this->achievementMessage($unlocked));
     }
 
     /**
@@ -122,7 +127,9 @@ class PetController extends Controller
             ? "¡Snoopy se divirtió mucho! ¡Subió de nivel! 🎉 (Costó {$playCost} fichitas)" 
             : "¡Snoopy se divirtió mucho jugando contigo! 🎮 (Costó {$playCost} fichitas). Tienes {$pet->coins} fichitas restantes.";
 
-        return redirect()->route('pet.index')->with('success', $message);
+        $unlocked = $this->syncAchievements(['pet']);
+
+        return redirect()->route('pet.index')->with('success', $message . $this->achievementMessage($unlocked));
     }
 
     /**
@@ -158,7 +165,9 @@ class PetController extends Controller
             ? "¡Snoopy se siente mucho mejor! ¡Subió de nivel! 🎉 (Costó {$careCost} fichitas)" 
             : "¡Snoopy se siente mucho mejor después de descansar! 💤 (Costó {$careCost} fichitas). Tienes {$pet->coins} fichitas restantes.";
 
-        return redirect()->route('pet.index')->with('success', $message);
+        $unlocked = $this->syncAchievements(['pet']);
+
+        return redirect()->route('pet.index')->with('success', $message . $this->achievementMessage($unlocked));
     }
 
     /**

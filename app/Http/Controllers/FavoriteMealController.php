@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\FavoriteMeal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,8 @@ use Inertia\Inertia;
 
 class FavoriteMealController extends Controller
 {
+    use HandlesAchievements;
+
     public function index(Request $request)
     {
         $query = FavoriteMeal::where('user_id', Auth::id());
@@ -46,8 +49,10 @@ class FavoriteMealController extends Controller
         $validated['user_id'] = Auth::id();
         FavoriteMeal::create($validated);
 
+        $unlocked = $this->syncAchievements(['meal']);
+
         return redirect()->route('meals.index')
-            ->with('success', 'Comida favorita agregada');
+            ->with('success', 'Comida favorita agregada' . $this->achievementMessage($unlocked));
     }
 
     public function show($id)

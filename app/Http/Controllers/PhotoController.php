@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Photo;
 use App\Models\Album;
 use App\Services\ImageService;
@@ -13,6 +14,8 @@ use Inertia\Inertia;
 
 class PhotoController extends Controller
 {
+    use HandlesAchievements;
+
     protected ImageService $imageService;
 
     public function __construct(ImageService $imageService)
@@ -94,8 +97,10 @@ class PhotoController extends Controller
                 'photoable_type' => null,
             ]);
 
+            $unlocked = $this->syncAchievements(['photo']);
+
             return redirect()->route('photos.index')
-                ->with('success', 'Foto subida exitosamente.');
+                ->with('success', 'Foto subida exitosamente.' . $this->achievementMessage($unlocked));
         } catch (\Exception $e) {
             Log::error('Error al subir foto: ' . $e->getMessage(), [
                 'exception' => $e,

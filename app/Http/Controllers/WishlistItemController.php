@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\WishlistItem;
 use App\Models\Pet;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Inertia\Inertia;
 
 class WishlistItemController extends Controller
 {
+    use HandlesAchievements;
+
     public function index(Request $request)
     {
         $query = WishlistItem::where('user_id', Auth::id());
@@ -50,8 +53,10 @@ class WishlistItemController extends Controller
         $validated['user_id'] = Auth::id();
         WishlistItem::create($validated);
 
+        $unlocked = $this->syncAchievements(['wishlist']);
+
         return redirect()->route('wishlist.index')
-            ->with('success', 'Artículo agregado a tu lista de deseos');
+            ->with('success', 'Artículo agregado a tu lista de deseos' . $this->achievementMessage($unlocked));
     }
 
     public function show($id)
@@ -105,8 +110,10 @@ class WishlistItemController extends Controller
             $pet->happiness = min(100, $pet->happiness + 5);
             $pet->save();
 
+            $unlocked = $this->syncAchievements(['wishlist', 'pet']);
+
             return redirect()->route('wishlist.index')
-                ->with('success', "¡Felicidades por obtener tu deseo! 🎉 Ganaste {$coinsEarned} fichitas! 💰");
+                ->with('success', "¡Felicidades por obtener tu deseo! 🎉 Ganaste {$coinsEarned} fichitas! 💰" . $this->achievementMessage($unlocked));
         }
 
         return redirect()->route('wishlist.index')

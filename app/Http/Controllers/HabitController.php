@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Habit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,8 @@ use Inertia\Inertia;
 
 class HabitController extends Controller
 {
+    use HandlesAchievements;
+
     /**
      * Display a listing of the resource.
      */
@@ -58,8 +61,10 @@ class HabitController extends Controller
             'is_active' => true,
         ]);
 
+        $unlocked = $this->syncAchievements(['habit']);
+
         return redirect()->route('habits.show', $habit->id)
-            ->with('success', 'Hábito creado exitosamente.');
+            ->with('success', 'Hábito creado exitosamente.' . $this->achievementMessage($unlocked));
     }
 
     /**

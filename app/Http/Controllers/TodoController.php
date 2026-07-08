@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Todo;
 use App\Models\Pet;
-use App\Services\AchievementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +12,8 @@ use Inertia\Inertia;
 
 class TodoController extends Controller
 {
+    use HandlesAchievements;
+
     public function index(Request $request)
     {
         $query = Todo::where('user_id', Auth::id())
@@ -68,8 +70,10 @@ class TodoController extends Controller
 
         $todo = Todo::create($validated);
 
+        $unlocked = $this->syncAchievements(['todo']);
+
         return redirect()->route('todos.index')
-            ->with('success', 'Tarea creada exitosamente');
+            ->with('success', 'Tarea creada exitosamente' . $this->achievementMessage($unlocked));
     }
 
     public function show($id)
@@ -125,8 +129,7 @@ class TodoController extends Controller
             $pet->increment('happiness', 2);
             
             // Verificar logros
-            $achievementService = new AchievementService();
-            $unlockedAchievements = $achievementService->checkTodoAchievements(Auth::user());
+            $unlockedAchievements = $this->syncAchievements(['todo', 'pet']);
             
             $message = "¡Tarea completada! Snoopy ganó {$coins} fichitas 🎉";
             if (!empty($unlockedAchievements)) {
@@ -218,8 +221,7 @@ class TodoController extends Controller
                 $pet->increment('happiness', 2);
                 
                 // Verificar logros
-                $achievementService = new AchievementService();
-                $unlockedAchievements = $achievementService->checkTodoAchievements(Auth::user());
+                $unlockedAchievements = $this->syncAchievements(['todo', 'pet']);
                 
                 $message = "¡Tarea completada! Snoopy ganó 5 fichitas 🎉";
                 if (!empty($unlockedAchievements)) {

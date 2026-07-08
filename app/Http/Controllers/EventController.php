@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Event;
 use App\Models\Pet;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Carbon\Carbon;
 
 class EventController extends Controller
 {
+    use HandlesAchievements;
+
     public function index(Request $request)
     {
         $query = Event::where('user_id', Auth::id());
@@ -84,8 +87,10 @@ class EventController extends Controller
             $message .= " ¡Ganaste {$coinsEarned} fichitas! 💰";
         }
 
+        $unlocked = $this->syncAchievements(['event', 'pet']);
+
         return redirect()->route('events.index')
-            ->with('success', $message);
+            ->with('success', $message . $this->achievementMessage($unlocked));
     }
 
     public function show($id)

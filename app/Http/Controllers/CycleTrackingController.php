@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\CycleTracking;
 use App\Services\CycleService;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Carbon\Carbon;
 
 class CycleTrackingController extends Controller
 {
+    use HandlesAchievements;
+
     public function index()
     {
         $trackings = CycleTracking::where('user_id', Auth::id())
@@ -72,8 +75,10 @@ class CycleTrackingController extends Controller
             $validated
         );
 
+        $unlocked = $this->syncAchievements(['cycle']);
+
         return redirect()->route('cycle.index')
-            ->with('success', 'Registro guardado exitosamente');
+            ->with('success', 'Registro guardado exitosamente' . $this->achievementMessage($unlocked));
     }
 
     public function show($id)

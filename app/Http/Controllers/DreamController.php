@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Dream;
 use App\Models\Pet;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Carbon\Carbon;
 
 class DreamController extends Controller
 {
+    use HandlesAchievements;
+
     public function index(Request $request)
     {
         $query = Dream::where('user_id', Auth::id())
@@ -71,8 +74,10 @@ class DreamController extends Controller
             $message .= " ¡Ganaste {$coinsEarned} fichitas! 💰";
         }
 
+        $unlocked = $this->syncAchievements(['dream', 'pet']);
+
         return redirect()->route('dreams.index')
-            ->with('success', $message);
+            ->with('success', $message . $this->achievementMessage($unlocked));
     }
 
     public function show($id)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Habit;
 use App\Models\HabitLog;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Carbon\Carbon;
 
 class HabitLogController extends Controller
 {
+    use HandlesAchievements;
+
     /**
      * Toggle habit log for a specific date.
      */
@@ -40,6 +43,8 @@ class HabitLogController extends Controller
             $message = 'Hábito marcado como completado.';
         }
 
-        return back()->with('success', $message);
+        $unlocked = $this->syncAchievements(['habit']);
+
+        return back()->with('success', $message . $this->achievementMessage($unlocked));
     }
 }

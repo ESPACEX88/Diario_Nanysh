@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\MediaItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,8 @@ use Inertia\Inertia;
 
 class MediaItemController extends Controller
 {
+    use HandlesAchievements;
+
     public function index(Request $request)
     {
         $query = MediaItem::where('user_id', Auth::id());
@@ -58,8 +61,10 @@ class MediaItemController extends Controller
 
         MediaItem::create($validated);
 
+        $unlocked = $this->syncAchievements(['media']);
+
         return redirect()->route('media.index')
-            ->with('success', 'Artículo agregado exitosamente');
+            ->with('success', 'Artículo agregado exitosamente' . $this->achievementMessage($unlocked));
     }
 
     public function show($id)
@@ -99,8 +104,10 @@ class MediaItemController extends Controller
 
         $item->update($validated);
 
+        $unlocked = $this->syncAchievements(['media']);
+
         return redirect()->route('media.index')
-            ->with('success', 'Artículo actualizado');
+            ->with('success', 'Artículo actualizado' . $this->achievementMessage($unlocked));
     }
 
     public function destroy($id)

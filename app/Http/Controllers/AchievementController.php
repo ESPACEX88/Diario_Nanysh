@@ -4,31 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Achievement;
 use App\Models\UserAchievement;
-use Illuminate\Http\Request;
+use App\Services\AchievementService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class AchievementController extends Controller
 {
-    public function index()
+    public function index(AchievementService $achievementService)
     {
         $user = Auth::user();
-        
-        // Obtener todos los logros (sin filtrar por código único, mostrar todos)
-        $allAchievements = Achievement::orderBy('type')->orderBy('points')->get();
-        
-        // Obtener logros desbloqueados del usuario
+
+        $newlyUnlocked = $achievementService->syncAll($user);
+
+        $allAchievements = Cache::remember(
+            'achievements:all_list',
+            now()->addHour(),
+            fn () => Achievement::orderBy('type')->orderBy('points')->get()
+        );
+
         $userAchievements = UserAchievement::where('user_id', $user->id)
-            ->with('achievement')
-            ->get()
             ->pluck('achievement_id')
             ->unique()
             ->values()
             ->toArray();
 
-        return Inertia::render('Achievements/Index', [
+        $responseData = [
             'achievements' => $allAchievements,
             'unlockedAchievements' => $userAchievements,
-        ]);
+        ];
+
+        if (! empty($newlyUnlocked)) {
+            $names = collect($newlyUnlocked)->pluck('name')->join(', ');
+            session()->flash('success', "¡Se desbloquearon logros pendientes: {$names}! 🏆");
+        }
+
+        return Inertia::render('Achievements/Index', $responseData);
     }
 }
