@@ -12,17 +12,31 @@ interface Achievement {
     color: string;
     points: number;
     type: string;
+    requirement_value?: number | null;
+}
+
+interface AchievementProgress {
+    current: number;
+    target: number;
+    percent: number;
 }
 
 interface Props {
     achievements: Achievement[];
     unlockedAchievements: number[];
+    progress?: Record<string, AchievementProgress>;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    progress: () => ({}),
+});
 
 const isUnlocked = (achievementId: number) => {
     return props.unlockedAchievements.includes(achievementId);
+};
+
+const getProgress = (code: string): AchievementProgress => {
+    return props.progress[code] ?? { current: 0, target: 1, percent: 0 };
 };
 
 const unlockedCount = computed(() => props.unlockedAchievements.length);
@@ -52,7 +66,7 @@ const totalCount = computed(() => props.achievements.length);
                     <div class="h-4 w-full rounded-full bg-rose-100">
                         <div
                             class="h-4 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 transition-all duration-500"
-                            :style="{ width: `${(unlockedCount / totalCount) * 100}%` }"
+                            :style="{ width: `${totalCount ? (unlockedCount / totalCount) * 100 : 0}%` }"
                         ></div>
                     </div>
                 </div>
@@ -66,11 +80,11 @@ const totalCount = computed(() => props.achievements.length);
                             'rounded-[2rem] border p-6 transition-all',
                             isUnlocked(achievement.id)
                                 ? 'border-rose-200 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 shadow-[0_18px_50px_rgba(236,72,153,0.08)]'
-                                : 'border-rose-100 bg-white/70 opacity-60'
+                                : 'border-rose-100 bg-white/80'
                         ]"
                     >
                         <div class="text-center">
-                            <div class="mb-4 text-6xl" :class="{ 'grayscale': !isUnlocked(achievement.id) }">
+                            <div class="mb-4 text-6xl" :class="{ 'grayscale opacity-70': !isUnlocked(achievement.id) }">
                                 {{ achievement.icon }}
                             </div>
                             <h3 class="mb-2 text-xl font-bold text-rose-950">
@@ -79,7 +93,7 @@ const totalCount = computed(() => props.achievements.length);
                             <p class="mb-4 text-sm text-rose-900/70">
                                 {{ achievement.description }}
                             </p>
-                            <div class="flex items-center justify-center gap-2">
+                            <div class="mb-4 flex items-center justify-center gap-2">
                                 <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
                                     🪙 {{ achievement.points }} puntos
                                 </span>
@@ -90,6 +104,25 @@ const totalCount = computed(() => props.achievements.length);
                                     ✅ Desbloqueado
                                 </span>
                             </div>
+
+                            <!-- Progress per achievement -->
+                            <div class="mt-2 text-left">
+                                <div class="mb-1 flex items-center justify-between text-xs font-semibold text-rose-900/70">
+                                    <span>Progreso</span>
+                                    <span>
+                                        {{ getProgress(achievement.code).current }} / {{ getProgress(achievement.code).target }}
+                                    </span>
+                                </div>
+                                <div class="h-2.5 w-full overflow-hidden rounded-full bg-rose-100">
+                                    <div
+                                        class="h-2.5 rounded-full transition-all duration-500"
+                                        :class="isUnlocked(achievement.id)
+                                            ? 'bg-gradient-to-r from-emerald-400 to-emerald-600'
+                                            : 'bg-gradient-to-r from-rose-400 via-fuchsia-500 to-purple-500'"
+                                        :style="{ width: `${getProgress(achievement.code).percent}%` }"
+                                    ></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -97,4 +130,3 @@ const totalCount = computed(() => props.achievements.length);
         </div>
     </AuthenticatedLayout>
 </template>
-

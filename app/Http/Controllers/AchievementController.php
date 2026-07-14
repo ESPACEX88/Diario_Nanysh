@@ -29,9 +29,12 @@ class AchievementController extends Controller
             ->values()
             ->toArray();
 
+        $progress = $achievementService->getProgress($user);
+
         $responseData = [
             'achievements' => $allAchievements,
             'unlockedAchievements' => $userAchievements,
+            'progress' => $progress,
         ];
 
         if (! empty($newlyUnlocked)) {

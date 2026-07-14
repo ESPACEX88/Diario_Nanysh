@@ -93,6 +93,149 @@ class AchievementService
     }
 
     /**
+     * Progreso actual de cada logro para mostrar en la UI.
+     *
+     * @return array<string, array{current: int, target: int, percent: float}>
+     */
+    public function getProgress(User $user): array
+    {
+        $this->resetContext();
+        $this->loadContext($user);
+
+        $metrics = $this->collectProgressMetrics($user);
+        $progress = [];
+
+        foreach ($this->achievementsByCode ?? [] as $code => $achievement) {
+            $target = max(1, (int) ($achievement->requirement_value ?? 1));
+            $current = min($target, (int) ($metrics[$code] ?? 0));
+
+            $progress[$code] = [
+                'current' => $current,
+                'target' => $target,
+                'percent' => round(($current / $target) * 100, 1),
+            ];
+        }
+
+        return $progress;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function collectProgressMetrics(User $user): array
+    {
+        $entryCount = DiaryEntry::where('user_id', $user->id)->count();
+        $favoriteCount = DiaryEntry::where('user_id', $user->id)->where('is_favorite', true)->count();
+        $happyCount = DiaryEntry::where('user_id', $user->id)->whereIn('mood', self::HAPPY_MOODS)->count();
+        $diaryStreak = $this->getCurrentDiaryStreak($user);
+
+        $totalTodos = Todo::where('user_id', $user->id)->count();
+        $completedTodos = Todo::where('user_id', $user->id)->where('is_completed', true)->count();
+
+        $habitsCount = Habit::where('user_id', $user->id)->count();
+        $maxHabitStreak = $this->getMaxHabitStreak($user);
+
+        $pet = Pet::where('user_id', $user->id)->first();
+        $petLevel = (int) ($pet?->level ?? 0);
+        $petCoins = (int) ($pet?->coins ?? 0);
+
+        $eventsCount = Event::where('user_id', $user->id)->count();
+        $dreamsCount = Dream::where('user_id', $user->id)->count();
+        $mediaTotal = MediaItem::where('user_id', $user->id)->count();
+        $mediaReviewed = MediaItem::where('user_id', $user->id)
+            ->where(function ($query) {
+                $query->where('status', 'completed')
+                    ->orWhereNotNull('rating')
+                    ->orWhereNotNull('review');
+            })
+            ->count();
+        $photosCount = Photo::where('user_id', $user->id)->count();
+        $cycleCount = CycleTracking::where('user_id', $user->id)->count();
+        $mealsCount = FavoriteMeal::where('user_id', $user->id)->count();
+        $wishlistTotal = WishlistItem::where('user_id', $user->id)->count();
+        $wishlistObtained = WishlistItem::where('user_id', $user->id)->where('is_obtained', true)->count();
+        $counters = DayCounter::where('user_id', $user->id)->get();
+        $maxCounterDays = $counters->max(fn (DayCounter $counter) => max(0, $counter->days_count)) ?? 0;
+
+        return [
+            'first_entry' => $entryCount,
+            'diary_entries_10' => $entryCount,
+            'diary_entries_50' => $entryCount,
+            'diary_entries_100' => $entryCount,
+            'favorite_entries_5' => $favoriteCount,
+            'happy_writer' => $happyCount,
+            'week_streak' => $diaryStreak,
+            'month_streak' => $diaryStreak,
+            'first_todo' => $totalTodos,
+            'todo_completed_10' => $completedTodos,
+            'todo_master' => $completedTodos,
+            'todo_completed_100' => $completedTodos,
+            'habits_created_5' => $habitsCount,
+            'habit_streak_7' => $maxHabitStreak,
+            'habit_streak_30' => $maxHabitStreak,
+            'habit_streak_100' => $maxHabitStreak,
+            'snoopy_level_5' => $petLevel,
+            'snoopy_level_10' => $petLevel,
+            'coins_collector' => $petCoins,
+            'first_event' => $eventsCount,
+            'events_created_10' => $eventsCount,
+            'first_dream' => $dreamsCount,
+            'dreams_recorded_20' => $dreamsCount,
+            'first_media' => $mediaTotal,
+            'media_reviewed_20' => $mediaReviewed,
+            'first_photo' => $photosCount,
+            'photos_uploaded_50' => $photosCount,
+            'first_cycle_tracking' => $cycleCount,
+            'cycle_tracked_30' => $cycleCount,
+            'first_meal' => $mealsCount,
+            'meals_added_20' => $mealsCount,
+            'first_wishlist' => $wishlistTotal,
+            'wishlist_obtained_10' => $wishlistObtained,
+            'first_counter' => $counters->count(),
+            'counter_100_days' => (int) $maxCounterDays,
+        ];
+    }
+
+    private function getCurrentDiaryStreak(User $user): int
+    {
+        $dates = DiaryEntry::where('user_id', $user->id)
+            ->select('date')
+            ->distinct()
+            ->orderByDesc('date')
+            ->pluck('date')
+            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($dates === []) {
+            return 0;
+        }
+
+        $anchors = [
+            now()->format('Y-m-d'),
+            now()->subDay()->format('Y-m-d'),
+        ];
+
+        $best = 0;
+
+        foreach ($anchors as $anchor) {
+            if (! in_array($anchor, $dates, true)) {
+                continue;
+            }
+
+            $streak = 0;
+            while (in_array(Carbon::parse($anchor)->subDays($streak)->format('Y-m-d'), $dates, true)) {
+                $streak++;
+            }
+
+            $best = max($best, $streak);
+        }
+
+        return $best;
+    }
+
+    /**
      * @return array<string, callable(User): array>
      */
     private function getChecks(): array
