@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 interface StatCardProps {
   title: string;
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<StatCardProps>(), {
   animated: true,
   prefix: '',
   suffix: '',
+  href: '',
 });
 
 const colorClasses: Record<string, string> = {
@@ -47,11 +49,15 @@ const formattedValue = computed(() => {
 
   return `${props.prefix}${numericValue.toFixed(0)}${props.suffix}`;
 });
+
+const cardClasses = 'group relative block overflow-hidden rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:border-white/90';
 </script>
 
 <template>
-  <div 
-    class="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:border-white/90"
+  <component
+    :is="href ? Link : 'div'"
+    :href="href || undefined"
+    :class="cardClasses"
   >
     <!-- Background gradient -->
     <div 
@@ -102,5 +108,5 @@ const formattedValue = computed(() => {
         :class="colorClasses[color]"
       ></div>
     </div>
-  </div>
+  </component>
 </template>
