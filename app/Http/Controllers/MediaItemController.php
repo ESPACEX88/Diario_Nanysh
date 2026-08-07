@@ -46,7 +46,7 @@ class MediaItemController extends Controller
             'status' => 'required|in:want,in_progress,completed',
             'rating' => 'nullable|integer|min:1|max:5',
             'review' => 'nullable|string',
-            'url' => 'nullable|url',
+            'url' => 'nullable|url|max:2048',
         ]);
 
         $validated['user_id'] = Auth::id();
@@ -91,7 +91,7 @@ class MediaItemController extends Controller
             'status' => 'required|in:want,in_progress,completed',
             'rating' => 'nullable|integer|min:1|max:5',
             'review' => 'nullable|string',
-            'url' => 'nullable|url',
+            'url' => 'nullable|url|max:2048',
         ]);
 
         if ($validated['status'] === 'in_progress' && !$item->started_date) {

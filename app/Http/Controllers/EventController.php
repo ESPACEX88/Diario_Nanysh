@@ -18,14 +18,20 @@ class EventController extends Controller
     {
         $query = Event::where('user_id', Auth::id());
 
-        if ($request->has('start') && $request->has('end')) {
+        if ($request->filled('start') && $request->filled('end')) {
             $query->whereBetween('start_date', [
                 Carbon::parse($request->start),
                 Carbon::parse($request->end),
             ]);
+        } else {
+            // Evitar cargar el historial completo: ventana de 3 meses atrás a 12 adelante
+            $query->whereBetween('start_date', [
+                Carbon::now()->subMonths(3)->startOfDay(),
+                Carbon::now()->addYear()->endOfDay(),
+            ]);
         }
 
-        $events = $query->orderBy('start_date')->get();
+        $events = $query->orderBy('start_date')->paginate(50)->withQueryString();
 
         return Inertia::render('Events/Index', [
             'events' => $events,

@@ -21,7 +21,7 @@ class DiaryEntryController extends Controller
     public function index(Request $request)
     {
         $query = DiaryEntry::where('user_id', Auth::id())
-            ->with(['tags', 'photos'])
+            ->with(['tags'])
             ->orderBy('date', 'desc');
 
         // Filter by favorite
@@ -59,11 +59,9 @@ class DiaryEntryController extends Controller
 
         $entries = $query->paginate(15);
 
-        // Get user's tags for filter
-        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
-        $userTags = Tag::whereHas('diaryEntries', function($q) use ($userEntryIds) {
-            $q->whereIn('diary_entries.id', $userEntryIds);
-        })->orderBy('name')->get();
+        $userTags = Tag::whereHas('diaryEntries', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->orderBy('name')->get(['id', 'name', 'color']);
 
         return Inertia::render('Diary/Index', [
             'entries' => $entries,
@@ -77,11 +75,9 @@ class DiaryEntryController extends Controller
      */
     public function create()
     {
-        // Get user's existing tags
-        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
-        $tags = Tag::whereHas('diaryEntries', function($q) use ($userEntryIds) {
-            $q->whereIn('diary_entries.id', $userEntryIds);
-        })->orderBy('name')->get();
+        $tags = Tag::whereHas('diaryEntries', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->orderBy('name')->get(['id', 'name', 'color']);
 
         return Inertia::render('Diary/Create', [
             'tags' => $tags,
@@ -94,21 +90,20 @@ class DiaryEntryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|min:1|max:255',
             'content' => 'required|string',
             'mood' => 'nullable|string|max:10',
             'date' => 'required|date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'integer|exists:tags,id',
         ]);
 
         // Asegurar que la fecha se guarde correctamente (sin problemas de zona horaria)
-        // Usar la fecha directamente sin parsear para evitar conversiones de zona horaria
         $date = $validated['date'];
-        
-        // Validar que sea una fecha válida en formato Y-m-d
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             $date = Carbon::createFromFormat('Y-m-d', $validated['date'])->format('Y-m-d');
         }
-        
+
         $entry = DiaryEntry::create([
             'user_id' => Auth::id(),
             'title' => $validated['title'],
@@ -117,22 +112,19 @@ class DiaryEntryController extends Controller
             'date' => $date,
         ]);
 
-        // Attach tags
-        if (isset($validated['tags']) && is_array($validated['tags'])) {
+        if (! empty($validated['tags'])) {
             $entry->tags()->sync($validated['tags']);
         }
 
         // Reward coins for happy moods
-        $happyMoods = ['😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋', '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗', '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤', '💯', '🔥', '⭐', '🌟', '💫', '✨', '☀️', '🌙', '⭐', '🌟', '💫', '✨', '☀️', '🌙', '⭐', '🌟', '💫', '✨', '☀️', '🌙'];
-        $sadMoods = ['😢', '😡', '😰', '😨', '😭', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '😤', '😠', '😦', '😧', '😨', '😰', '😱', '😳', '😵', '😶', '😐', '😑', '😯', '😦', '😧', '😨', '😰', '😱', '😳', '😵', '😶', '😐', '😑', '😯'];
-        
+        $happyMoods = ['😊', '😍', '😎', '🥳', '😌', '💖', '✨', '🌟', '💕', '🎉', '🌈', '🦋', '🌸', '🌺', '🌻', '🌷', '🌼', '💐', '🎀', '🎁', '🎈', '🎊', '💝', '💗', '💓', '💞', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜', '🤍', '🤎', '🖤', '💯', '🔥', '⭐', '🌟', '💫', '✨', '☀️', '🌙'];
+
         $mood = $validated['mood'] ?? '😊';
         $coinsEarned = 0;
-        
-        if (in_array($mood, $happyMoods)) {
-            // Give coins for happy moods
-            $coinsEarned = rand(5, 15); // Random coins between 5-15
-            
+
+        if (in_array($mood, $happyMoods, true)) {
+            $coinsEarned = rand(5, 15);
+
             $pet = Pet::firstOrCreate(
                 ['user_id' => Auth::id()],
                 [
@@ -146,20 +138,20 @@ class DiaryEntryController extends Controller
                     'coins' => 0,
                 ]
             );
-            
+
             $pet->coins += $coinsEarned;
             $pet->save();
         }
 
-        // Verificar logros
         $unlockedAchievements = $this->syncAchievements(['diary', 'pet']);
-        
+        $this->forgetDashboardCache();
+
         $message = 'Entrada del diario creada exitosamente.';
         if ($coinsEarned > 0) {
             $message .= " ¡Ganaste {$coinsEarned} fichitas! 💰";
         }
-        
-        if (!empty($unlockedAchievements)) {
+
+        if (! empty($unlockedAchievements)) {
             $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
             $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
         }
@@ -191,11 +183,9 @@ class DiaryEntryController extends Controller
             ->with(['tags', 'photos'])
             ->findOrFail($id);
 
-        // Get user's existing tags
-        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
-        $tags = Tag::whereHas('diaryEntries', function($q) use ($userEntryIds) {
-            $q->whereIn('diary_entries.id', $userEntryIds);
-        })->orderBy('name')->get();
+        $tags = Tag::whereHas('diaryEntries', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->orderBy('name')->get(['id', 'name', 'color']);
 
         return Inertia::render('Diary/Edit', [
             'entry' => $entry,
@@ -212,29 +202,30 @@ class DiaryEntryController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|min:1|max:255',
             'content' => 'required|string',
             'mood' => 'nullable|string|max:10',
             'date' => 'required|date',
+            'tags' => 'nullable|array',
+            'tags.*' => 'integer|exists:tags,id',
         ]);
 
         // Asegurar que la fecha se guarde correctamente (sin problemas de zona horaria)
         $date = $validated['date'];
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             $date = Carbon::createFromFormat('Y-m-d', $validated['date'])->format('Y-m-d');
         }
         $validated['date'] = $date;
 
-        $entry->update($validated);
+        $entry->update(collect($validated)->except('tags')->all());
 
         // Sync tags
-        if (isset($validated['tags'])) {
-            $entry->tags()->sync($validated['tags']);
-        } else {
-            $entry->tags()->detach();
+        if (array_key_exists('tags', $validated)) {
+            $entry->tags()->sync($validated['tags'] ?? []);
         }
 
         $unlocked = $this->syncAchievements(['diary']);
+        $this->forgetDashboardCache();
         $message = 'Entrada del diario actualizada exitosamente.' . $this->achievementMessage($unlocked);
 
         return redirect()->route('diary.show', $entry->id)
@@ -250,6 +241,7 @@ class DiaryEntryController extends Controller
             ->findOrFail($id);
 
         $entry->delete();
+        $this->forgetDashboardCache();
 
         return redirect()->route('diary.index')
             ->with('success', 'Entrada del diario eliminada exitosamente.');
@@ -264,14 +256,15 @@ class DiaryEntryController extends Controller
             $entry = DiaryEntry::where('user_id', Auth::id())
                 ->findOrFail($id);
 
-            $entry->is_favorite = !$entry->is_favorite;
+            $entry->is_favorite = ! $entry->is_favorite;
             $entry->save();
 
-            $message = $entry->is_favorite 
-                ? 'Marcado como favorito.' 
+            $message = $entry->is_favorite
+                ? 'Marcado como favorito.'
                 : 'Eliminado de favoritos.';
 
             $unlocked = $this->syncAchievements(['diary']);
+            $this->forgetDashboardCache();
             $message .= $this->achievementMessage($unlocked);
 
             // Si es una petición AJAX/Inertia, devolver JSON
@@ -279,14 +272,23 @@ class DiaryEntryController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'is_favorite' => $entry->is_favorite
+                    'is_favorite' => $entry->is_favorite,
                 ]);
             }
 
             return back()->with('success', $message);
         } catch (\Exception $e) {
             \Log::error('Error en toggleFavorite: ' . $e->getMessage());
+
             return back()->with('error', 'Error al actualizar el favorito. Por favor, intenta de nuevo.');
         }
+    }
+
+    private function forgetDashboardCache(): void
+    {
+        $userId = Auth::id();
+        \Illuminate\Support\Facades\Cache::forget("dashboard.stats.{$userId}");
+        \Illuminate\Support\Facades\Cache::forget("dashboard.week.{$userId}");
+        \Illuminate\Support\Facades\Cache::forget("statistics_user_{$userId}");
     }
 }

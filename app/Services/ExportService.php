@@ -47,10 +47,10 @@ class ExportService
     {
         $data = [
             'user' => $user,
-            'diary_entries' => $user->diaryEntries()->latest('date')->take(50)->get(),
-            'notes' => $user->notes()->latest()->take(50)->get(),
+            'diary_entries' => $user->diaryEntries()->with('tags')->latest('date')->take(50)->get(),
+            'notes' => $user->notes()->with('tags')->latest()->take(50)->get(),
             'goals' => $user->goals()->get(),
-            'habits' => $user->habits()->with('habitLogs')->get(),
+            'habits' => $user->habits()->get(),
             'gratitudes' => $user->gratitudes()->latest('date')->take(30)->get(),
         ];
 

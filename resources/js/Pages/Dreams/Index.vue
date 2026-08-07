@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 interface Dream {
     id: number;
@@ -14,11 +15,24 @@ interface Dream {
     updated_at?: string;
 }
 
+interface Paginated<T> {
+    data: T[];
+    links?: Array<{ url: string | null; label: string; active: boolean }>;
+}
+
 interface Props {
-    dreams: Dream[];
+    dreams: Paginated<Dream> | Dream[];
 }
 
 const props = defineProps<Props>();
+
+const dreamList = computed<Dream[]>(() =>
+    Array.isArray(props.dreams) ? props.dreams : (props.dreams?.data ?? [])
+);
+
+const paginationLinks = computed(() =>
+    Array.isArray(props.dreams) ? [] : (props.dreams?.links ?? [])
+);
 
 const getTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
@@ -68,9 +82,9 @@ const deleteDream = (id: number) => {
 
         <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="dreams.length > 0" class="max-h-96 overflow-y-auto space-y-3 pr-2">
+                <div v-if="dreamList.length > 0" class="max-h-96 overflow-y-auto space-y-3 pr-2">
                     <div
-                        v-for="dream in dreams"
+                        v-for="dream in dreamList"
                         :key="dream.id"
                         class="group relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 border-2 border-pink-200 dark:border-gray-700 hover:border-pink-400 dark:hover:border-pink-500 transition-all shadow-sm hover:shadow-md"
                     >
@@ -144,7 +158,26 @@ const deleteDream = (id: number) => {
                 </div>
 
                 <div
-                    v-else
+                    v-if="paginationLinks.length > 3"
+                    class="mt-6 flex flex-wrap justify-center gap-2"
+                >
+                    <Link
+                        v-for="link in paginationLinks"
+                        :key="link.label"
+                        :href="link.url || '#'"
+                        :class="[
+                            'rounded-xl border px-4 py-2 font-semibold transition-all',
+                            link.active
+                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-lg'
+                                : 'bg-white/90 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50',
+                            !link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:scale-105'
+                        ]"
+                        v-html="link.label"
+                    />
+                </div>
+
+                <div
+                    v-if="dreamList.length === 0"
                     class="text-center py-20 bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-3xl border-4 border-pink-300 dark:border-gray-700"
                 >
                     <span class="text-8xl block mb-6 animate-pulse">🌙</span>
@@ -164,4 +197,3 @@ const deleteDream = (id: number) => {
         </div>
     </AuthenticatedLayout>
 </template>
-

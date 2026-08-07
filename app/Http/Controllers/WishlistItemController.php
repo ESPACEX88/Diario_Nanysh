@@ -27,7 +27,8 @@ class WishlistItemController extends Controller
 
         $items = $query->orderBy('priority', 'desc')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('Wishlist/Index', [
             'items' => $items,
@@ -46,7 +47,7 @@ class WishlistItemController extends Controller
             'description' => 'nullable|string',
             'category' => 'required|in:product,experience,book,movie,other',
             'price' => 'nullable|numeric|min:0',
-            'url' => 'nullable|url',
+            'url' => 'nullable|url|max:2048',
             'priority' => 'nullable|in:low,medium,high',
         ]);
 
@@ -80,7 +81,7 @@ class WishlistItemController extends Controller
             'description' => 'nullable|string',
             'category' => 'required|in:product,experience,book,movie,other',
             'price' => 'nullable|numeric|min:0',
-            'url' => 'nullable|url',
+            'url' => 'nullable|url|max:2048',
             'priority' => 'nullable|in:low,medium,high',
             'is_obtained' => 'boolean',
             'obtained_date' => 'nullable|date',

@@ -145,37 +145,49 @@ class DashboardController extends Controller
     }
 
     /**
-     * Calculate writing streak for user.
+     * Calculate writing streak for user with a single query.
      */
     private function calculateStreak($userId): int
     {
-        $streak = 0;
-        $checkDate = Carbon::today();
-        
-        // Si hoy no hay entrada, empezar desde ayer
-        $todayEntry = DiaryEntry::where('user_id', $userId)
-            ->whereDate('date', $checkDate)
-            ->exists();
-        
-        if (!$todayEntry) {
-            $checkDate->subDay();
+        $dates = DiaryEntry::where('user_id', $userId)
+            ->select('date')
+            ->distinct()
+            ->orderByDesc('date')
+            ->limit(120)
+            ->pluck('date')
+            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($dates === []) {
+            return 0;
         }
-        
-        // Contar días consecutivos hacia atrás (máximo 100 para evitar loops infinitos)
-        $maxIterations = 100;
-        while ($maxIterations-- > 0) {
-            $hasEntry = DiaryEntry::where('user_id', $userId)
-                ->whereDate('date', $checkDate)
-                ->exists();
-            
-            if ($hasEntry) {
-                $streak++;
-                $checkDate->subDay();
-            } else {
-                break;
+
+        $dateSet = array_flip($dates);
+        $anchors = [
+            Carbon::today()->format('Y-m-d'),
+            Carbon::yesterday()->format('Y-m-d'),
+        ];
+
+        $best = 0;
+
+        foreach ($anchors as $anchor) {
+            if (! isset($dateSet[$anchor])) {
+                continue;
             }
+
+            $streak = 0;
+            $cursor = Carbon::parse($anchor);
+
+            while (isset($dateSet[$cursor->format('Y-m-d')]) && $streak < 100) {
+                $streak++;
+                $cursor->subDay();
+            }
+
+            $best = max($best, $streak);
         }
-        
-        return $streak;
+
+        return $best;
     }
 }

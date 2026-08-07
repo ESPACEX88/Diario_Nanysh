@@ -14,8 +14,14 @@ interface Todo {
     category?: string;
 }
 
+interface Paginated<T> {
+    data: T[];
+    links?: Array<{ url: string | null; label: string; active: boolean }>;
+}
+
 interface Props {
-    todos: Todo[];
+    todos: Paginated<Todo> | Todo[];
+    categories?: string[];
     filters?: {
         search?: string;
         category?: string;
@@ -30,50 +36,38 @@ const selectedCategory = ref(props.filters?.category || '');
 const showCompleted = ref(true);
 const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
-// Obtener todas las categorías únicas
+const todoList = computed<Todo[]>(() =>
+    Array.isArray(props.todos) ? props.todos : (props.todos?.data ?? [])
+);
+
+const paginationLinks = computed(() =>
+    Array.isArray(props.todos) ? [] : (props.todos?.links ?? [])
+);
+
 const categories = computed(() => {
-    const cats = props.todos
+    if (props.categories?.length) {
+        return [...props.categories].sort();
+    }
+
+    const cats = todoList.value
         .map(t => t.category)
         .filter((cat): cat is string => !!cat);
     return [...new Set(cats)].sort();
 });
 
-// Filtrar tareas
-const filteredTodos = computed(() => {
-    let filtered = [...props.todos];
-
-    // Filtro de búsqueda
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        filtered = filtered.filter(t => 
-            t.title.toLowerCase().includes(query) ||
-            (t.description && t.description.toLowerCase().includes(query)) ||
-            (t.category && t.category.toLowerCase().includes(query))
-        );
-    }
-
-    // Filtro por categoría
-    if (selectedCategory.value) {
-        filtered = filtered.filter(t => t.category === selectedCategory.value);
-    }
-
-    return filtered;
-});
-
-const pendingTodos = computed(() => 
-    filteredTodos.value.filter(t => !t.is_completed)
+const pendingTodos = computed(() =>
+    todoList.value.filter(t => !t.is_completed)
 );
 
-const completedTodos = computed(() => 
-    filteredTodos.value.filter(t => t.is_completed)
+const completedTodos = computed(() =>
+    todoList.value.filter(t => t.is_completed)
 );
 
-// Debounce search
-watch(searchQuery, (newValue) => {
+watch(searchQuery, () => {
     if (searchTimeout.value) {
         clearTimeout(searchTimeout.value);
     }
-    
+
     searchTimeout.value = setTimeout(() => {
         applyFilters();
     }, 500);
@@ -149,7 +143,6 @@ const getPriorityColor = (priority: string) => {
 
         <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                <!-- Search and Filters -->
                 <div class="mb-6 space-y-4">
                     <div class="flex flex-col sm:flex-row gap-3">
                         <div class="flex-1 relative">
@@ -210,7 +203,6 @@ const getPriorityColor = (priority: string) => {
                     </div>
                 </div>
 
-                <!-- Pending Todos -->
                 <div v-if="pendingTodos.length > 0" class="mb-6">
                     <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                         <span>⏳</span>
@@ -267,7 +259,6 @@ const getPriorityColor = (priority: string) => {
                     </div>
                 </div>
 
-                <!-- Completed Todos -->
                 <div v-if="completedTodos.length > 0" class="mb-6">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
@@ -315,9 +306,27 @@ const getPriorityColor = (priority: string) => {
                     </div>
                 </div>
 
-                <!-- Empty State -->
+                <div
+                    v-if="paginationLinks.length > 3"
+                    class="mb-6 flex flex-wrap justify-center gap-2"
+                >
+                    <Link
+                        v-for="link in paginationLinks"
+                        :key="link.label"
+                        :href="link.url || '#'"
+                        :class="[
+                            'rounded-xl border px-4 py-2 font-semibold transition-all',
+                            link.active
+                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-lg'
+                                : 'bg-white/90 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50',
+                            !link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:scale-105'
+                        ]"
+                        v-html="link.label"
+                    />
+                </div>
+
                 <EmptyState
-                    v-if="filteredTodos.length === 0"
+                    v-if="todoList.length === 0"
                     icon="📝"
                     :title="searchQuery || selectedCategory ? 'No se encontraron tareas' : 'No hay tareas aún'"
                     :description="searchQuery || selectedCategory ? 'Intenta con otros filtros o crea una nueva tarea.' : 'Crea tu primera tarea para comenzar a organizarte'"
@@ -328,4 +337,3 @@ const getPriorityColor = (priority: string) => {
         </div>
     </AuthenticatedLayout>
 </template>
-

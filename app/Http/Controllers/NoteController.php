@@ -16,6 +16,7 @@ class NoteController extends Controller
     public function index()
     {
         $notes = Note::where('user_id', Auth::id())
+            ->with(['tags'])
             ->orderBy('is_pinned', 'desc')
             ->orderBy('order', 'asc')
             ->orderBy('created_at', 'desc')
@@ -40,7 +41,7 @@ class NoteController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|min:1|max:255',
             'content' => 'nullable|string',
             'category' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:7',
@@ -102,6 +103,7 @@ class NoteController extends Controller
     public function edit(string $id)
     {
         $note = Note::where('user_id', Auth::id())
+            ->with(['tags'])
             ->findOrFail($id);
 
         return Inertia::render('Notes/Edit', [

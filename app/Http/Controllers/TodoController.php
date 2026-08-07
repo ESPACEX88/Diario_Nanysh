@@ -38,10 +38,18 @@ class TodoController extends Controller
             $query->where('category', $request->category);
         }
 
-        $todos = $query->get();
+        $todos = $query->paginate(30)->withQueryString();
+
+        $categories = Todo::where('user_id', Auth::id())
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
 
         return Inertia::render('Todos/Index', [
             'todos' => $todos,
+            'categories' => $categories,
             'filters' => [
                 'search' => $request->input('search', ''),
                 'category' => $request->input('category', ''),

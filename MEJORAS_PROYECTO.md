@@ -25,41 +25,18 @@
 
 ### **Alta Prioridad**
 
-#### 1. **Optimización de Queries (N+1 Problem)**
+#### 1. **Optimización de Queries (N+1 Problem)** — ✅ Resuelto
 
-**Problema**: Varios controladores no usan eager loading, causando múltiples queries innecesarios.
+- Eager loading en notas, diario, fotos y exportación PDF
+- Streak del dashboard en una sola query (sin loop N+1)
+- Hábitos: index sin cargar todos los logs; show con conteos SQL
+- Tags del usuario vía `whereHas(user_id)` sin `pluck` masivo
+- Invalidación de caché del dashboard al mutar entradas
 
-**Archivos afectados**:
-- `NoteController::show()` - falta eager loading de tags
-- `DiaryEntryController::index()` - mejorar eager loading
-- `DreamController::index()` - sin paginación
+#### 2. **Paginación Faltante** — ✅ Resuelto
 
-**Solución**:
-```php
-// En lugar de:
-$note = Note::where('user_id', Auth::id())->findOrFail($id);
-
-// Usar:
-$note = Note::where('user_id', Auth::id())
-    ->with(['tags'])
-    ->findOrFail($id);
-```
-
-#### 2. **Paginación Faltante**
-
-**Archivos que usan `get()` en lugar de `paginate()`**:
-- `DreamController::index()` - puede crecer indefinidamente
-- `FavoriteMealController::index()` - sin paginación
-- `MediaItemController::index()` - sin paginación
-
-**Solución**:
-```php
-// Cambiar de:
-$dreams = $query->get();
-
-// A:
-$dreams = $query->paginate(20);
-```
+- Sueños, comidas, media, todos, wishlist y eventos paginados
+- Frontends alineados para consumir `{ data, links }`
 
 #### 3. **Validación de Entrada Mejorada**
 

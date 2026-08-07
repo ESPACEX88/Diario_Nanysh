@@ -16,18 +16,31 @@ interface WishlistItem {
     obtained_date?: string;
 }
 
+interface Paginated<T> {
+    data: T[];
+    links?: Array<{ url: string | null; label: string; active: boolean }>;
+}
+
 interface Props {
-    items: WishlistItem[];
+    items: Paginated<WishlistItem> | WishlistItem[];
 }
 
 const props = defineProps<Props>();
 
-const pendingItems = computed(() => 
-    props.items.filter(item => !item.is_obtained)
+const itemList = computed<WishlistItem[]>(() =>
+    Array.isArray(props.items) ? props.items : (props.items?.data ?? [])
 );
 
-const obtainedItems = computed(() => 
-    props.items.filter(item => item.is_obtained)
+const paginationLinks = computed(() =>
+    Array.isArray(props.items) ? [] : (props.items?.links ?? [])
+);
+
+const pendingItems = computed(() =>
+    itemList.value.filter(item => !item.is_obtained)
+);
+
+const obtainedItems = computed(() =>
+    itemList.value.filter(item => item.is_obtained)
 );
 
 const getCategoryIcon = (category: string) => {
@@ -182,9 +195,28 @@ const cancelDelete = () => {
                     </div>
                 </div>
 
+                <div
+                    v-if="paginationLinks.length > 3"
+                    class="flex flex-wrap justify-center gap-2"
+                >
+                    <Link
+                        v-for="link in paginationLinks"
+                        :key="link.label"
+                        :href="link.url || '#'"
+                        :class="[
+                            'rounded-xl border px-4 py-2 font-semibold transition-all',
+                            link.active
+                                ? 'bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white border-rose-600 shadow-lg'
+                                : 'bg-white/90 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50',
+                            !link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:scale-105'
+                        ]"
+                        v-html="link.label"
+                    />
+                </div>
+
                 <!-- Empty State -->
                 <div
-                    v-if="items.length === 0"
+                    v-if="itemList.length === 0"
                     class="rounded-[2rem] border border-rose-100/80 bg-gradient-to-br from-white via-rose-50 to-fuchsia-50 px-6 py-20 text-center shadow-[0_24px_70px_rgba(236,72,153,0.12)]"
                 >
                     <div class="relative">

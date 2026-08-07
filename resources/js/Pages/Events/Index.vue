@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 interface Event {
     id: number;
@@ -12,11 +13,24 @@ interface Event {
     color: string;
 }
 
-interface Props {
-    events: Event[];
+interface Paginated<T> {
+    data: T[];
+    links?: Array<{ url: string | null; label: string; active: boolean }>;
 }
 
-defineProps<Props>();
+interface Props {
+    events: Paginated<Event> | Event[];
+}
+
+const props = defineProps<Props>();
+
+const eventList = computed<Event[]>(() =>
+    Array.isArray(props.events) ? props.events : (props.events?.data ?? [])
+);
+
+const paginationLinks = computed(() =>
+    Array.isArray(props.events) ? [] : (props.events?.links ?? [])
+);
 </script>
 
 <template>
@@ -39,9 +53,9 @@ defineProps<Props>();
 
         <div class="py-4">
             <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="events.length > 0" class="max-h-96 overflow-y-auto space-y-2 pr-2">
+                <div v-if="eventList.length > 0" class="max-h-96 overflow-y-auto space-y-2 pr-2">
                     <div
-                        v-for="event in events"
+                        v-for="event in eventList"
                         :key="event.id"
                         class="bg-white rounded-lg shadow-sm border-l-4 p-3 hover:shadow-md transition-all"
                         :style="{ borderLeftColor: event.color || '#EC4899' }"
@@ -77,7 +91,26 @@ defineProps<Props>();
                 </div>
 
                 <div
-                    v-else
+                    v-if="paginationLinks.length > 3"
+                    class="mt-6 flex flex-wrap justify-center gap-2"
+                >
+                    <Link
+                        v-for="link in paginationLinks"
+                        :key="link.label"
+                        :href="link.url || '#'"
+                        :class="[
+                            'rounded-xl border px-4 py-2 font-semibold transition-all',
+                            link.active
+                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-lg'
+                                : 'bg-white/90 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50',
+                            !link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:scale-105'
+                        ]"
+                        v-html="link.label"
+                    />
+                </div>
+
+                <div
+                    v-if="eventList.length === 0"
                     class="text-center py-16 bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border-2 border-pink-200"
                 >
                     <span class="text-6xl block mb-4">📅</span>
@@ -94,4 +127,3 @@ defineProps<Props>();
         </div>
     </AuthenticatedLayout>
 </template>
-

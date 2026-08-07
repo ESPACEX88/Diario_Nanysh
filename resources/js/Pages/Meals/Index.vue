@@ -15,11 +15,24 @@ interface Meal {
     servings?: number;
 }
 
+interface Paginated<T> {
+    data: T[];
+    links?: Array<{ url: string | null; label: string; active: boolean }>;
+}
+
 interface Props {
-    meals: Meal[];
+    meals: Paginated<Meal> | Meal[];
 }
 
 const props = defineProps<Props>();
+
+const mealList = computed<Meal[]>(() =>
+    Array.isArray(props.meals) ? props.meals : (props.meals?.data ?? [])
+);
+
+const paginationLinks = computed(() =>
+    Array.isArray(props.meals) ? [] : (props.meals?.links ?? [])
+);
 
 const getTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
@@ -33,21 +46,9 @@ const getTypeIcon = (type: string) => {
     return icons[type] || '🍽️';
 };
 
-const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-        breakfast: 'from-yellow-400 to-orange-400',
-        lunch: 'from-green-400 to-emerald-400',
-        dinner: 'from-purple-400 to-indigo-400',
-        snack: 'from-pink-400 to-rose-400',
-        dessert: 'from-pink-500 to-rose-500',
-        drink: 'from-blue-400 to-cyan-400',
-    };
-    return colors[type] || 'from-pink-400 to-rose-400';
-};
-
 const mealsByType = computed(() => {
     const grouped: Record<string, Meal[]> = {};
-    props.meals.forEach(meal => {
+    mealList.value.forEach(meal => {
         if (!grouped[meal.type]) {
             grouped[meal.type] = [];
         }
@@ -99,7 +100,7 @@ const cancelDelete = () => {
 
         <div class="py-8">
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="meals.length > 0">
+                <div v-if="mealList.length > 0">
                     <div
                         v-for="(meals, type) in mealsByType"
                         :key="type"
@@ -151,6 +152,25 @@ const cancelDelete = () => {
                             </div>
                         </div>
                     </div>
+
+                    <div
+                        v-if="paginationLinks.length > 3"
+                        class="mt-6 flex flex-wrap justify-center gap-2"
+                    >
+                        <Link
+                            v-for="link in paginationLinks"
+                            :key="link.label"
+                            :href="link.url || '#'"
+                            :class="[
+                                'rounded-xl border px-4 py-2 font-semibold transition-all',
+                                link.active
+                                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-600 shadow-lg'
+                                    : 'bg-white/90 text-gray-700 border-rose-200 hover:border-rose-400 hover:bg-rose-50',
+                                !link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:scale-105'
+                            ]"
+                            v-html="link.label"
+                        />
+                    </div>
                 </div>
 
                 <div
@@ -185,4 +205,3 @@ const cancelDelete = () => {
         />
     </AuthenticatedLayout>
 </template>
-

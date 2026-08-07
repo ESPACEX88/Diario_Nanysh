@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tag;
-use App\Models\DiaryEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -32,13 +31,11 @@ class TagController extends Controller
      */
     public function userTags()
     {
-        $userEntryIds = DiaryEntry::where('user_id', Auth::id())->pluck('id');
-        
-        $tags = Tag::whereHas('diaryEntries', function($query) use ($userEntryIds) {
-            $query->whereIn('diary_entries.id', $userEntryIds);
-        })->withCount(['diaryEntries' => function($query) use ($userEntryIds) {
-            $query->whereIn('diary_entries.id', $userEntryIds);
-        }])->orderBy('name')->get();
+        $tags = Tag::whereHas('diaryEntries', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->withCount(['diaryEntries' => function ($query) {
+            $query->where('user_id', Auth::id());
+        }])->orderBy('name')->get(['id', 'name', 'color']);
 
         return response()->json($tags);
     }
