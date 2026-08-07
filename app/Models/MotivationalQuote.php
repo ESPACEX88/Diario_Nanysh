@@ -23,9 +23,9 @@ class MotivationalQuote extends Model
 
     public static function getDailyQuote(): ?self
     {
-        $cacheKey = 'motivational_quote.daily.' . now()->toDateString();
+        $cacheKey = 'motivational_quote.daily_id.' . now()->toDateString();
 
-        return Cache::remember($cacheKey, now()->endOfDay(), function () {
+        $quoteId = Cache::remember($cacheKey, now()->endOfDay(), function () {
             $dayOfYear = now()->dayOfYear;
             $totalQuotes = self::where('is_active', true)->count();
 
@@ -37,7 +37,9 @@ class MotivationalQuote extends Model
 
             return self::where('is_active', true)
                 ->skip($quoteIndex)
-                ->first();
+                ->value('id');
         });
+
+        return $quoteId ? self::find($quoteId) : null;
     }
 }
