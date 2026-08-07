@@ -38,46 +38,29 @@
 - Sueños, comidas, media, todos, wishlist y eventos paginados
 - Frontends alineados para consumir `{ data, links }`
 
-#### 3. **Validación de Entrada Mejorada**
+#### 3. **Validación de Entrada Mejorada** — Parcial
 
-**Problema**: Algunas validaciones son muy permisivas.
+Se endurecieron validaciones de `tags`, `url|max:2048` y títulos en rutas críticas.
 
-**Recomendaciones**:
-```php
-// Agregar validaciones más estrictas
-'email' => 'required|email:rfc,dns|max:255',
-'url' => 'nullable|url|max:2048',
-'title' => 'required|string|min:3|max:255',
-```
+#### 4. **Índices de Base de Datos** — ✅ Ya existen
 
-#### 4. **Índices de Base de Datos**
+Ver migraciones `*_add_performance_indexes*`. La búsqueda del diario ahora usa full-text en PostgreSQL.
 
-**Índices faltantes que mejorarían el rendimiento**:
-```php
-// En migraciones
-$table->index(['user_id', 'created_at']);
-$table->index(['user_id', 'is_favorite']);
-$table->index(['user_id', 'is_completed']);
-$table->index('date'); // Para queries por fecha
-```
+#### 5. **Caché** — ✅ Sin Redis (driver database/file)
 
----
+- Stats dashboard/semana cacheadas
+- Invalidación compartida vía `App\Support\UserCache` en diario, notas, todos, metas, hábitos y gratitud
+- Quote diaria cacheada hasta fin de día
+- **No se usa Redis** (costo); el plan gratuito mantiene `CACHE_DRIVER=database`
 
-### **Media Prioridad**
+#### Rendimiento adicional (2026-08)
 
-#### 5. **Caché para Queries Frecuentes**
-
-**Dashboard tiene muchas queries que podrían cachearse**:
-```php
-// En DashboardController
-$stats = Cache::remember("user.{$user->id}.stats", 300, function() use ($user) {
-    return [
-        'totalEntries' => DiaryEntry::where('user_id', $user->id)->count(),
-        // ...
-    ];
-});
-```
-
+- `AchievementService`: lookbacks limitados + memoización por request
+- Export JSON acotado; CSV con `cursor()`
+- Word cloud sobre últimas 200 entradas
+- Lista del diario con excerpt de contenido
+- Pet: save solo si `decreaseStats()` cambió atributos
+- Workout streak con ventana de 120 días
 #### 6. **Componentes Vue Reutilizables**
 
 **Crear componentes para**:

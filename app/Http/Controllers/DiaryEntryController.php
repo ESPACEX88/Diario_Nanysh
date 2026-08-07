@@ -6,8 +6,10 @@ use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\DiaryEntry;
 use App\Models\Tag;
 use App\Models\Pet;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
@@ -29,12 +31,21 @@ class DiaryEntryController extends Controller
             $query->where('is_favorite', true);
         }
 
-        // Search
-        if ($request->has('search') && $request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('content', 'like', '%' . $request->search . '%');
-            });
+        // Search (full-text en PostgreSQL; LIKE como fallback)
+        if ($request->filled('search')) {
+            $search = trim((string) $request->search);
+
+            if (config('database.default') === 'pgsql') {
+                $query->whereRaw(
+                    "to_tsvector('spanish', coalesce(title, '') || ' ' || coalesce(content, '')) @@ plainto_tsquery('spanish', ?)",
+                    [$search]
+                );
+            } else {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('content', 'like', '%' . $search . '%');
+                });
+            }
         }
 
         // Filter by tag
@@ -57,7 +68,16 @@ class DiaryEntryController extends Controller
             $query->where('mood', $request->mood);
         }
 
-        $entries = $query->paginate(15);
+        $entries = $query
+            ->select(['id', 'user_id', 'title', 'content', 'mood', 'date', 'is_favorite', 'created_at'])
+            ->paginate(15)
+            ->withQueryString();
+
+        $entries->getCollection()->transform(function (DiaryEntry $entry) {
+            $entry->setAttribute('content', Str::limit(strip_tags((string) $entry->content), 280));
+
+            return $entry;
+        });
 
         $userTags = Tag::whereHas('diaryEntries', function ($q) {
             $q->where('user_id', Auth::id());
@@ -144,7 +164,7 @@ class DiaryEntryController extends Controller
         }
 
         $unlockedAchievements = $this->syncAchievements(['diary', 'pet']);
-        $this->forgetDashboardCache();
+        UserCache::forgetDashboard(Auth::id());
 
         $message = 'Entrada del diario creada exitosamente.';
         if ($coinsEarned > 0) {
@@ -225,7 +245,7 @@ class DiaryEntryController extends Controller
         }
 
         $unlocked = $this->syncAchievements(['diary']);
-        $this->forgetDashboardCache();
+        UserCache::forgetDashboard(Auth::id());
         $message = 'Entrada del diario actualizada exitosamente.' . $this->achievementMessage($unlocked);
 
         return redirect()->route('diary.show', $entry->id)
@@ -241,7 +261,7 @@ class DiaryEntryController extends Controller
             ->findOrFail($id);
 
         $entry->delete();
-        $this->forgetDashboardCache();
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('diary.index')
             ->with('success', 'Entrada del diario eliminada exitosamente.');
@@ -264,7 +284,7 @@ class DiaryEntryController extends Controller
                 : 'Eliminado de favoritos.';
 
             $unlocked = $this->syncAchievements(['diary']);
-            $this->forgetDashboardCache();
+            UserCache::forgetDashboard(Auth::id());
             $message .= $this->achievementMessage($unlocked);
 
             // Si es una petición AJAX/Inertia, devolver JSON
@@ -282,13 +302,5 @@ class DiaryEntryController extends Controller
 
             return back()->with('error', 'Error al actualizar el favorito. Por favor, intenta de nuevo.');
         }
-    }
-
-    private function forgetDashboardCache(): void
-    {
-        $userId = Auth::id();
-        \Illuminate\Support\Facades\Cache::forget("dashboard.stats.{$userId}");
-        \Illuminate\Support\Facades\Cache::forget("dashboard.week.{$userId}");
-        \Illuminate\Support\Facades\Cache::forget("statistics_user_{$userId}");
     }
 }

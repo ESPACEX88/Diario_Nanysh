@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Habit;
 use App\Models\HabitLog;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -63,6 +64,7 @@ class HabitController extends Controller
         ]);
 
         $unlocked = $this->syncAchievements(['habit']);
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('habits.show', $habit->id)
             ->with('success', 'Hábito creado exitosamente.' . $this->achievementMessage($unlocked));
@@ -75,21 +77,21 @@ class HabitController extends Controller
     {
         $habit = Habit::where('user_id', Auth::id())->findOrFail($id);
 
-        $logDates = HabitLog::where('habit_id', $habit->id)
-            ->where('user_id', Auth::id())
-            ->orderBy('completed_at')
-            ->pluck('completed_at')
-            ->map(fn ($date) => Carbon::parse($date)->startOfDay()->format('Y-m-d'))
-            ->unique()
-            ->values();
-
         $recentLogs = HabitLog::where('habit_id', $habit->id)
             ->where('user_id', Auth::id())
             ->orderByDesc('completed_at')
-            ->limit(90)
+            ->limit(120)
             ->get();
 
-        $habit->setRelation('habitLogs', $recentLogs);
+        $habit->setRelation('habitLogs', $recentLogs->take(90)->values());
+
+        // Usar las mismas fechas recientes para rachas (suficiente para streaks realistas)
+        $logDates = $recentLogs
+            ->pluck('completed_at')
+            ->map(fn ($date) => Carbon::parse($date)->startOfDay()->format('Y-m-d'))
+            ->unique()
+            ->sort()
+            ->values();
 
         $totalCompletions = HabitLog::where('habit_id', $habit->id)
             ->where('user_id', Auth::id())
@@ -212,6 +214,8 @@ class HabitController extends Controller
 
         $habit->update($validated);
 
+        UserCache::forgetDashboard(Auth::id());
+
         return redirect()->route('habits.show', $habit->id)
             ->with('success', 'Hábito actualizado exitosamente.');
     }
@@ -225,6 +229,8 @@ class HabitController extends Controller
             ->findOrFail($id);
 
         $habit->delete();
+
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('habits.index')
             ->with('success', 'Hábito eliminado exitosamente.');

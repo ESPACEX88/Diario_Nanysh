@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Habit;
 use App\Models\HabitLog;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -44,6 +45,7 @@ class HabitLogController extends Controller
         }
 
         $unlocked = $this->syncAchievements(['habit']);
+        UserCache::forgetDashboard(Auth::id());
 
         return back()->with('success', $message . $this->achievementMessage($unlocked));
     }

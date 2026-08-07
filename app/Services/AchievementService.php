@@ -39,6 +39,20 @@ class AchievementService
 
     private ?User $currentUser = null;
 
+    /** @var array<string, true>|null */
+    private ?array $diaryDateSet = null;
+
+    private ?int $memoDiaryStreak = null;
+
+    private ?int $memoMaxHabitStreak = null;
+
+    /** @var array<string, int>|null */
+    private ?array $progressMetrics = null;
+
+    private const DIARY_STREAK_LOOKBACK = 120;
+
+    private const HABIT_STREAK_LOOKBACK_DAYS = 400;
+
     /**
      * Sincroniza todos los logros del usuario (incluye verificación retroactiva).
      *
@@ -99,10 +113,13 @@ class AchievementService
      */
     public function getProgress(User $user): array
     {
-        $this->resetContext();
-        $this->loadContext($user);
+        // Reutilizar contexto del syncAll/syncTypes del mismo request (evita re-scan pesado)
+        if ($this->currentUser?->id !== $user->id || $this->achievementsByCode === null) {
+            $this->resetContext();
+            $this->loadContext($user);
+        }
 
-        $metrics = $this->collectProgressMetrics($user);
+        $metrics = $this->progressMetrics ??= $this->collectProgressMetrics($user);
         $progress = [];
 
         foreach ($this->achievementsByCode ?? [] as $code => $achievement) {
@@ -198,18 +215,14 @@ class AchievementService
 
     private function getCurrentDiaryStreak(User $user): int
     {
-        $dates = DiaryEntry::where('user_id', $user->id)
-            ->select('date')
-            ->distinct()
-            ->orderByDesc('date')
-            ->pluck('date')
-            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
-            ->unique()
-            ->values()
-            ->all();
+        if ($this->memoDiaryStreak !== null) {
+            return $this->memoDiaryStreak;
+        }
 
-        if ($dates === []) {
-            return 0;
+        $dateSet = $this->getDiaryDateSet($user);
+
+        if ($dateSet === []) {
+            return $this->memoDiaryStreak = 0;
         }
 
         $anchors = [
@@ -220,19 +233,45 @@ class AchievementService
         $best = 0;
 
         foreach ($anchors as $anchor) {
-            if (! in_array($anchor, $dates, true)) {
+            if (! isset($dateSet[$anchor])) {
                 continue;
             }
 
             $streak = 0;
-            while (in_array(Carbon::parse($anchor)->subDays($streak)->format('Y-m-d'), $dates, true)) {
+            $cursor = Carbon::parse($anchor);
+
+            while (isset($dateSet[$cursor->format('Y-m-d')]) && $streak < self::DIARY_STREAK_LOOKBACK) {
                 $streak++;
+                $cursor->subDay();
             }
 
             $best = max($best, $streak);
         }
 
-        return $best;
+        return $this->memoDiaryStreak = $best;
+    }
+
+    /**
+     * @return array<string, true>
+     */
+    private function getDiaryDateSet(User $user): array
+    {
+        if ($this->diaryDateSet !== null) {
+            return $this->diaryDateSet;
+        }
+
+        $dates = DiaryEntry::where('user_id', $user->id)
+            ->select('date')
+            ->distinct()
+            ->orderByDesc('date')
+            ->limit(self::DIARY_STREAK_LOOKBACK)
+            ->pluck('date')
+            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
+            ->unique()
+            ->values()
+            ->all();
+
+        return $this->diaryDateSet = array_fill_keys($dates, true);
     }
 
     /**
@@ -261,6 +300,10 @@ class AchievementService
         $this->achievementsByCode = null;
         $this->unlockedIds = null;
         $this->currentUser = null;
+        $this->diaryDateSet = null;
+        $this->memoDiaryStreak = null;
+        $this->memoMaxHabitStreak = null;
+        $this->progressMetrics = null;
     }
 
     private function loadContext(User $user): void
@@ -323,14 +366,16 @@ class AchievementService
             $happyCount >= $this->requirement('happy_writer', 10)
         ));
 
+        $diaryStreak = $this->getCurrentDiaryStreak($user);
+
         $unlocked = array_merge($unlocked, $this->unlockIf(
             'week_streak',
-            $this->hasDiaryStreak($user, $this->requirement('week_streak', 7))
+            $diaryStreak >= $this->requirement('week_streak', 7)
         ));
 
         $unlocked = array_merge($unlocked, $this->unlockIf(
             'month_streak',
-            $this->hasDiaryStreak($user, $this->requirement('month_streak', 30))
+            $diaryStreak >= $this->requirement('month_streak', 30)
         ));
 
         return $unlocked;
@@ -535,43 +580,20 @@ class AchievementService
 
     private function hasDiaryStreak(User $user, int $requiredDays): bool
     {
-        $dates = DiaryEntry::where('user_id', $user->id)
-            ->select('date')
-            ->distinct()
-            ->orderByDesc('date')
-            ->pluck('date')
-            ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
-            ->unique()
-            ->values()
-            ->all();
-
-        if (count($dates) < $requiredDays) {
-            return false;
-        }
-
-        $anchors = [
-            now()->format('Y-m-d'),
-            now()->subDay()->format('Y-m-d'),
-        ];
-
-        foreach ($anchors as $anchor) {
-            if ($this->hasConsecutiveStreakFromAnchor($dates, $anchor, $requiredDays)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->getCurrentDiaryStreak($user) >= $requiredDays;
     }
 
     private function hasConsecutiveStreakFromAnchor(array $dates, string $anchor, int $requiredDays): bool
     {
-        if (! in_array($anchor, $dates, true)) {
+        $dateSet = array_fill_keys($dates, true);
+
+        if (! isset($dateSet[$anchor])) {
             return false;
         }
 
         for ($i = 0; $i < $requiredDays; $i++) {
             $expected = Carbon::parse($anchor)->subDays($i)->format('Y-m-d');
-            if (! in_array($expected, $dates, true)) {
+            if (! isset($dateSet[$expected])) {
                 return false;
             }
         }
@@ -581,8 +603,14 @@ class AchievementService
 
     private function getMaxHabitStreak(User $user): int
     {
+        if ($this->memoMaxHabitStreak !== null) {
+            return $this->memoMaxHabitStreak;
+        }
+
         $logsByHabit = HabitLog::where('user_id', $user->id)
             ->select('habit_id', 'completed_at')
+            ->where('completed_at', '>=', now()->subDays(self::HABIT_STREAK_LOOKBACK_DAYS)->toDateString())
+            ->orderBy('completed_at')
             ->get()
             ->groupBy('habit_id');
 
@@ -600,7 +628,7 @@ class AchievementService
             $maxStreak = max($maxStreak, $this->longestConsecutiveStreak($dates));
         }
 
-        return $maxStreak;
+        return $this->memoMaxHabitStreak = $maxStreak;
     }
 
     private function longestConsecutiveStreak(array $sortedDates): int

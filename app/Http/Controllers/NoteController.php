@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Note;
 use App\Models\Pet;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -79,6 +80,8 @@ class NoteController extends Controller
         $pet->coins += $coinsEarned;
         $pet->save();
 
+        UserCache::forgetDashboard(Auth::id());
+
         return redirect()->route('notes.show', $note->id)
             ->with('success', "Nota creada exitosamente. ¡Ganaste {$coinsEarned} fichitas! 💰");
     }
@@ -131,6 +134,8 @@ class NoteController extends Controller
 
         $note->update($validated);
 
+        UserCache::forgetDashboard(Auth::id());
+
         return redirect()->route('notes.show', $note->id)
             ->with('success', 'Nota actualizada exitosamente.');
     }
@@ -144,6 +149,8 @@ class NoteController extends Controller
             ->findOrFail($id);
 
         $note->delete();
+
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('notes.index')
             ->with('success', 'Nota eliminada exitosamente.');

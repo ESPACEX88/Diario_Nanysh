@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\HandlesAchievements;
 use App\Models\Todo;
 use App\Models\Pet;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -79,6 +80,7 @@ class TodoController extends Controller
         $todo = Todo::create($validated);
 
         $unlocked = $this->syncAchievements(['todo']);
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('todos.index')
             ->with('success', 'Tarea creada exitosamente' . $this->achievementMessage($unlocked));
@@ -145,9 +147,13 @@ class TodoController extends Controller
                 $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
             }
 
+            UserCache::forgetDashboard(Auth::id());
+
             return redirect()->route('todos.index')
                 ->with('success', $message);
         }
+
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('todos.index')
             ->with('success', 'Tarea actualizada exitosamente');
@@ -184,6 +190,8 @@ class TodoController extends Controller
                 return redirect()->route('todos.index')
                     ->with('error', 'No se pudo eliminar la tarea. Por favor, intenta de nuevo.');
             }
+
+            UserCache::forgetDashboard($user->id);
 
             return redirect()->route('todos.index')
                 ->with('success', 'Tarea eliminada exitosamente.');
@@ -236,9 +244,13 @@ class TodoController extends Controller
                     $achievementNames = collect($unlockedAchievements)->pluck('name')->join(', ');
                     $message .= " ¡Desbloqueaste logros: {$achievementNames}! 🏆";
                 }
+
+                UserCache::forgetDashboard(Auth::id());
                 
                 return back()->with('success', $message);
             }
+
+            UserCache::forgetDashboard(Auth::id());
 
             return back()->with('success', 'Tarea marcada como pendiente');
         } catch (\Exception $e) {

@@ -219,8 +219,9 @@ class WorkoutLogController extends Controller
     {
         $workouts = WorkoutLog::where('user_id', Auth::id())
             ->orderBy('workout_date', 'desc')
+            ->limit(120)
             ->pluck('workout_date')
-            ->map(fn($date) => $date->format('Y-m-d'))
+            ->map(fn ($date) => $date->format('Y-m-d'))
             ->unique()
             ->values();
 
@@ -228,26 +229,30 @@ class WorkoutLogController extends Controller
             return 0;
         }
 
-        $streak = 0;
-        $currentDate = now()->startOfDay();
+        $dateSet = array_flip($workouts->all());
+        $anchors = [
+            now()->format('Y-m-d'),
+            now()->subDay()->format('Y-m-d'),
+        ];
 
-        // Si el último entrenamiento no es hoy ni ayer, el streak es 0
-        $lastWorkout = Carbon::parse($workouts->first());
-        if ($lastWorkout->lt($currentDate->copy()->subDay())) {
-            return 0;
-        }
+        $best = 0;
 
-        foreach ($workouts as $workoutDate) {
-            $workout = Carbon::parse($workoutDate);
-            
-            if ($workout->eq($currentDate) || $workout->eq($currentDate->copy()->subDay())) {
-                $streak++;
-                $currentDate = $workout->copy()->subDay();
-            } else {
-                break;
+        foreach ($anchors as $anchor) {
+            if (! isset($dateSet[$anchor])) {
+                continue;
             }
+
+            $streak = 0;
+            $cursor = Carbon::parse($anchor);
+
+            while (isset($dateSet[$cursor->format('Y-m-d')]) && $streak < 100) {
+                $streak++;
+                $cursor->subDay();
+            }
+
+            $best = max($best, $streak);
         }
 
-        return $streak;
+        return $best;
     }
 }

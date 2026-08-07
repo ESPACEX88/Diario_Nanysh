@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class MotivationalQuote extends Model
 {
@@ -22,16 +23,21 @@ class MotivationalQuote extends Model
 
     public static function getDailyQuote(): ?self
     {
-        $dayOfYear = now()->dayOfYear;
-        $totalQuotes = self::where('is_active', true)->count();
-        
-        if ($totalQuotes === 0) {
-            return null;
-        }
-        
-        $quoteIndex = $dayOfYear % $totalQuotes;
-        return self::where('is_active', true)
-            ->skip($quoteIndex)
-            ->first();
+        $cacheKey = 'motivational_quote.daily.' . now()->toDateString();
+
+        return Cache::remember($cacheKey, now()->endOfDay(), function () {
+            $dayOfYear = now()->dayOfYear;
+            $totalQuotes = self::where('is_active', true)->count();
+
+            if ($totalQuotes === 0) {
+                return null;
+            }
+
+            $quoteIndex = $dayOfYear % $totalQuotes;
+
+            return self::where('is_active', true)
+                ->skip($quoteIndex)
+                ->first();
+        });
     }
 }

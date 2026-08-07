@@ -80,12 +80,15 @@ class StatisticsService
      */
     public function getWordCloud(int $userId, int $limit = 50): array
     {
+        // Limitar a entradas recientes para no cargar todo el historial
         $entries = DiaryEntry::where('user_id', $userId)
             ->select('title', 'content')
+            ->orderByDesc('date')
+            ->limit(200)
             ->get();
 
         $text = $entries->pluck('title')->join(' ') . ' ' . $entries->pluck('content')->join(' ');
-        $words = str_word_count(strtolower($text), 1);
+        $words = str_word_count(strtolower(strip_tags($text)), 1);
         $wordCounts = array_count_values($words);
 
         // Remove common words

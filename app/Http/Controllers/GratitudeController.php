@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Gratitude;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -72,6 +73,8 @@ class GratitudeController extends Controller
             'reflection' => $validated['reflection'] ?? null,
         ]);
 
+        UserCache::forgetDashboard(Auth::id());
+
         return redirect()->route('gratitude.show', $gratitude->id)
             ->with('success', 'Gratitud registrada exitosamente.');
     }
@@ -120,6 +123,8 @@ class GratitudeController extends Controller
 
         $gratitude->update($validated);
 
+        UserCache::forgetDashboard(Auth::id());
+
         return redirect()->route('gratitude.show', $gratitude->id)
             ->with('success', 'Gratitud actualizada exitosamente.');
     }
@@ -133,6 +138,8 @@ class GratitudeController extends Controller
             ->findOrFail($id);
 
         $gratitude->delete();
+
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('gratitude.index')
             ->with('success', 'Gratitud eliminada exitosamente.');

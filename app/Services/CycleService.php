@@ -109,7 +109,7 @@ class CycleService
             ->orderBy('date', 'desc')
             ->limit(90)
             ->get();
-        
+
         if ($trackings->isEmpty()) {
             return [
                 'average_cycle_length' => 28,
@@ -121,42 +121,40 @@ class CycleService
                 'mood_trend' => [],
             ];
         }
-        
+
         // Calcular longitud promedio del ciclo
         $periods = $trackings->where('phase', 'menstrual')
             ->where('flow_level', '>', 0)
             ->sortBy('date')
             ->values();
-        
+
         $cycleLengths = [];
         for ($i = 0; $i < $periods->count() - 1; $i++) {
             $current = Carbon::parse($periods[$i]->date);
             $next = Carbon::parse($periods[$i + 1]->date);
             $cycleLengths[] = abs($current->diffInDays($next, false));
         }
-        
-        $averageCycleLength = !empty($cycleLengths) 
+
+        $averageCycleLength = ! empty($cycleLengths)
             ? round(array_sum($cycleLengths) / count($cycleLengths))
             : 28;
-        
-        // Información del ciclo actual
+
         $today = now();
         $cycleInfo = $this->calculateCycleInfo($user, $today);
-        
-        // Resumen de síntomas más comunes
-        $symptomsSummary = $this->getSymptomsSummary($trackings);
-        
-        // Tendencia de estado de ánimo
-        $moodTrend = $this->getMoodTrend($trackings);
-        
+
+        $lastPeriod = $periods->last();
+        $nextPeriod = $lastPeriod
+            ? Carbon::parse($lastPeriod->date)->copy()->addDays((int) $averageCycleLength)->format('Y-m-d')
+            : null;
+
         return [
             'average_cycle_length' => $averageCycleLength,
-            'next_period_predicted' => $this->predictNextPeriod($user)?->format('Y-m-d'),
+            'next_period_predicted' => $nextPeriod,
             'current_phase' => $cycleInfo['phase'],
             'cycle_day' => $cycleInfo['cycle_day'],
             'advice' => $this->getAdvice($cycleInfo['phase'], $cycleInfo['cycle_day']),
-            'symptoms_summary' => $symptomsSummary,
-            'mood_trend' => $moodTrend,
+            'symptoms_summary' => $this->getSymptomsSummary($trackings),
+            'mood_trend' => $this->getMoodTrend($trackings),
             'total_cycles' => count($cycleLengths) + 1,
         ];
     }

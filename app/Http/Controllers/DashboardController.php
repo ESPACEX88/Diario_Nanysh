@@ -120,8 +120,7 @@ class DashboardController extends Controller
                 'coins' => 50, // Starting coins
             ]
         );
-        $pet->decreaseStats();
-        $pet->save();
+        $pet->decreaseStats() && $pet->save();
 
         return Inertia::render('Dashboard', [
             'recentEntries' => $recentEntries,

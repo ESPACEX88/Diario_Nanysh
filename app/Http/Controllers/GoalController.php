@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Goal;
+use App\Support\UserCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -52,6 +53,8 @@ class GoalController extends Controller
             'progress_percentage' => $validated['progress_percentage'] ?? 0,
             'is_completed' => false,
         ]);
+
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('goals.show', $goal->id)
             ->with('success', 'Meta creada exitosamente.');
@@ -110,6 +113,8 @@ class GoalController extends Controller
             $goal->save();
         }
 
+        UserCache::forgetDashboard(Auth::id());
+
         return redirect()->route('goals.show', $goal->id)
             ->with('success', 'Meta actualizada exitosamente.');
     }
@@ -123,6 +128,8 @@ class GoalController extends Controller
             ->findOrFail($id);
 
         $goal->delete();
+
+        UserCache::forgetDashboard(Auth::id());
 
         return redirect()->route('goals.index')
             ->with('success', 'Meta eliminada exitosamente.');

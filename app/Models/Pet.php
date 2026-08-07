@@ -75,27 +75,41 @@ class Pet extends Model
 
     /**
      * Decrease stats over time (called periodically).
+     *
+     * @return bool True if any attribute changed
      */
-    public function decreaseStats(): void
+    public function decreaseStats(): bool
     {
+        $before = [
+            'happiness' => $this->happiness,
+            'hunger' => $this->hunger,
+            'energy' => $this->energy,
+            'health' => $this->health,
+        ];
+
         // Decrease hunger every hour
         if ($this->last_fed_at && $this->last_fed_at->diffInHours(now()) >= 1) {
             $this->hunger = max(0, $this->hunger - 5);
         }
-        
+
         // Decrease happiness if hunger is low
         if ($this->hunger < 30) {
             $this->happiness = max(0, $this->happiness - 2);
         }
-        
+
         // Decrease energy over time
         if ($this->last_played_at && $this->last_played_at->diffInHours(now()) >= 2) {
             $this->energy = max(0, $this->energy - 3);
         }
-        
+
         // Decrease health if other stats are very low
         if ($this->happiness < 20 || $this->hunger < 20) {
             $this->health = max(0, $this->health - 1);
         }
+
+        return $this->happiness !== $before['happiness']
+            || $this->hunger !== $before['hunger']
+            || $this->energy !== $before['energy']
+            || $this->health !== $before['health'];
     }
 }

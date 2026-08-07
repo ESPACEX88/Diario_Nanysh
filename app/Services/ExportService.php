@@ -18,15 +18,22 @@ class ExportService
     {
         $data = [
             'user' => $user->only(['name', 'email', 'created_at']),
-            'diary_entries' => $user->diaryEntries()->with('tags', 'photos')->get(),
-            'notes' => $user->notes()->with('tags')->get(),
-            'photos' => $user->photos()->get(),
-            'albums' => $user->albums()->with('photos')->get(),
+            'diary_entries' => $user->diaryEntries()->with('tags', 'photos')->latest('date')->limit(2000)->get(),
+            'notes' => $user->notes()->with('tags')->latest()->limit(1000)->get(),
+            'photos' => $user->photos()->latest()->limit(1000)->get(),
+            'albums' => $user->albums()->with(['photos' => function ($query) {
+                $query->latest()->limit(50);
+            }])->get(),
             'goals' => $user->goals()->get(),
-            'habits' => $user->habits()->with('habitLogs')->get(),
-            'gratitudes' => $user->gratitudes()->get(),
+            // Logs recientes por hábito (evita dump ilimitado)
+            'habits' => $user->habits()->with(['habitLogs' => function ($query) {
+                $query->where('completed_at', '>=', now()->subYear()->toDateString())
+                    ->orderByDesc('completed_at');
+            }])->get(),
+            'gratitudes' => $user->gratitudes()->latest('date')->limit(1000)->get(),
             'settings' => $user->settings,
             'exported_at' => now()->toIso8601String(),
+            'note' => 'Export limitado a volúmenes recientes para rendimiento en plan gratuito.',
         ];
 
         $filename = 'export_' . $user->id . '_' . now()->format('Y-m-d_His') . '.json';
@@ -74,4 +81,3 @@ class ExportService
         return $this->exportToJSON($user);
     }
 }
-
