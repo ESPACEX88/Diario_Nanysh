@@ -11,12 +11,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // TrustProxies ANTES de SiteClosed: sin esto, $request->ip() es la del proxy
+        // (igual para todos) y el rate-limit de visitas bloquea notificaciones reales.
         $middleware->web(prepend: [
+            \App\Http\Middleware\TrustProxies::class,
             \App\Http\Middleware\SiteClosed::class,
         ]);
 
         $middleware->web(append: [
-            \App\Http\Middleware\TrustProxies::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\ForceHttps::class,

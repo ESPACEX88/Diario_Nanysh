@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    /*
+    | Avisos de visita a la página de cierre (ntfy / Discord).
+    | Usar config() en código — no env() — para que funcione con config:cache.
+    */
+    'site_visit' => [
+        'ntfy_topic' => env('SITE_VISIT_NTFY_TOPIC'),
+        'discord_webhook' => env('SITE_VISIT_DISCORD_WEBHOOK'),
+        'throttle_minutes' => (int) env('SITE_VISIT_THROTTLE_MINUTES', 15),
+    ],
+
 ];
