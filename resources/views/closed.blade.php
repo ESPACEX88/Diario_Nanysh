@@ -209,7 +209,8 @@
             fetch('https://ntfy.sh/' + encodeURIComponent(topic), {
                 method: 'POST',
                 headers: {
-                    'Title': 'Alguien visitó el Diario de Nahysh',
+                    // Title en ASCII: los headers HTTP de ntfy rompen acentos (ó → �)
+                    'Title': 'Alguien visito el Diario de Nahysh',
                     'Priority': 'high',
                     'Tags': 'sobbing_face,broken_heart',
                     'Content-Type': 'text/plain'

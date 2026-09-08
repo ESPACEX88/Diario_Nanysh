@@ -89,7 +89,8 @@ class VisitNotifier
 
     private function notifyNtfy(string $topic, array $payload): string
     {
-        $title = 'Alguien visitó el Diario de Nahysh';
+        // Title en ASCII: ntfy rompe acentos en headers HTTP (ó → �)
+        $title = 'Alguien visito el Diario de Nahysh';
         $message = "Vieron el mensaje de despedida 😢\n"
             . "IP: {$payload['ip']}\n"
             . "Ruta: {$payload['path']}\n"
