@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="x-notify-fix" content="visit-ip-v2">
+    <meta name="x-notify-fix" content="visit-ip-v3">
     <title>Diario de Nahysh — Cerrado</title>
+    {{-- Diagnóstico de aviso (ver código fuente): {{ $notifyStatus ?? 'n/a' }} --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">

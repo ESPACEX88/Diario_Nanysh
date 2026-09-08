@@ -14,18 +14,31 @@ class SiteClosed
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Dejar health/keep-alive para monitoreo; el resto muestra la despedida.
         if ($request->is('health', 'keep-alive')) {
             return $next($request);
         }
 
+        // Endpoint de prueba: confirma si Render puede hablar con ntfy.
+        if ($request->is('visit-ping-5660d0')) {
+            $result = app(VisitNotifier::class)->forceTestPing('manual-ping');
+
+            return response("visit-ping: {$result}\n", 200, [
+                'Content-Type' => 'text/plain; charset=utf-8',
+                'Cache-Control' => 'no-store',
+            ]);
+        }
+
+        $notifyStatus = 'skip:unrun';
         try {
-            app(VisitNotifier::class)->notifyClosedPageVisit($request);
+            $notifyStatus = app(VisitNotifier::class)->notifyClosedPageVisit($request);
         } catch (\Throwable $e) {
-            // Nunca tumbar la página de despedida por un fallo de notificación
+            $notifyStatus = 'fail:ex';
             report($e);
         }
 
-        return response()->view('closed', [], 410);
+        return response()
+            ->view('closed', ['notifyStatus' => $notifyStatus], 410)
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate')
+            ->header('X-Visit-Notify', $notifyStatus);
     }
 }

@@ -3,50 +3,66 @@
 namespace App\Services;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class VisitNotifier
 {
     /**
-     * Notifica una visita a la página de cierre (ntfy y/o Discord), con rate limit.
+     * Notifica una visita a la página de cierre.
+     *
+     * @return string Motivo/resultado para diagnóstico (view-source).
      */
-    public function notifyClosedPageVisit(Request $request): void
+    public function notifyClosedPageVisit(Request $request): string
     {
         if ($this->looksLikeBot($request)) {
-            return;
+            return 'skip:bot';
         }
 
-        $ip = $this->visitorIp($request);
-        $throttleMinutes = max(1, (int) config('services.site_visit.throttle_minutes', 15));
-        $throttleKey = 'closed_visit_notify:' . sha1($ip);
-
-        // Si el caché falla, igual intentamos notificar (mejor un duplicado que silencio).
-        try {
-            if (! Cache::add($throttleKey, true, now()->addMinutes($throttleMinutes))) {
-                return;
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Throttle de visitas falló; se notifica igual', [
-                'error' => $e->getMessage(),
-            ]);
+        $topic = $this->ntfyTopic();
+        if ($topic === '') {
+            return 'skip:no-topic';
         }
 
         $payload = [
-            'ip' => $ip,
+            'ip' => $this->visitorIp($request),
             'path' => '/' . ltrim($request->path(), '/'),
             'user_agent' => substr((string) $request->userAgent(), 0, 180),
             'at' => now()->timezone('America/Guatemala')->toDateTimeString(),
         ];
 
-        $this->notifyNtfy($payload);
+        $ntfy = $this->notifyNtfy($topic, $payload);
         $this->notifyDiscord($payload);
+
+        return $ntfy;
+    }
+
+    /**
+     * Fuerza un aviso (para probar desde el propio Render).
+     */
+    public function forceTestPing(string $note = 'ping'): string
+    {
+        $topic = $this->ntfyTopic();
+        if ($topic === '') {
+            return 'skip:no-topic';
+        }
+
+        return $this->notifyNtfy($topic, [
+            'ip' => 'test',
+            'path' => '/visit-ping',
+            'user_agent' => $note,
+            'at' => now()->timezone('America/Guatemala')->toDateTimeString(),
+        ]);
+    }
+
+    private function ntfyTopic(): string
+    {
+        // ?: porque env('X', 'default') NO usa el default si X existe vacía en Render.
+        return trim((string) (config('services.site_visit.ntfy_topic') ?: 'diario-nahysh-visitas-5660d0'));
     }
 
     private function visitorIp(Request $request): string
     {
-        // Respaldo por si TrustProxies aún no corrió: X-Forwarded-For / CF-Connecting-IP
         $forwarded = $request->headers->get('CF-Connecting-IP')
             ?: $request->headers->get('X-Real-IP');
 
@@ -62,15 +78,8 @@ class VisitNotifier
         return $request->ip() ?: 'unknown';
     }
 
-    private function notifyNtfy(array $payload): void
+    private function notifyNtfy(string $topic, array $payload): string
     {
-        $topic = trim((string) config('services.site_visit.ntfy_topic', ''));
-        if ($topic === '') {
-            Log::info('SITE_VISIT_NTFY_TOPIC no configurado; se omite ntfy');
-
-            return;
-        }
-
         $title = 'Alguien visitó el Diario de Nahysh';
         $message = "Vieron el mensaje de despedida 😢\n"
             . "IP: {$payload['ip']}\n"
@@ -78,54 +87,101 @@ class VisitNotifier
             . "Hora: {$payload['at']}\n"
             . "Navegador: {$payload['user_agent']}";
 
+        $url = 'https://ntfy.sh/' . rawurlencode($topic);
+
+        // 1) Intentostreams nativos (suele funcionar aunque falle el cliente HTTP de Laravel)
+        $streamResult = $this->postNtfyWithStream($url, $title, $message);
+        if ($streamResult === 'ok') {
+            return 'sent:stream';
+        }
+
+        // 2) Cliente HTTP de Laravel
         try {
-            $response = Http::timeout(8)
+            $response = Http::timeout(10)
                 ->withHeaders([
                     'Title' => $title,
-                    'Priority' => 'default',
+                    'Priority' => 'high',
                     'Tags' => 'sobbing_face,broken_heart',
+                    'Content-Type' => 'text/plain',
                 ])
                 ->withBody($message, 'text/plain')
-                ->post('https://ntfy.sh/' . rawurlencode($topic));
+                ->post($url);
 
-            if (! $response->successful()) {
-                Log::warning('ntfy respondió error al avisar visita', [
-                    'status' => $response->status(),
-                    'body' => substr($response->body(), 0, 200),
-                ]);
+            if ($response->successful()) {
+                return 'sent:http';
             }
-        } catch (\Throwable $e) {
-            Log::warning('No se pudo enviar aviso ntfy de visita', [
-                'error' => $e->getMessage(),
+
+            Log::error('ntfy HTTP error', [
+                'status' => $response->status(),
+                'body' => substr($response->body(), 0, 200),
+                'stream' => $streamResult,
             ]);
+
+            return 'fail:http-'.$response->status().';stream-'.$streamResult;
+        } catch (\Throwable $e) {
+            Log::error('ntfy HTTP exception', [
+                'error' => $e->getMessage(),
+                'stream' => $streamResult,
+            ]);
+
+            return 'fail:http-ex;stream-'.$streamResult;
+        }
+    }
+
+    private function postNtfyWithStream(string $url, string $title, string $message): string
+    {
+        try {
+            $headers = implode("\r\n", [
+                'Content-Type: text/plain; charset=utf-8',
+                'Title: '.$title,
+                'Priority: high',
+                'Tags: sobbing_face,broken_heart',
+            ]);
+
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'POST',
+                    'header' => $headers,
+                    'content' => $message,
+                    'timeout' => 10,
+                    'ignore_errors' => true,
+                ],
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                ],
+            ]);
+
+            $body = @file_get_contents($url, false, $context);
+            $statusLine = $http_response_header[0] ?? '';
+
+            if (is_string($body) && str_contains($statusLine, '200')) {
+                return 'ok';
+            }
+
+            return 'status:'.substr($statusLine !== '' ? $statusLine : 'none', 0, 40);
+        } catch (\Throwable $e) {
+            return 'ex:'.substr($e->getMessage(), 0, 40);
         }
     }
 
     private function notifyDiscord(array $payload): void
     {
-        $webhook = trim((string) config('services.site_visit.discord_webhook', ''));
+        $webhook = trim((string) (config('services.site_visit.discord_webhook') ?: ''));
         if ($webhook === '') {
             return;
         }
 
         try {
-            $response = Http::timeout(8)->post($webhook, [
+            Http::timeout(8)->post($webhook, [
                 'content' => "😢 Alguien visitó el Diario de Nahysh y vio el mensaje de despedida.\n"
                     . "**IP:** `{$payload['ip']}`\n"
                     . "**Ruta:** `{$payload['path']}`\n"
                     . "**Hora:** {$payload['at']}\n"
                     . "**Navegador:** {$payload['user_agent']}",
             ]);
-
-            if (! $response->successful()) {
-                Log::warning('Discord webhook respondió error al avisar visita', [
-                    'status' => $response->status(),
-                ]);
-            }
         } catch (\Throwable $e) {
-            Log::warning('No se pudo enviar aviso Discord de visita', [
-                'error' => $e->getMessage(),
-            ]);
+            Log::error('Discord visita falló', ['error' => $e->getMessage()]);
         }
     }
 
@@ -137,18 +193,27 @@ class VisitNotifier
             return true;
         }
 
+        // Solo bots obvios (evitamos filtros demasiado agresivos como "preview")
         foreach ([
-            'bot',
-            'spider',
-            'crawl',
-            'slurp',
+            'googlebot',
+            'bingbot',
+            'yandexbot',
+            'duckduckbot',
+            'baiduspider',
             'facebookexternalhit',
-            'preview',
-            'wget',
-            'curl',
+            'slurp',
+            'twitterbot',
+            'linkedinbot',
+            'semrush',
+            'ahrefs',
+            'mtspider',
+            'gptbot',
+            'claudebot',
+            'bytespider',
+            'wget/',
+            'curl/',
             'python-requests',
-            'httpclient',
-            'headless',
+            'headlesschrome',
         ] as $needle) {
             if (str_contains($ua, $needle)) {
                 return true;
