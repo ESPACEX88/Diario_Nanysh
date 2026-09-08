@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="x-notify-fix" content="visit-ip-v4">
+    <meta name="x-notify-fix" content="visit-ip-v5">
     <title>Diario de Nahysh — Cerrado</title>
     <!-- notify: {{ $notifyStatus ?? 'n/a' }} -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -189,15 +189,14 @@
         (function () {
             // Aviso desde el navegador del visitante (evita el rate-limit 429 de la IP de Render).
             var topic = @json($ntfyTopic ?? 'diario-nahysh-visitas-5660d0');
-            if (!topic || /bot|crawl|spider|headless/i.test(navigator.userAgent || '')) {
+            if (!topic) {
                 return;
             }
             var key = 'nahysh-visit-ntfy:' + topic;
             try {
-                if (sessionStorage.getItem(key)) {
+                if (sessionStorage.getItem(key) === '1') {
                     return;
                 }
-                sessionStorage.setItem(key, '1');
             } catch (e) {}
 
             var body = [
@@ -218,6 +217,10 @@
                 body: body,
                 mode: 'cors',
                 keepalive: true
+            }).then(function (res) {
+                if (res && res.ok) {
+                    try { sessionStorage.setItem(key, '1'); } catch (e) {}
+                }
             }).catch(function () {});
         })();
     </script>
