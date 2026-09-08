@@ -40,7 +40,8 @@ return [
     | Usar config() en código — no env() — para que funcione con config:cache.
     */
     'site_visit' => [
-        'ntfy_topic' => env('SITE_VISIT_NTFY_TOPIC'),
+        // Fallback: el topic ya está en uso en el celular; evita silencio si falta la env en Render.
+        'ntfy_topic' => env('SITE_VISIT_NTFY_TOPIC', 'diario-nahysh-visitas-5660d0'),
         'discord_webhook' => env('SITE_VISIT_DISCORD_WEBHOOK'),
         'throttle_minutes' => (int) env('SITE_VISIT_THROTTLE_MINUTES', 15),
     ],
