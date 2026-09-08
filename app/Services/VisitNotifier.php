@@ -3,25 +3,32 @@
 namespace App\Services;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class VisitNotifier
 {
     /**
-     * Notifica una visita a la página de cierre.
+     * Intento desde el servidor (puede fallar por rate-limit de ntfy en la IP de Render).
+     * El aviso fiable va en el navegador del visitante (closed.blade.php).
      *
-     * @return string Motivo/resultado para diagnóstico (view-source).
+     * @return string Motivo/resultado para diagnóstico (view-source / header).
      */
     public function notifyClosedPageVisit(Request $request): string
     {
         if ($this->looksLikeBot($request)) {
-            return 'skip:bot';
+            return 'skip:bot;browser-beacon';
         }
 
         $topic = $this->ntfyTopic();
         if ($topic === '') {
             return 'skip:no-topic';
+        }
+
+        // Si ntfy ya nos rate-limiteó desde Render, no martillar más (el JS del visitante avisa).
+        if (Cache::get('ntfy_publish_cooldown')) {
+            return 'skip:server-cooldown;browser-beacon';
         }
 
         $payload = [
@@ -34,12 +41,15 @@ class VisitNotifier
         $ntfy = $this->notifyNtfy($topic, $payload);
         $this->notifyDiscord($payload);
 
-        return $ntfy;
+        if (str_contains($ntfy, '429')) {
+            Cache::put('ntfy_publish_cooldown', true, now()->addMinutes(45));
+
+            return $ntfy.';browser-beacon';
+        }
+
+        return $ntfy.';browser-beacon';
     }
 
-    /**
-     * Fuerza un aviso (para probar desde el propio Render).
-     */
     public function forceTestPing(string $note = 'ping'): string
     {
         $topic = $this->ntfyTopic();
@@ -55,9 +65,8 @@ class VisitNotifier
         ]);
     }
 
-    private function ntfyTopic(): string
+    public function ntfyTopic(): string
     {
-        // ?: porque env('X', 'default') NO usa el default si X existe vacía en Render.
         return trim((string) (config('services.site_visit.ntfy_topic') ?: 'diario-nahysh-visitas-5660d0'));
     }
 
@@ -89,15 +98,13 @@ class VisitNotifier
 
         $url = 'https://ntfy.sh/' . rawurlencode($topic);
 
-        // 1) Intentostreams nativos (suele funcionar aunque falle el cliente HTTP de Laravel)
         $streamResult = $this->postNtfyWithStream($url, $title, $message);
         if ($streamResult === 'ok') {
             return 'sent:stream';
         }
 
-        // 2) Cliente HTTP de Laravel
         try {
-            $response = Http::timeout(10)
+            $response = Http::timeout(8)
                 ->withHeaders([
                     'Title' => $title,
                     'Priority' => 'high',
@@ -143,12 +150,8 @@ class VisitNotifier
                     'method' => 'POST',
                     'header' => $headers,
                     'content' => $message,
-                    'timeout' => 10,
+                    'timeout' => 8,
                     'ignore_errors' => true,
-                ],
-                'ssl' => [
-                    'verify_peer' => true,
-                    'verify_peer_name' => true,
                 ],
             ]);
 
@@ -193,7 +196,6 @@ class VisitNotifier
             return true;
         }
 
-        // Solo bots obvios (evitamos filtros demasiado agresivos como "preview")
         foreach ([
             'googlebot',
             'bingbot',
@@ -206,7 +208,6 @@ class VisitNotifier
             'linkedinbot',
             'semrush',
             'ahrefs',
-            'mtspider',
             'gptbot',
             'claudebot',
             'bytespider',

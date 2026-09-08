@@ -27,6 +27,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Ruta dummy para que el middleware web (SiteClosed) pueda responder el ping.
+Route::get('/visit-ping-5660d0', function () {
+    return response('ok', 200);
+});
+
 // Keep-alive endpoint público (sin autenticación)
 Route::get('/keep-alive', function () {
     return response()->json([

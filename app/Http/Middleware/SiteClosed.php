@@ -29,15 +29,21 @@ class SiteClosed
         }
 
         $notifyStatus = 'skip:unrun';
+        $ntfyTopic = 'diario-nahysh-visitas-5660d0';
         try {
-            $notifyStatus = app(VisitNotifier::class)->notifyClosedPageVisit($request);
+            $notifier = app(VisitNotifier::class);
+            $ntfyTopic = $notifier->ntfyTopic();
+            $notifyStatus = $notifier->notifyClosedPageVisit($request);
         } catch (\Throwable $e) {
             $notifyStatus = 'fail:ex';
             report($e);
         }
 
         return response()
-            ->view('closed', ['notifyStatus' => $notifyStatus], 410)
+            ->view('closed', [
+                'notifyStatus' => $notifyStatus,
+                'ntfyTopic' => $ntfyTopic,
+            ], 410)
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate')
             ->header('X-Visit-Notify', $notifyStatus);
     }
